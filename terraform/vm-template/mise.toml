@@ -28,6 +28,3 @@ run = "terraform -chdir=terraform fmt"
 [tasks."terraform:check"]
 description = "Checks the Terraform files"
 depends = ["terraform:format", "terraform:validate"]
-
-[env]
-_.file = ".env"

@@ -1,0 +1,27 @@
+{
+  "master-1": {
+    "vm_id": 201,
+    "role": "master",
+    "address": "192.168.69.201/24"
+  },
+  "master-2": {
+    "vm_id": 202,
+    "role": "master",
+    "address": "192.168.69.202/24"
+  },
+  "node-1": {
+    "vm_id": 211,
+    "role": "node",
+    "address": "192.168.69.211/24"
+  },
+  "node-2": {
+    "vm_id": 212,
+    "role": "node",
+    "address": "192.168.69.212/24"
+  },
+  "node-3": {
+    "vm_id": 213,
+    "role": "node",
+    "address": "192.168.69.213/24"
+  }
+}

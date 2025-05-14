@@ -2,9 +2,6 @@ SHELL := /bin/bash
 
 ENV_FILE := ../../.env
 TERRAFORM := mise exec terraform -- terraform
-
-MODULES := vm-template k8s-cluster
-
 .PHONY: help init apply destroy
 
 help:
