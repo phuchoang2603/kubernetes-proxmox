@@ -1,20 +1,3 @@
-# Generate meta-data snippet per node (for hostname)
-resource "proxmox_virtual_environment_file" "meta_data_per_node" {
-  for_each     = var.k8s_nodes
-  content_type = "snippets"
-  datastore_id = "local"
-  node_name    = var.vm_node_name
-
-  source_raw {
-    data = <<-EOF
-    #cloud-config
-    local-hostname: ${each.key}
-    EOF
-
-    file_name = "${each.key}-meta-data.yaml"
-  }
-}
-
 # Clone VMs for masters and workers from the template
 resource "proxmox_virtual_environment_vm" "k8s_node" {
   for_each = var.k8s_nodes
@@ -39,7 +22,5 @@ resource "proxmox_virtual_environment_vm" "k8s_node" {
         gateway = var.vm_ip_gateway
       }
     }
-
-    meta_data_file_id = proxmox_virtual_environment_file.meta_data_per_node[each.key].id
   }
 }
