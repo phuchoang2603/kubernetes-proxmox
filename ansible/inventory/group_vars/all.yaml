@@ -1,0 +1,9 @@
+os: linux
+arch: amd64
+vip: 192.168.69.221
+metallb_version: v0.13.12
+lb_range: 192.168.69.230-192.168.69.250
+lb_pool_name: first-pool
+ansible_user: ubuntu
+ansible_become: true
+ansible_become_method: sudo
