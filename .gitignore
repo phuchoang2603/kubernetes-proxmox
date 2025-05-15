@@ -30,3 +30,4 @@ Thumbs.db
 # mise / direnv / tools
 .mise.toml
 .envrc
+.venv
