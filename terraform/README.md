@@ -90,11 +90,17 @@ terraform@pve2!provider=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 ## 📋 Usage Flow
 
-1. **Create VM Template**
+1. Preparation
+
+- Rename the .env.example file to .env and fill in the required variables.
+- Adjust the k8s_nodes.json file to match your desired Kubernetes cluster configuration.
+- Ensure the SSH public key is placed in the correct location for cloud-init to access.
+
+2. **Create VM Template**
 
    - Use the `vm-template` module to download cloud-init image and create VM template.
 
-2. **Provision Kubernetes Cluster VMs**
+3. **Provision Kubernetes Cluster VMs**
 
    - Use the `k8s-cluster` module.
    - Nodes and settings configured via `k8s_nodes.json`.

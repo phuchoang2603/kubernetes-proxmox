@@ -5,6 +5,10 @@ This project automates the provisioning and bootstrapping of a **Kubernetes clus
 - **Terraform** for VM lifecycle management.
 - **Ansible** for cluster installation and configuration using **RKE2**.
 
+- Blog post:
+- Video demo:
+  [![Youtube video](https://img.youtube.com/vi/Ao6IPSmUFcE/maxresdefault.jpg)](https://youtu.be/Ao6IPSmUFcE)
+
 ---
 
 ## 🔗 Components Overview
