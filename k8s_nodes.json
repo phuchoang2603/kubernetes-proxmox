@@ -1,27 +1,27 @@
 {
-  "master-1": {
+  "server1": {
     "vm_id": 201,
-    "role": "master",
+    "role": "server",
     "address": "192.168.69.201/24"
   },
-  "master-2": {
+  "server2": {
     "vm_id": 202,
-    "role": "master",
+    "role": "server",
     "address": "192.168.69.202/24"
   },
-  "node-1": {
+  "agent1": {
     "vm_id": 211,
-    "role": "node",
+    "role": "agent",
     "address": "192.168.69.211/24"
   },
-  "node-2": {
+  "agent2": {
     "vm_id": 212,
-    "role": "node",
+    "role": "agent",
     "address": "192.168.69.212/24"
   },
-  "node-3": {
+  "agent3": {
     "vm_id": 213,
-    "role": "node",
+    "role": "agent",
     "address": "192.168.69.213/24"
   }
 }

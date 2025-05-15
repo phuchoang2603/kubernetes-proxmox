@@ -57,10 +57,8 @@ def main():
     # Define the mappings explicitly
     mappings = {
         "TF_VAR_vm_username": "ansible_user",
-        "TF_VAR_vm_timezone": "system_timezone",
-        "apiserver_endpoint": "apiserver_endpoint",
-        "metal_lb_ip_range": "metal_lb_ip_range",
-        "k3s_token": "k3s_token",
+        "vip": "vip",
+        "lb_range": "lb_range",
     }
 
     # Map and update
