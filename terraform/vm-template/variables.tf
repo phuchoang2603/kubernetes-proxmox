@@ -58,14 +58,6 @@ variable "vm_disk_size_gb" {
   description = "Disk size in GB for VM disk"
   type        = number
 }
-variable "vm_timezone" {
-  description = "Timezone for the VM"
-  type        = string
-}
-variable "vm_username" {
-  description = "Username for the VM template"
-  type        = string
-}
 variable "template_vm_id" {
   description = "VM template ID to clone from"
   type        = number
