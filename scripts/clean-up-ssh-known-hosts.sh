@@ -2,24 +2,17 @@
 
 set -e
 
+source ../.env
 K8S_NODES_FILE="${1:-../k8s_nodes.json}"
 LONGHORN_NODES_FILE="${2:-../longhorn_nodes.json}"
 KNOWN_HOSTS_FILE="${3:-$HOME/.ssh/known_hosts}"
-
-# Validate files
-for file in "$K8S_NODES_FILE" "$LONGHORN_NODES_FILE"; do
-  if [[ ! -f "$file" ]]; then
-    echo "❌ File not found: $file"
-    exit 1
-  fi
-done
 
 # Extract all IPs from JSON files
 extract_ips() {
   jq -r 'to_entries[] | .value.address' "$1" | cut -d '/' -f1
 }
 
-ALL_IPS=()
+ALL_IPS=("$vip")
 ALL_IPS+=($(extract_ips "$K8S_NODES_FILE"))
 ALL_IPS+=($(extract_ips "$LONGHORN_NODES_FILE"))
 

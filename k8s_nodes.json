@@ -9,6 +9,11 @@
     "role": "server",
     "address": "192.168.69.202/24"
   },
+  "server3": {
+    "vm_id": 203,
+    "role": "server",
+    "address": "192.168.69.203/24"
+  },
   "agent1": {
     "vm_id": 211,
     "role": "agent",

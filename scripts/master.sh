@@ -4,7 +4,7 @@ set -e
 
 # Default flags
 WITH_LONGHORN=false
-WITH_METALLB=false
+WITH_METALLB=false # Deprecated, dont use it
 
 # Parse arguments
 for arg in "$@"; do
@@ -17,7 +17,6 @@ for arg in "$@"; do
     ;;
   *)
     echo "❌ Unknown option: $arg"
-    echo "Usage: $0 [--with-longhorn] [--with-metallb]"
     exit 1
     ;;
   esac
@@ -42,18 +41,9 @@ cd -
 source ./clean-up-ssh-known-hosts.sh
 
 # Ansible: bootstrap the cluster
-source ../.venv/bin/activate
 cd ../ansible/
-
-# Generate inventory accordingly
-if $WITH_LONGHORN; then
-  ./gen_ansible_host.py -j ../k8s_nodes.json -l ../longhorn_nodes.json -o inventory/hosts.ini
-else
-  ./gen_ansible_host.py -j ../k8s_nodes.json -o inventory/hosts.ini
-fi
-
-# Sync variables
-./sync_ansible_env.py -e ../.env -y inventory/group_vars/all.yaml
+source ../.venv/bin/activate
+source ../.env
 
 # Run playbook with dynamic tag control
 SKIP_TAGS=""
@@ -69,8 +59,10 @@ if ! $WITH_METALLB; then
 fi
 
 if [[ -n "$SKIP_TAGS" ]]; then
+  ansible-playbook prepare-local.yaml --skip-tags "$SKIP_TAGS" --ask-become-pass
   ansible-playbook site.yaml --skip-tags "$SKIP_TAGS"
 else
+  ansible-playbook prepare-local.yaml --ask-become-pass
   ansible-playbook site.yaml
 fi
 
@@ -81,5 +73,5 @@ sleep 300
 
 # Post-setup scripts
 cd ../scripts/
-./post-setup.sh
+source ./post-setup.sh
 cd -
