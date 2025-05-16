@@ -1,2 +1,0 @@
----
-rke2_binary_url: "https://github.com/rancher/rke2/releases/download/{{ rke2_version }}/rke2.{{ os }}-{{ arch }}"
