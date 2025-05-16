@@ -39,7 +39,7 @@ spec:
         - name: vip_interface
           value: {{ vip_interface }}
         - name: vip_cidr
-          value: "32"
+          value: "24"
         - name: cp_enable
           value: "true"
         - name: cp_namespace
@@ -47,7 +47,7 @@ spec:
         - name: vip_ddns
           value: "false"
         - name: svc_enable
-          value: "false"
+          value: "true"
         - name: svc_leasename
           value: plndr-svcs-lock
         - name: vip_leaderelection

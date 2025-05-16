@@ -6,11 +6,39 @@
     mode: "0755"
   when: inventory_hostname in groups['servers']
 
-# Copy kube-vip to server 1 manifest folder for auto deployment at bootstrap
-- name: Deploy Kube VIP Configuration
+# Copy kube-vip-config to server 1 manifest folder for auto deployment at bootstrap
+- name: Deploy kube-vip-rbac
+  ansible.builtin.template:
+    src: templates/kube-vip-rbac.j2
+    dest: /var/lib/rancher/rke2/server/manifests/kube-vip-rbac.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy kube-vip-config
   ansible.builtin.template:
     src: templates/kube-vip-config.j2
-    dest: /var/lib/rancher/rke2/server/manifests/kube-vip.yaml
+    dest: /var/lib/rancher/rke2/server/manifests/kube-vip-config.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
+  # Copy kube-vip-cloud-controller.j2 to server 1 for Service load balancer
+- name: Deploy kube-vip-cloud-controller
+  ansible.builtin.template:
+    src: templates/kube-vip-cloud-controller.j2
+    dest: /var/lib/rancher/rke2/server/manifests/kube-vip-cloud-controller.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy kube-vip-configmap
+  ansible.builtin.template:
+    src: templates/kube-vip-configmap.j2
+    dest: /var/lib/rancher/rke2/server/manifests/kube-vip-configmap.yaml
     owner: root
     group: root
     mode: "0644"

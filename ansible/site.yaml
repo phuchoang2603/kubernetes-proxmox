@@ -47,14 +47,6 @@
     - role: add-longhorn
       tags: [longhorn]
 
-# Finish kube-vip, add metallb
-- name: Apply metallb manifests after cluster is created
-  hosts: servers
-  gather_facts: true
-  roles:
-    - role: apply-metallb
-      tags: [metallb]
-
 # Deploy Longhorn
 - name: Apply Longhorn manifests
   hosts: servers
