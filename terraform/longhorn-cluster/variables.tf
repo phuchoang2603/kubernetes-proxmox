@@ -55,23 +55,23 @@ variable "vm_ip_gateway" {
   type        = string
 }
 
-variable "k8s_cpu_cores" {
+variable "longhorn_cpu_cores" {
   description = "Number of CPU cores per VM"
   type        = number
 }
-variable "k8s_memory_mb" {
+variable "longhorn_memory_mb" {
   description = "Memory size in MB per VM"
   type        = number
 }
-variable "k8s_datastore_id" {
-  description = "k8s datastore ID where VM disks are stored"
+variable "longhorn_datastore_id" {
+  description = "longhorn datastore ID where VM disks are stored"
   type        = string
 }
-variable "k8s_disk_size_gb" {
+variable "longhorn_disk_size_gb" {
   description = "Disk size in GB for VM disk"
   type        = number
 }
-variable "k8s_nodes" {
+variable "longhorn_nodes" {
   description = "Map of Kubernetes nodes with roles and IP addresses"
   type = map(object({
     vm_id   = number

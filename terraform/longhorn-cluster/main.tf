@@ -57,7 +57,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
 }
 
 resource "proxmox_virtual_environment_file" "meta_data_cloud_config" {
-  for_each     = var.k8s_nodes
+  for_each     = var.longhorn_nodes
   content_type = "snippets"
   datastore_id = var.vm_datastore_id
   node_name    = var.vm_node_name
@@ -72,8 +72,8 @@ resource "proxmox_virtual_environment_file" "meta_data_cloud_config" {
   }
 }
 
-resource "proxmox_virtual_environment_vm" "k8s_node" {
-  for_each = var.k8s_nodes
+resource "proxmox_virtual_environment_vm" "longhorn_node" {
+  for_each = var.longhorn_nodes
 
   name      = each.key
   node_name = var.vm_node_name
@@ -89,26 +89,25 @@ resource "proxmox_virtual_environment_vm" "k8s_node" {
   description     = "Cloud-Init ready Kubernetes template managed by Terraform"
 
   cpu {
-    cores = var.k8s_cpu_cores
+    cores = var.longhorn_cpu_cores
   }
 
   memory {
-    dedicated = var.k8s_memory_mb
+    dedicated = var.longhorn_memory_mb
   }
 
   efi_disk {
-    datastore_id = var.k8s_datastore_id
+    datastore_id = var.longhorn_datastore_id
     type         = "4m"
   }
 
   disk {
-    datastore_id = var.k8s_datastore_id
+    datastore_id = var.longhorn_datastore_id
     file_id      = "${var.vm_datastore_id}:iso/jammy-server-cloudimg-amd64.img"
     interface    = "virtio0"
     iothread     = true
     discard      = "on"
-    size         = var.k8s_disk_size_gb
-    ssd          = true
+    size         = var.longhorn_disk_size_gb
   }
 
   network_device {

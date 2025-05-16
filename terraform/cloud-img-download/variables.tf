@@ -30,10 +30,6 @@ variable "proxmox_ssh_public_key" {
   type        = string
 }
 
-variable "vm_name" {
-  description = "Default VM name or template name"
-  type        = string
-}
 variable "vm_node_name" {
   description = "Proxmox node where VMs are created"
   type        = string
@@ -41,24 +37,4 @@ variable "vm_node_name" {
 variable "vm_datastore_id" {
   description = "Proxmox datastore ID where VM disks are stored"
   type        = string
-}
-variable "vm_bridge" {
-  description = "Network bridge used for VM network"
-  type        = string
-}
-variable "vm_cpu_cores" {
-  description = "Number of CPU cores per VM"
-  type        = number
-}
-variable "vm_memory_mb" {
-  description = "Memory size in MB per VM"
-  type        = number
-}
-variable "vm_disk_size_gb" {
-  description = "Disk size in GB for VM disk"
-  type        = number
-}
-variable "template_vm_id" {
-  description = "VM template ID to clone from"
-  type        = number
 }
