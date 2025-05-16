@@ -2,13 +2,13 @@
   ansible.builtin.file:
     path: "/etc/rancher/rke2"
     state: directory
-    mode: '0644'
+    mode: "0644"
 
 - name: Create directory for RKE2 token
   ansible.builtin.file:
     path: "/var/lib/rancher/rke2/server"
     state: directory
-    mode: '0644'
+    mode: "0644"
 
 # Copy server config to server 1 for bootstrap - we need to change server2 & 3 later with the token
 - name: Deploy RKE2 server Configuration
@@ -17,7 +17,7 @@
     dest: /etc/rancher/rke2/config.yaml
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   when: inventory_hostname in groups['servers']
 
 - name: Create systemd service file for RKE2 server
@@ -26,17 +26,8 @@
     dest: /etc/systemd/system/rke2-server.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   when: inventory_hostname in groups['servers']
-
-- name: Create systemd service file for RKE2 agent
-  ansible.builtin.template:
-    src: templates/rke2-agent.service.j2
-    dest: /etc/systemd/system/rke2-agent.service
-    owner: root
-    group: root
-    mode: '0644'
-  when: inventory_hostname in groups['agents']
 
 # we enable the first server to generate tokens etc, copy this afterwards to other servers
 - name: Ensure RKE2 server is enabled and running
@@ -64,7 +55,7 @@
   ansible.builtin.copy:
     src: /var/lib/rancher/rke2/bin/kubectl
     dest: /usr/local/bin/kubectl
-    mode: '0755'
+    mode: "0755"
     remote_src: true
   become: true
   when: inventory_hostname == groups['servers'][0]
@@ -112,7 +103,7 @@
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"
     state: directory
-    mode: '0755'
+    mode: "0755"
   become: true
 
 # copy kubectl config file to .kube folder
@@ -129,6 +120,6 @@
 - name: Replace IP address with server1
   ansible.builtin.replace:
     path: /home/{{ ansible_user }}/.kube/config
-    regexp: '127.0.0.1'
+    regexp: "127.0.0.1"
     replace: "{{ hostvars['server1']['ansible_host'] }}"
   when: inventory_hostname == groups['servers'][0]

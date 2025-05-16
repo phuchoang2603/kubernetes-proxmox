@@ -4,7 +4,6 @@
     value: "1"
     state: present
     reload: true
-  tags: sysctl
 
 - name: Enable IPv6 forwarding
   ansible.posix.sysctl:
@@ -12,4 +11,4 @@
     value: "1"
     state: present
     reload: true
-  tags: sysctl
+
