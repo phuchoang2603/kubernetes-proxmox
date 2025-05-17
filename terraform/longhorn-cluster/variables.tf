@@ -59,6 +59,10 @@ variable "longhorn_cpu_cores" {
   description = "Number of CPU cores per VM"
   type        = number
 }
+variable "longhorn_cpu_type" {
+  description = "CPU type for VM"
+  type        = string
+}
 variable "longhorn_memory_mb" {
   description = "Memory size in MB per VM"
   type        = number

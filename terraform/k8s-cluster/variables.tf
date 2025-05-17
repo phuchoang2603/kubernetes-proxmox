@@ -59,6 +59,10 @@ variable "k8s_cpu_cores" {
   description = "Number of CPU cores per VM"
   type        = number
 }
+variable "k8s_cpu_type" {
+  description = "CPU type for VM"
+  type        = string
+}
 variable "k8s_memory_mb" {
   description = "Memory size in MB per VM"
   type        = number
