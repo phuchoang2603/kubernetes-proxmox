@@ -10,12 +10,6 @@
 *.key
 *.crt
 keys/*
-!keys/*.pub
-
-# Local SSH key (ensure only public keys are allowed)
-id_ed25519
-id_rsa
-id_*
 
 # Misc
 *.log
@@ -31,3 +25,4 @@ Thumbs.db
 .mise.toml
 .envrc
 .venv
+debug.yaml
