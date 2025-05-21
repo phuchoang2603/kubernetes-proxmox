@@ -1,12 +1,12 @@
 {
   "longhorn1": {
-    "vm_id": 231,
+    "vm_id": 221,
     "role": "longhorn",
-    "address": "192.168.69.221/24"
+    "address": "10.69.1.221/16"
   },
   "longhorn2": {
-    "vm_id": 232,
+    "vm_id": 222,
     "role": "longhorn",
-    "address": "192.168.69.222/24"
+    "address": "10.69.1.222/16"
   }
 }

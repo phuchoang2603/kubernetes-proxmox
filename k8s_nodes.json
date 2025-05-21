@@ -2,26 +2,26 @@
   "server1": {
     "vm_id": 201,
     "role": "server",
-    "address": "192.168.69.201/24"
+    "address": "10.69.1.201/16"
   },
   "server2": {
     "vm_id": 202,
     "role": "server",
-    "address": "192.168.69.202/24"
+    "address": "10.69.1.202/16"
   },
   "server3": {
     "vm_id": 203,
     "role": "server",
-    "address": "192.168.69.203/24"
+    "address": "10.69.1.203/16"
   },
   "agent1": {
     "vm_id": 211,
     "role": "agent",
-    "address": "192.168.69.211/24"
+    "address": "10.69.1.211/16"
   },
   "agent2": {
     "vm_id": 212,
     "role": "agent",
-    "address": "192.168.69.212/24"
+    "address": "10.69.1.212/16"
   }
 }
