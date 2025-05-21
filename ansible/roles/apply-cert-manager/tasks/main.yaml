@@ -1,0 +1,17 @@
+- name: Deploy cert-manager
+  ansible.builtin.template:
+    src: templates/rke2-cert-manager.j2
+    dest: /var/lib/rancher/rke2/server/manifests/rke2-cert-manager.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy rke2-cert-issuer.j2
+  ansible.builtin.template:
+    src: templates/rke2-cert-issuer.j2
+    dest: /var/lib/rancher/rke2/server/manifests/rke2-cert-issuer.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]

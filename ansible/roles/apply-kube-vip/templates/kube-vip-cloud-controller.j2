@@ -86,4 +86,11 @@ spec:
               matchExpressions:
               - key: node-role.kubernetes.io/master
                 operator: Exists
-
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubevip
+  namespace: kube-system
+data:
+  range-global: {{ vip_lb_range }}

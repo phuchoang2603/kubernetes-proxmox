@@ -1,8 +1,10 @@
-{% set new_vars = {
-    'ansible_user': lookup('env', 'TF_VAR_vm_username'),
-    'vip': lookup('env', 'vip'),
-    'lb_range': lookup('env', 'lb_range')
-} %}
-{% set merged_vars = existing_group_vars | combine(new_vars, recursive=True) %}
+{%- set new_vars = dict() %}
+{%- for key in existing_group_vars.keys() %}
+  {%- set env_val = lookup('env', key) %}
+  {%- if env_val is not none %}
+    {%- set _ = new_vars.update({ key: env_val }) %}
+  {%- endif %}
+{%- endfor %}
+{%- set merged_vars = existing_group_vars | combine(new_vars, recursive=True) %}
+{{ merged_vars | to_nice_yaml(indent=2) }}
 
-{{ merged_vars | to_nice_yaml }}

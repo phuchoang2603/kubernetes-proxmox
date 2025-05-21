@@ -1,8 +1,11 @@
+ansible_user: ''
+arch: ''
+rke2_version: ''
+ssl_cloudflare_api_token: ''
+ssl_email: ''
+ssl_local_domain: ''
+vip: ''
+vip_cidr: ''
+vip_ingress_ip: ''
+vip_lb_range: ''
 
-ansible_become: true
-ansible_become_method: sudo
-ansible_user: ubuntu
-arch: amd64
-lb_range: 192.168.69.230-192.168.69.254
-os: linux
-vip: 192.168.69.200

@@ -1,47 +1,26 @@
-- name: Copy longhorn manifest to server 1
-  ansible.builtin.template:
-    src: templates/longhorn.j2
-    dest: /home/{{ ansible_user }}/longhorn.yaml
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: "0644"
-  when: inventory_hostname == groups['servers'][0]
-
-- name: Copy longhorn iscsi to server 1
+- name: Deploy longhorn iscsi
   ansible.builtin.template:
     src: templates/longhorn-iscsi.j2
-    dest: /home/{{ ansible_user }}/longhorn-iscsi.yaml
+    dest: /var/lib/rancher/rke2/server/manifests/longhorn-iscsi.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0644"
   when: inventory_hostname == groups['servers'][0]
 
-- name: Copy longhorn nfs to server 1
+- name: Deploy longhorn nfs
   ansible.builtin.template:
     src: templates/longhorn-nfs.j2
-    dest: /home/{{ ansible_user }}/longhorn-nfs.yaml
+    dest: /var/lib/rancher/rke2/server/manifests/longhorn-nfs.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0644"
   when: inventory_hostname == groups['servers'][0]
 
-- name: Apply longhorn iscsi
-  ansible.builtin.command:
-    cmd: kubectl apply -f /home/{{ ansible_user }}/longhorn-iscsi.yaml
-  become_user: "{{ ansible_user }}"
-  changed_when: true
-  when: inventory_hostname == groups['servers'][0]
-
-- name: Apply longhorn nfs
-  ansible.builtin.command:
-    cmd: kubectl apply -f /home/{{ ansible_user }}/longhorn-nfs.yaml
-  become_user: "{{ ansible_user }}"
-  changed_when: true
-  when: inventory_hostname == groups['servers'][0]
-
-- name: Apply longhorn
-  ansible.builtin.command:
-    cmd: kubectl apply -f /home/{{ ansible_user }}/longhorn.yaml
-  become_user: "{{ ansible_user }}"
-  changed_when: true
+- name: Deploy longhorn manifest
+  ansible.builtin.template:
+    src: templates/longhorn.j2
+    dest: /var/lib/rancher/rke2/server/manifests/longhorn.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
   when: inventory_hostname == groups['servers'][0]

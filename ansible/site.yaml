@@ -16,7 +16,8 @@
   hosts: servers
   gather_facts: true
   roles:
-    - kube-vip
+    - role: apply-kube-vip
+      tags: [kube_vip]
 
 # bootstraps the first server, copies configs to nodes, saves token to use later
 - name: Prepare RKE2 on Servers
@@ -39,13 +40,21 @@
   roles:
     - add-agent
 
-# Adds longhorn to the cluster
+# Adds longhorn agents to the cluster with tags longhorn=true
 - name: Add additional RKE2 longhorn
   hosts: longhorn
   gather_facts: true
   roles:
     - role: add-longhorn
       tags: [longhorn]
+
+# Deploy Cert-Manager
+- name: Apply Cert-Manager manifests
+  hosts: servers
+  gather_facts: true
+  roles:
+    - role: apply-cert-manager
+      tags: [ssl]
 
 # Deploy Longhorn
 - name: Apply Longhorn manifests
