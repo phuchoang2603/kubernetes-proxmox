@@ -32,7 +32,5 @@ spec:
       containers:
       - name: sleep
         image: registry.k8s.io/pause:3.1
-      nodeSelector:
-        longhorn: "true"
   updateStrategy:
     type: RollingUpdate

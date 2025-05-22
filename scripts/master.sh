@@ -3,7 +3,7 @@
 set -e
 
 # Define supported optional features (case-sensitive)
-SUPPORTED_FEATURES=("longhorn" "ssl" "kube_vip")
+SUPPORTED_FEATURES=("longhorn" "ssl" "kube_vip" "rancher")
 
 # Initialize feature flags: default is enabled
 declare -A FEATURES
@@ -33,6 +33,9 @@ done
 for key in "${!FEATURES[@]}"; do
   export "$key"="${FEATURES[$key]}"
 done
+
+# Pre-setup, install kubectl, helm, and kubectx
+source ./pre-setup.sh
 
 # Terraform: provision VMs
 cd ../terraform/

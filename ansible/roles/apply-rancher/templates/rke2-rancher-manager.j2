@@ -1,0 +1,18 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: rancher-install
+  namespace: default
+spec:
+  version: v2.11.1
+  chart: rancher
+  repo: https://releases.rancher.com/server-charts/stable
+  failurePolicy: abort
+  targetNamespace: cattle-system
+  createNamespace: true
+  set:
+    hostname: rancher.{{ ssl_local_domain }}
+    bootstrapPassword: admin
+    ingress.tls.source: secret
+    ingress.extraAnnotations.'cert-manager\.io/cluster-issuer': cloudflare-clusterissuer
+
