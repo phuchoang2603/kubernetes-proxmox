@@ -1,5 +1,6 @@
 ansible_user: ''
 arch: ''
+kubeconfig_path: ''
 rke2_version: ''
 ssl_cloudflare_api_token: ''
 ssl_email: ''
