@@ -1,10 +1,3 @@
-- name: Create directory for Kube VIP Manifest
-  ansible.builtin.file:
-    path: "/var/lib/rancher/rke2/server/manifests"
-    state: directory
-    mode: "0755"
-  when: inventory_hostname in groups['servers']
-
 - name: Deploy kube-vip-rbac
   ansible.builtin.template:
     src: templates/kube-vip-rbac.j2

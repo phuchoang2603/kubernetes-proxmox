@@ -10,6 +10,15 @@
     state: directory
     mode: "0644"
 
+- name: Deploy RKE2 coreDNS Configuration
+  ansible.builtin.template:
+    src: templates/rke2-coredns-config.j2
+    dest: /var/lib/rancher/rke2/server/manifests/rke2-coredns-config.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
 # Copy server config to server 1 for bootstrap - we need to change server2 & 3 later with the token
 - name: Deploy RKE2 server Configuration
   ansible.builtin.template:

@@ -12,3 +12,8 @@ disable-cloud-controller: true
 ingress-controller: traefik
 disable:
 - rke2-ingress-nginx
+kube-proxy-arg:
+  - "proxy-mode=ipvs"
+  - "ipvs-strict-arp=true"
+kube-proxy-extra-mount:
+- "/lib/modules:/lib/modules:ro"

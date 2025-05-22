@@ -3,3 +3,8 @@ token: {{ hostvars['server1']['token'] }}
 server: https://{{ hostvars['server1']['ansible_host'] }}:9345
 node-label:
   - "agent=true"
+kube-proxy-arg:
+  - "proxy-mode=ipvs"
+  - "ipvs-strict-arp=true"
+kube-proxy-extra-mount:
+- "/lib/modules:/lib/modules:ro"

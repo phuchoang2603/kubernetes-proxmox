@@ -1,3 +1,10 @@
+- name: Create directory for rke2 manifests
+  ansible.builtin.file:
+    path: "/var/lib/rancher/rke2/server/manifests"
+    state: directory
+    mode: "0755"
+  when: inventory_hostname in groups['servers']
+
 - name: Enable IPv4 forwarding
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
@@ -11,4 +18,3 @@
     value: "1"
     state: present
     reload: true
-
