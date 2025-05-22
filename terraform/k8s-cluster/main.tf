@@ -26,6 +26,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
       - qemu-guest-agent
       - net-tools
       - curl
+      - cryptsetup
     runcmd:
       - systemctl start qemu-guest-agent
     EOF

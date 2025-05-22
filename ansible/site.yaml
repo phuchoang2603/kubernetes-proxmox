@@ -9,7 +9,7 @@
   become: true
   roles:
     - prepare-nodes
-    - rke2-download
+    - download-rke2
 
 # Creates RKE2 bootstrap manifests folder and copies kube-vip template over (configured with variables)
 - name: Deploy Kube VIP
@@ -24,7 +24,7 @@
   hosts: servers
   gather_facts: true
   roles:
-    - rke2-prepare
+    - prepare-rke2
 
 # Adds additional servers using the token from the previous task
 - name: Add additional RKE2 Servers
@@ -63,3 +63,10 @@
   roles:
     - role: apply-longhorn
       tags: [longhorn]
+
+- name: Apply Rancher manager
+  hosts: servers
+  gather_facts: true
+  roles:
+    - role: apply-rancher
+      tags: [rancher]
