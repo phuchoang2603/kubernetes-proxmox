@@ -13053,7 +13053,7 @@ spec:
           - --acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.17.2
           - --max-concurrent-challenges=60
           - --dns01-recursive-nameservers-only
-          - --dns01-recursive-nameservers=1.1.1.1:53
+          - --dns01-recursive-nameservers=8.8.8.8:53
           ports:
           - containerPort: 9402
             name: http-metrics
