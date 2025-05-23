@@ -30,11 +30,3 @@
     kubeconfig: "{{ kubeconfig_path }}"
   delegate_to: localhost
   run_once: true
-
-- name: Deploy rke2-cert-issuer.j2
-  ansible.builtin.template:
-    src: templates/rke2-cert-issuer.j2
-    dest: /var/lib/rancher/rke2/server/manifests/rke2-cert-issuer.yaml
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: "0644"

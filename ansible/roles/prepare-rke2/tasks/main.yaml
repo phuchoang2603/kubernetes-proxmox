@@ -150,6 +150,6 @@
 
 - name: Move fetched kubeconfig to ~/.kube/proxmox.yml
   ansible.builtin.command:
-    cmd: mv /tmp/proxmox.yaml {{ kubeconfig_path }}
+    cmd: mv /tmp/proxmox.yaml "{{ kubeconfig_path }}"
   delegate_to: localhost
   run_once: true

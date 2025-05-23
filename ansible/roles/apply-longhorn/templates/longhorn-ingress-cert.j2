@@ -13,19 +13,3 @@ spec:
       services:
         - name: longhorn-frontend
           port: 80
-  tls:
-    secretName: longhorn-certificate-secret
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: longhorn-certificate
-  namespace: longhorn-system
-spec:
-  # Secret names are always required.
-  secretName: longhorn-certificate-secret
-  issuerRef:
-    name: cloudflare-clusterissuer
-    kind: ClusterIssuer
-  dnsNames:
-    - longhorn.{{ ssl_local_domain }}
