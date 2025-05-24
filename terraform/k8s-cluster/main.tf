@@ -96,9 +96,9 @@ resource "proxmox_virtual_environment_vm" "k8s_node" {
   }
 
   initialization {
-    # dns {
-    #   servers = ["1.1.1.1"]
-    # }
+    dns {
+      servers = [var.dns_server]
+    }
 
     ip_config {
       ipv4 {

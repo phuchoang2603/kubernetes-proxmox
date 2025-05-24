@@ -48,25 +48,22 @@
     - role: add-longhorn
       tags: [longhorn]
 
-# Deploy Cert-Manager
-- name: Apply Cert-Manager manifests
+# Deploy Cert-Manager & Traefik
+- name: Apply Cert-Manager & Traefik manifests
   hosts: servers
   gather_facts: true
   roles:
     - role: apply-cert-manager
       tags: [ssl]
+    - role: apply-traefik
+      tags: [ssl]
 
-# Deploy Longhorn
+# Deploy Optional services:
 - name: Apply Longhorn manifests
   hosts: servers
   gather_facts: true
   roles:
     - role: apply-longhorn
       tags: [longhorn]
-
-- name: Apply Rancher manager
-  hosts: servers
-  gather_facts: true
-  roles:
     - role: apply-rancher
       tags: [rancher]

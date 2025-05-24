@@ -54,6 +54,10 @@ variable "vm_ip_gateway" {
   description = "Gateway for Kubernetes VMs"
   type        = string
 }
+variable "dns_server" {
+  description = "DNS server for Kubernetes VMs"
+  type        = string
+}
 
 variable "longhorn_cpu_cores" {
   description = "Number of CPU cores per VM"

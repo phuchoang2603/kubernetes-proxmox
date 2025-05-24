@@ -25,12 +25,3 @@
     group: root
     mode: "0644"
   when: inventory_hostname == groups['servers'][0]
-
-- name: Deploy rke2-traefik config
-  ansible.builtin.template:
-    src: templates/rke2-traefik-config.j2
-    dest: /var/lib/rancher/rke2/server/manifests/rke2-traefik-config.yaml
-    owner: root
-    group: root
-    mode: "0644"
-  when: inventory_hostname == groups['servers'][0]

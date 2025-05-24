@@ -17,25 +17,10 @@ spec:
     email: {{ ssl_email }}
     server: https://acme-staging-v02.api.letsencrypt.org./directory
     privateKeySecretRef:
-      name: cloudflare-clusterissuer-account-key
+      name: cloudflare-key
     solvers:
     - dns01:
         cloudflare:
-          email: {{ ssl_email }}
-          apiKeySecretRef:
+          apiTokenSecretRef:
             name: cloudflare-api-token-secret
             key: api-token
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: wildcard-cert
-  namespace: kube-system
-spec:
-  secretName: wildcard-tls
-  dnsNames:
-    - "{{ ssl_local_domain }}"
-    - "*.{{ ssl_local_domain }}"
-  issuerRef:
-    name: cloudflare-clusterissuer
-    kind: ClusterIssuer

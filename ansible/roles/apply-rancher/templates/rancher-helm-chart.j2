@@ -1,0 +1,22 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  annotations:
+    helmcharts.cattle.io/managed-by: helm-controller
+  finalizers:
+  - wrangler.cattle.io/on-helm-chart-remove
+  generation: 1
+  name: rancher
+  namespace: default
+spec:
+  version: v2.11.1
+  chart: rancher
+  repo: https://releases.rancher.com/server-charts/stable
+  failurePolicy: abort
+  targetNamespace: cattle-system
+  createNamespace: true
+  set:
+    hostname: "rancher.{{ ssl_local_domain }}"
+    bootstrapPassword: "admin"
+    ingress.tls.source: "secret"
+    ingress.extraAnnotations.cert-manager\.io/cluster-issuer: "cloudflare-clusterissuer"

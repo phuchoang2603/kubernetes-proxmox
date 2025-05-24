@@ -1,42 +1,17 @@
-- name: Ensure cert-manager namespace exists
-  kubernetes.core.k8s:
-    state: present
-    api_version: v1
-    kind: Namespace
-    name: cert-manager
-    kubeconfig: "{{ kubeconfig_path }}"
-  delegate_to: localhost
-  run_once: true
-
-- name: Add stable chart repo
-  kubernetes.core.helm_repository:
-    name: jetstack
-    repo_url: "https://charts.jetstack.io"
-    kubeconfig: "{{ kubeconfig_path }}"
-  delegate_to: localhost
-  run_once: true
-
-- name: Deploy cert-manager using Helm
-  kubernetes.core.helm:
-    name: cert-manager
-    chart_ref: jetstack/cert-manager
-    release_namespace: cert-manager
-    chart_version: v1.17.2
-    set_values:
-      - value: crds.enabled=true
-    values:
-      extraArgs:
-        - --dns01-recursive-nameservers-only
-        - --dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53
-    wait: true
-    kubeconfig: "{{ kubeconfig_path }}"
-  delegate_to: localhost
-  run_once: true
-
-- name: Deploy rke2-cert-issuer.j2
+- name: Deploy cert-manager-helm-chart.j2
   ansible.builtin.template:
-    src: templates/rke2-cert-issuer.j2
-    dest: /var/lib/rancher/rke2/server/manifests/rke2-cert-issuer.yaml
+    src: templates/cert-manager-helm-chart.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cert-manager-helm-chart.yaml
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy cert-manager-issuer.j2
+  ansible.builtin.template:
+    src: templates/cert-manager-issuer.j2
+    dest: /var/lib/rancher/rke2/server/manifests/cert-manager-issuer.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
