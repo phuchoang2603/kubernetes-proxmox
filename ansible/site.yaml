@@ -48,7 +48,6 @@
     - role: add-longhorn
       tags: [longhorn]
 
-# Deploy Cert-Manager & Traefik
 - name: Apply Cert-Manager & Traefik manifests
   hosts: servers
   gather_facts: true
@@ -58,8 +57,7 @@
     - role: apply-traefik
       tags: [ssl]
 
-# Deploy Optional services:
-- name: Apply Longhorn manifests
+- name: Deploy Optional services
   hosts: servers
   gather_facts: true
   roles:
@@ -67,3 +65,5 @@
       tags: [longhorn]
     - role: apply-rancher
       tags: [rancher]
+    - role: apply-argocd
+      tags: [argocd]
