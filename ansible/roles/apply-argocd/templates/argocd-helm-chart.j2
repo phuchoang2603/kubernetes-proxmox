@@ -14,5 +14,14 @@ spec:
   repo: https://argoproj.github.io/argo-helm
   targetNamespace: argo-cd
   createNamespace: true
-  set:
-    configs.params.server.insecure: "true"
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: argo-cd
+  namespace: default
+spec:
+  valuesContent: |-
+    configs:
+      params:
+        server.insecure: true
