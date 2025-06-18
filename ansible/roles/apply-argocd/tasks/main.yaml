@@ -6,3 +6,14 @@
     group: "{{ ansible_user }}"
     mode: "0644"
   when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy argocd-ingress-route.j2
+  ansible.builtin.template:
+    src: templates/argocd-ingress-route.j2
+    dest: /var/lib/rancher/rke2/server/manifests/argocd-ingress-route.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+  tags:
+    - ssl

@@ -1,8 +1,0 @@
-- name: Deploy rancher-helm-chart manifest
-  ansible.builtin.template:
-    src: templates/rancher-helm-chart.j2
-    dest: /var/lib/rancher/rke2/server/manifests/rancher-helm-chart.yaml
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: "0644"
-  when: inventory_hostname == groups['servers'][0]

@@ -63,7 +63,5 @@
   roles:
     - role: apply-longhorn
       tags: [longhorn]
-    - role: apply-rancher
-      tags: [rancher]
     - role: apply-argocd
       tags: [argocd]

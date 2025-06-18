@@ -3,7 +3,7 @@
 set -e
 
 # Define supported optional features (case-sensitive)
-SUPPORTED_FEATURES=("longhorn" "ssl" "kube_vip" "rancher" "argocd")
+SUPPORTED_FEATURES=("longhorn" "ssl" "kube_vip" "argocd")
 
 # Initialize feature flags: default is enabled
 declare -A FEATURES
