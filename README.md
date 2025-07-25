@@ -28,7 +28,7 @@ cp .env.example .env
 # Then edit .env to reflect your Proxmox IP, credentials, Cloudflare token, etc.
 ```
 
-### 3. Proxmox Setup
+### 3. Proxmox Setup (on Proxmox shell)
 
 1. **Create Terraform user**
 
@@ -64,13 +64,13 @@ cp .env.example .env
 
 ### 4. SSH Setup
 
-1. **Generate SSH key pair**
+1. **Generate SSH key pair** (on your local machine)
 
    ```bash
    ssh-keygen -t rsa -b 4096 -f ~/.ssh/proxmox_terraform
    ```
 
-2. **Create and configure Proxmox user**
+2. **Create and configure Proxmox user** (on Proxmox shell)
 
    ```bash
    useradd -m -s /bin/bash terraform
@@ -79,7 +79,7 @@ cp .env.example .env
    echo "terraform ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/terraform
    ```
 
-3. **Send SSH key to Proxmox node**
+3. **Send SSH key to Proxmox node** (on your local machine)
 
    ```bash
    ssh-copy-id -i ~/.ssh/proxmox_terraform.pub terraform@<proxmox-node-ip>
@@ -92,11 +92,19 @@ cp .env.example .env
    sudo pvesm apiinfo
    ```
 
+5. Copy the ssh private key to keys folder:
+
+   ```bash
+   mkdir -p keys
+   cp ~/.ssh/proxmox_terraform keys/
+   ```
+
 ---
 
-### 5. Set Up Ansible
+### 5. Set Up Ansible & Copy the ssh public key
 
 ```bash
+cp ~/.ssh/id_ed25519.pub keys/
 uv venv
 uv sync
 ```
