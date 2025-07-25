@@ -83,7 +83,7 @@ resource "proxmox_virtual_environment_vm" "k8s_node" {
 
   disk {
     datastore_id = var.k8s_datastore_id
-    file_id      = "${var.vm_datastore_id}:iso/jammy-server-cloudimg-amd64.img"
+    file_id      = "${var.vm_datastore_id}:iso/noble-server-cloudimg-amd64.img"
     interface    = "virtio0"
     iothread     = true
     discard      = "on"
