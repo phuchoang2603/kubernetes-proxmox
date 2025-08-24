@@ -1,5 +1,28 @@
 # 🧠 RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
+<!--toc:start-->
+
+- [🧠 RKE2 Kubernetes on Proxmox with Terraform + Ansible](#🧠-rke2-kubernetes-on-proxmox-with-terraform-ansible)
+  - [🚀 Getting Started](#🚀-getting-started)
+    - [1. Clone the Repository](#1-clone-the-repository)
+    - [2. Set Up Environment Variables](#2-set-up-environment-variables)
+    - [3. Proxmox Setup (on Proxmox shell)](#3-proxmox-setup-on-proxmox-shell)
+    - [4. SSH Setup](#4-ssh-setup)
+    - [5. Set Up Ansible & Copy the ssh public key](#5-set-up-ansible-copy-the-ssh-public-key)
+    - [6. Run the Master Script](#6-run-the-master-script)
+  - [🧰 What the Master Script Does](#🧰-what-the-master-script-does)
+    - [🔨 Phase 1: Terraform – Provisioning](#🔨-phase-1-terraform-provisioning)
+    - [⚙️ Phase 2: Known Host Cleanup](#️-phase-2-known-host-cleanup)
+    - [🤖 Phase 3: Ansible – Cluster Bootstrap](#🤖-phase-3-ansible-cluster-bootstrap)
+  - [🧪 Feature Flags](#🧪-feature-flags)
+  - [☁️ Terraform](#️-terraform)
+    - [Modules](#modules)
+  - [🧠 Ansible](#🧠-ansible)
+  - [🔐 SSL via Cert-Manager + Cloudflare](#🔐-ssl-via-cert-manager-cloudflare)
+  - [📍 Accessing Longhorn](#📍-accessing-longhorn)
+  - [📜 Credits](#📜-credits)
+  <!--toc:end-->
+
 This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**, with optional components:
 
 - 📦 Longhorn for persistent storage
@@ -33,31 +56,31 @@ cp .env.example .env
 1. **Create Terraform user**
 
    ```bash
-   sudo pveum user add terraform@pve
+   pveum user add terraform@pve
    ```
 
 2. **Create role (optional)**
 
    ```bash
-   sudo pveum role add Terraform -privs "Datastore.Allocate Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify SDN.Use VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt User.Modify"
+   pveum role add Terraform -privs "Datastore.Allocate Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify SDN.Use VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt User.Modify"
    ```
 
 3. **Assign role to user**
 
    ```bash
-   sudo pveum aclmod / -user terraform@pve -role Terraform
+   pveum aclmod / -user terraform@pve -role Terraform
    ```
 
 4. **Generate API token**
 
    ```bash
-   sudo pveum user token add terraform@pve provider --privsep=0
+   pveum user token add terraform@pve provider --privsep=0
    ```
 
    Example token:
 
    ```
-   terraform@pve2!provider=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   terraform@pve!provider=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
    ```
 
 ---
