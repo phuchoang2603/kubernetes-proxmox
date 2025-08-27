@@ -1,32 +1,28 @@
 variable "proxmox_endpoint" {
   type        = string
-  description = "Proxmox API endpoint (e.g., https://your-proxmox-ip:8006)"
-}
-variable "proxmox_api_token" {
-  type        = string
-  description = "Proxmox API Token"
+  description = "proxmox api endpoint (e.g., https://your-proxmox-ip:8006)"
 }
 variable "proxmox_insecure" {
   type        = bool
-  description = "Skip TLS verification"
+  description = "skip tls verification"
   default     = true
 }
 variable "proxmox_min_tls" {
   type        = string
-  description = "Minimum TLS version"
+  description = "minimum tls version"
   default     = "1.3"
 }
-variable "proxmox_ssh_username" {
-  description = "SSH username for Proxmox node access"
+variable "proxmox_username" {
+  description = "proxmox username"
   type        = string
 }
-variable "proxmox_ssh_private_key" {
-  description = "SSH private key for Proxmox node access (PEM format)"
+variable "proxmox_password" {
+  description = "proxmox password"
   type        = string
   sensitive   = true
 }
 variable "proxmox_ssh_public_key" {
-  description = "SSH public key for VM access"
+  description = "ssh public key for vm access"
   type        = string
 }
 
@@ -83,6 +79,7 @@ variable "longhorn_nodes" {
   description = "Map of Kubernetes nodes with roles and IP addresses"
   type = map(object({
     vm_id   = number
+    node    = string
     role    = string
     address = string
   }))

@@ -1,11 +1,13 @@
 {
   "longhorn1": {
     "vm_id": 221,
+    "node": "pve",
     "role": "longhorn",
     "address": "10.69.1.221/16"
   },
   "longhorn2": {
     "vm_id": 222,
+    "node": "pve2",
     "role": "longhorn",
     "address": "10.69.1.222/16"
   }

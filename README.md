@@ -51,80 +51,9 @@ cp .env.example .env
 # Then edit .env to reflect your Proxmox IP, credentials, Cloudflare token, etc.
 ```
 
-### 3. Proxmox Setup (on Proxmox shell)
-
-1. **Create Terraform user**
-
-   ```bash
-   pveum user add terraform@pve
-   ```
-
-2. **Create role (optional)**
-
-   ```bash
-   pveum role add Terraform -privs "Datastore.Allocate Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify SDN.Use VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt User.Modify"
-   ```
-
-3. **Assign role to user**
-
-   ```bash
-   pveum aclmod / -user terraform@pve -role Terraform
-   ```
-
-4. **Generate API token**
-
-   ```bash
-   pveum user token add terraform@pve provider --privsep=0
-   ```
-
-   Example token:
-
-   ```
-   terraform@pve!provider=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-   ```
-
 ---
 
-### 4. SSH Setup
-
-1. **Generate SSH key pair** (on your local machine)
-
-   ```bash
-   ssh-keygen -t rsa -b 4096 -f ~/.ssh/proxmox_terraform
-   ```
-
-2. **Create and configure Proxmox user** (on Proxmox shell)
-
-   ```bash
-   useradd -m -s /bin/bash terraform
-   echo "terraform:yourpassword" | chpasswd
-   usermod -aG sudo terraform
-   echo "terraform ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/terraform
-   ```
-
-3. **Send SSH key to Proxmox node** (on your local machine)
-
-   ```bash
-   ssh-copy-id -i ~/.ssh/proxmox_terraform.pub terraform@<proxmox-node-ip>
-   ```
-
-4. **Test SSH and API access**
-
-   ```bash
-   ssh -i ~/.ssh/proxmox_terraform terraform@<proxmox-node-ip>
-   sudo pvesm apiinfo
-   ```
-
-5. Copy the ssh private key to keys folder:
-
-   ```bash
-   mkdir -p keys
-   cp ~/.ssh/proxmox_terraform keys/
-   ```
-
----
-
-### 5. Set Up Ansible & Copy the ssh public key
+### 3. Set Up Ansible & Copy the ssh public key
 
 ```bash
 cp ~/.ssh/id_ed25519.pub keys/
@@ -134,7 +63,7 @@ uv sync
 
 ---
 
-### 6. Run the Master Script
+### 4. Run the Master Script
 
 ```bash
 cd scripts

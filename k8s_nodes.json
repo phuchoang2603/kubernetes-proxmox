@@ -1,26 +1,31 @@
 {
   "server1": {
     "vm_id": 201,
+    "node": "pve",
     "role": "server",
     "address": "10.69.1.201/16"
   },
   "server2": {
     "vm_id": 202,
+    "node": "pve2",
     "role": "server",
     "address": "10.69.1.202/16"
   },
   "server3": {
     "vm_id": 203,
+    "node": "pve",
     "role": "server",
     "address": "10.69.1.203/16"
   },
   "agent1": {
     "vm_id": 211,
+    "node": "pve",
     "role": "agent",
     "address": "10.69.1.211/16"
   },
   "agent2": {
     "vm_id": 212,
+    "node": "pve2",
     "role": "agent",
     "address": "10.69.1.212/16"
   }
