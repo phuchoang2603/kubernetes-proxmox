@@ -58,6 +58,7 @@ cp .env.example .env
 ```bash
 cp ~/.ssh/id_ed25519.pub keys/
 uv venv
+source .venv/bin/activate
 uv sync
 ```
 
