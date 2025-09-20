@@ -1,0 +1,3 @@
+bucket  = "proxmox-phuchoang"
+key     = "terraform/dev/terraform.tfstate"
+region  = "us-east-1"

@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-ENV_FILE := ../../.env
+ROOT_DIR := $(shell git rev-parse --show-toplevel)
 TERRAFORM := mise exec terraform -- terraform
 .PHONY: help init apply destroy
 
@@ -11,28 +11,13 @@ help:
 	@echo "  make destroy MODULE=<module-name>"
 
 init:
-	@if [ -z "$(MODULE)" ]; then \
-		echo "❗ Please provide MODULE=<module-name> (Available: $(MODULES))"; \
-		exit 1; \
-	fi && \
 	cd $(MODULE) && \
-	source $(ENV_FILE) && \
-	$(TERRAFORM) init
+	$(TERRAFORM) init -reconfigure -backend-config="$(ROOT_DIR)/config/$(TF_ENV).s3.tfbackend" || $(TERRAFORM) init
 
 apply:
-	@if [ -z "$(MODULE)" ]; then \
-		echo "❗ Please provide MODULE=<module-name> (Available: $(MODULES))"; \
-		exit 1; \
-	fi && \
 	cd $(MODULE) && \
-	source $(ENV_FILE) && \
 	$(TERRAFORM) apply -auto-approve 
 
 destroy:
-	@if [ -z "$(MODULE)" ]; then \
-		echo "❗ Please provide MODULE=<module-name> (Available: $(MODULES))"; \
-		exit 1; \
-	fi && \
 	cd $(MODULE) && \
-	source $(ENV_FILE) && \
 	$(TERRAFORM) destroy -auto-approve 
