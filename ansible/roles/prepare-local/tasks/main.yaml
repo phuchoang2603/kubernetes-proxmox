@@ -1,11 +1,11 @@
 # Render hosts.ini from k8s_nodes_json
 - name: Load k8s_nodes.json
   set_fact:
-    k8s_nodes: "{{ lookup('file', '../k8s_nodes.json') | from_json }}"
+    k8s_nodes: "{{ lookup('file', '../config/k8s_nodes.json') | from_json }}"
 
 - name: Load longhorn_nodes.json
   set_fact:
-    longhorn_nodes: "{{ lookup('file', '../longhorn_nodes.json') | from_json }}"
+    longhorn_nodes: "{{ lookup('file', '../config/longhorn_nodes.json') | from_json }}"
   tags: longhorn
 
 - name: Render inventory (always includes servers and agents, longhorn if --tags longhorn)

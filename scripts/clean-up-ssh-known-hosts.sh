@@ -3,8 +3,8 @@
 set -e
 
 source ../.env
-K8S_NODES_FILE="${1:-../k8s_nodes.json}"
-LONGHORN_NODES_FILE="${2:-../longhorn_nodes.json}"
+K8S_NODES_FILE="${1:-../config/k8s_nodes.json}"
+LONGHORN_NODES_FILE="${2:-../config/longhorn_nodes.json}"
 KNOWN_HOSTS_FILE="${3:-$HOME/.ssh/known_hosts}"
 
 # Extract all IPs from JSON files
