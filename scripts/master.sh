@@ -34,8 +34,9 @@ for key in "${!FEATURES[@]}"; do
   export "$key"="${FEATURES[$key]}"
 done
 
-# Pre-setup, install kubectl, helm, and kubectx
+# Pre-setup, install kubectl, helm, and kubectx and load .env
 source ./pre-setup.sh
+source ../.env
 
 # Terraform: provision VMs
 cd ../terraform/
