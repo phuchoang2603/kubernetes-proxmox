@@ -72,27 +72,6 @@ The `master.sh` script orchestrates everything:
 
 ---
 
-## ☁️ Terraform
-
-This project uses the [bpg/terraform-provider-proxmox](https://github.com/bpg/terraform-provider-proxmox) for better control over Proxmox VMs and cloud-init.
-
-- `cloud-img-download`: Downloads the base image
-- `k8s-cluster`: Provisions Kubernetes nodes using `k8s_nodes.json`
-- `longhorn-cluster`: (Optional) Provisions Longhorn nodes using `longhorn_nodes.json`
-
----
-
-## 🧠 Ansible
-
-Ansible handles the full lifecycle of Kubernetes configuration:
-
-- RKE2 cluster install
-- kube-vip configuration
-- SSL setup with cert-manager and Cloudflare DNS
-- Longhorn for persistent storage and ArgoCD for GitOps deployment
-
----
-
 ## 📜 Credits
 
 - Inspired by [JimsGarage RKE2 Ansible Playbooks](https://github.com/JamesTurland/JimsGarage)

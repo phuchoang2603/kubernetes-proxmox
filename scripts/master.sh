@@ -40,16 +40,8 @@ source ../.env
 
 # Terraform: provision VMs
 cd ../terraform/
-make init MODULE=cloud-img-download
-make apply MODULE=cloud-img-download
 make init MODULE=k8s-cluster
 make apply MODULE=k8s-cluster
-
-# Optional Terraform modules
-if [[ "${FEATURES[longhorn]}" == true ]]; then
-  make init MODULE=longhorn-cluster
-  make apply MODULE=longhorn-cluster
-fi
 
 cd -
 

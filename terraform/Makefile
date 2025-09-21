@@ -12,7 +12,7 @@ help:
 
 init:
 	cd $(MODULE) && \
-	$(TERRAFORM) init -reconfigure -backend-config="$(ROOT_DIR)/config/$(TF_ENV).s3.tfbackend" || $(TERRAFORM) init
+	$(TERRAFORM) init -reconfigure -backend-config="$(ROOT_DIR)/config/$(TF_VAR_env).s3.tfbackend" || $(TERRAFORM) init
 
 apply:
 	cd $(MODULE) && \

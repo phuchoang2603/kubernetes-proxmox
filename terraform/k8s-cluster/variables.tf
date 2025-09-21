@@ -1,3 +1,8 @@
+variable "env" {
+  description = "Environment name (e.g., dev, prod)"
+  type        = string
+}
+
 variable "proxmox_endpoint" {
   type        = string
   description = "Proxmox API endpoint (e.g., https://your-proxmox-ip:8006)"
@@ -76,6 +81,36 @@ variable "k8s_disk_size_gb" {
   type        = number
 }
 variable "k8s_nodes" {
+  description = "Map of Kubernetes nodes with roles and IP addresses"
+  type = map(object({
+    vm_id   = number
+    node    = string
+    role    = string
+    address = string
+  }))
+}
+
+variable "longhorn_cpu_cores" {
+  description = "Number of CPU cores per VM"
+  type        = number
+}
+variable "longhorn_cpu_type" {
+  description = "CPU type for VM"
+  type        = string
+}
+variable "longhorn_memory_mb" {
+  description = "Memory size in MB per VM"
+  type        = number
+}
+variable "longhorn_datastore_id" {
+  description = "longhorn datastore ID where VM disks are stored"
+  type        = string
+}
+variable "longhorn_disk_size_gb" {
+  description = "Disk size in GB for VM disk"
+  type        = number
+}
+variable "longhorn_nodes" {
   description = "Map of Kubernetes nodes with roles and IP addresses"
   type = map(object({
     vm_id   = number
