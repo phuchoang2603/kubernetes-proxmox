@@ -1,11 +1,11 @@
-# 🧠 RKE2 Kubernetes on Proxmox with Terraform + Ansible
+# RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
 This project automates the provisioning and configuration of a RKE2 Kubernetes on **Proxmox** cluster with multiple nodes using **Terraform** and **Ansible**, with optional components:
 
-- 🕹️ kube-vip for high availability virtual IP
-- 🔐 SSL via cert-manager with Cloudflare DNS
-- 📦 Longhorn for persistent storage
-- ⚙️ ArgoCD for GitOps deployment
+- kube-vip for high availability virtual IP
+- SSL via cert-manager with Cloudflare DNS
+- Longhorn for persistent storage
+- ArgoCD for GitOps deployment
 
 - Blog post: <https://phuchoang.sbs/posts/terraform-ansible-proxmox-k8s/>
 - Video demo:
@@ -13,7 +13,7 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes o
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 
@@ -55,24 +55,24 @@ cd scripts
 
 ---
 
-## 🧰 What the Master Script Does
+## What the Master Script Does
 
 The `master.sh` script orchestrates everything:
 
-### 🔨 Phase 1: Terraform – Provisioning
+### Phase 1: Terraform – Provisioning
 
 - Configure backend state to use Amazon S3 or not
 - Downloads the base cloud-init image
 - Provisions Kubernetes and (optionally) Longhorn VMs on Proxmox
 
-### 🤖 Phase 2: Ansible – Cluster Bootstrap
+### Phase 2: Ansible – Cluster Bootstrap
 
 - Installs RKE2 (Kubernetes)
 - Configures kube-vip, Longhorn, and cert-manager + Cloudflare if enabled
 
 ---
 
-## 📜 Credits
+## Credits
 
 - Inspired by [JimsGarage RKE2 Ansible Playbooks](https://github.com/JamesTurland/JimsGarage)
 - Built with [bpg Proxmox Terraform Provider](https://registry.terraform.io/providers/bpg/proxmox/latest)
