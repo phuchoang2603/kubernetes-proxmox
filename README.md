@@ -1,6 +1,10 @@
 # RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
-This project automates the provisioning and configuration of a RKE2 Kubernetes on **Proxmox** cluster with multiple nodes using **Terraform** and **Ansible**, with optional components:
+This project automates the provisioning and configuration of a RKE2 Kubernetes on **Proxmox** using **Terraform** and **Ansible**, with following features:
+
+- AWS S3 for Terraform remote state
+- Separate `dev` and `prod` environment variables
+- Multiple nodes Proxmox cluster
 
 - kube-vip for high availability virtual IP
 - SSL via cert-manager with Cloudflare DNS

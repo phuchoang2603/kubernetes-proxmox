@@ -1,0 +1,20 @@
+{
+  "prod-longhorn1": {
+    "vm_id": 121,
+    "node": "pve",
+    "role": "longhorn",
+    "address": "10.69.1.121/16"
+  },
+  "prod-longhorn2": {
+    "vm_id": 122,
+    "node": "pve2",
+    "role": "longhorn",
+    "address": "10.69.1.122/16"
+  },
+  "prod-longhorn3": {
+    "vm_id": 123,
+    "node": "pve3",
+    "role": "longhorn",
+    "address": "10.69.1.123/16"
+  }
+}
