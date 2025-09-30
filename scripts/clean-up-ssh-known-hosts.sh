@@ -20,4 +20,4 @@ for ip in "${ALL_IPS[@]}"; do
   ssh-keygen -R "$ip" -f "$KNOWN_HOSTS_FILE" >/dev/null || true
 done
 
-echo "✅ Cleanup done. Backup created at ${KNOWN_HOSTS_FILE}.bak"
+echo "Cleanup done. Backup created at ${KNOWN_HOSTS_FILE}.bak"

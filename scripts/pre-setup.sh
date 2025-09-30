@@ -8,7 +8,7 @@ if ! command -v kubectl &>/dev/null; then
   sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   cd -
 else
-  echo "✅ kubectl is already installed."
+  echo "kubectl is already installed."
 fi
 
 # -------------------------
@@ -22,7 +22,7 @@ if ! command -v helm &>/dev/null; then
   ./get_helm.sh
   cd -
 else
-  echo "✅ helm is already installed."
+  echo "helm is already installed."
 fi
 
 # -------------------------
@@ -34,5 +34,5 @@ if ! command -v kubectx &>/dev/null; then
   sudo ln -sf /opt/kubectx/kubectx /usr/local/bin/kubectx
   sudo ln -sf /opt/kubectx/kubens /usr/local/bin/kubens
 else
-  echo "✅ kubectx is already installed."
+  echo "kubectx is already installed."
 fi

@@ -18,13 +18,10 @@ for arg in "$@"; do
 
     if [[ -v FEATURES["$feature"] ]]; then
       FEATURES["$feature"]=false
-      echo "⛔ Skipping feature: $feature"
-    else
-      echo "❌ Unknown feature to skip: $feature"
-      exit 1
+      echo "Skipping feature: $feature"
     fi
   else
-    echo "❌ Unknown option: $arg"
+    echo "Unknown option: $arg"
     exit 1
   fi
 done
