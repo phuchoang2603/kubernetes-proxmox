@@ -26,3 +26,7 @@ Thumbs.db
 .envrc
 .venv
 debug.yaml
+
+# Ansible environment variables
+ansible/inventory/group_vars/all.yaml
+ansible/inventory/hosts.ini
