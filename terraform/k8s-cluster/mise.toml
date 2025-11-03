@@ -1,5 +1,5 @@
 [tools]
-terraform = "1.5"
+terraform = "1.6.6"
 
 [tasks."terraform:init"]
 description = "Initializes a Terraform working directory"
