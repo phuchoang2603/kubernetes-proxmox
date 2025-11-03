@@ -14,7 +14,7 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes o
 Blog post: <https://phuchoang.sbs/posts/terraform-ansible-proxmox-k8s/>.
 
 Video demo:
-  [![Youtube video](https://img.youtube.com/vi/Ao6IPSmUFcE/maxresdefault.jpg)](https://youtu.be/Ao6IPSmUFcE)
+[![Youtube video](https://img.youtube.com/vi/Ao6IPSmUFcE/maxresdefault.jpg)](https://youtu.be/Ao6IPSmUFcE)
 
 ---
 
@@ -35,13 +35,14 @@ cp .env.example .env
 
 Then edit .env to reflect your Proxmox IP, credentials, Cloudflare token, etc. You also need to customize your hostnames and IPs in `config/k8s_nodes.json` and `config/longhorn_nodes.json`.
 
-If you want to use S3 for Terraform state, set the relevant variables in `config/dev.s3.tfbackend` as well.
+If you want to use S3-compatible storage for Terraform remote state, set the relevant variables in `config/dev.s3.tfbackend` as well.
 
 ### 3. Set Up Ansible
 
 You need to have your ssh public key in the `keys/` directory for Ansible to use for SSH access to the nodes. You might also want to use uv to manage the Python virtual environment. If not, simply ensure you have Ansible and the required collections installed in your Python environment.
 
 ```bash
+mkdir -p keys
 cp ~/.ssh/id_ed25519.pub keys/
 uv venv
 source .venv/bin/activate

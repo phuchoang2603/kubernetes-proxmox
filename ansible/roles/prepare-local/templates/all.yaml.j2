@@ -1,10 +1,34 @@
 {%- set new_vars = dict() %}
-{%- for key in existing_group_vars.keys() %}
-  {%- set env_val = lookup('env', key) %}
-  {%- if env_val is not none %}
-    {%- set _ = new_vars.update({ key: env_val }) %}
+
+{#
+  define the list of variables to check, because lookup('env') cannot discover them.
+#}
+{%- set ansible_vars_to_check = [
+    'ANSIBLE_env',
+    'ANSIBLE_ansible_user',
+    'ANSIBLE_rke2_version',
+    'ANSIBLE_arch',
+    'ANSIBLE_ssl_local_domain',
+    'ANSIBLE_ssl_cloudflare_api_token',
+    'ANSIBLE_ssl_email',
+    'ANSIBLE_vip',
+    'ANSIBLE_vip_cidr',
+    'ANSIBLE_vip_lb_range',
+    'ANSIBLE_vip_ingress_ip',
+  ]
+%}
+
+{%- for key in ansible_vars_to_check %}
+  {# Use lookup('env') to get the value from the environment #}
+  {%- set value = lookup('env', key) %}
+
+  {# Only add it if the env var was set (lookup returns a value) #}
+  {%- if value is not none %}
+    {# Trim 'ANSIBLE_' and lowercase the key #}
+    {%- set var_name = key[8:] | lower %}
+    {%- set _ = new_vars.update({ var_name: value }) %}
   {%- endif %}
 {%- endfor %}
-{%- set merged_vars = existing_group_vars | combine(new_vars, recursive=True) %}
-{{ merged_vars | to_nice_yaml(indent=2) }}
 
+{# Write the final dictionary to the file #}
+{{ new_vars | to_nice_yaml(indent=2) }}

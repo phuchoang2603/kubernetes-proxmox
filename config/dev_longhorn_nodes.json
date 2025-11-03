@@ -1,18 +1,18 @@
 {
   "dev-longhorn1": {
-    "vm_id": 121,
+    "vm_id": 114,
     "node": "pve",
     "role": "longhorn",
     "address": "10.69.1.114/16"
   },
   "dev-longhorn2": {
-    "vm_id": 122,
+    "vm_id": 115,
     "node": "pve2",
     "role": "longhorn",
     "address": "10.69.1.115/16"
   },
   "dev-longhorn3": {
-    "vm_id": 123,
+    "vm_id": 116,
     "node": "pve3",
     "role": "longhorn",
     "address": "10.69.1.116/16"

@@ -7,18 +7,19 @@
     longhorn_nodes: "{{ lookup('env', 'TF_VAR_longhorn_nodes') | from_json }}"
   tags: longhorn
 
+- name: Ensure inventory directories exist
+  ansible.builtin.file:
+    path: "./inventory/group_vars"
+    state: directory
+    mode: "0755"
+
 - name: Render inventory (always includes servers and agents, longhorn if --tags longhorn)
   ansible.builtin.template:
     src: templates/hosts.ini.j2
     dest: "./inventory/hosts.ini"
     mode: "0644"
 
-# Render group_vars from .env
-- name: Load existing group_vars/all.yaml
-  set_fact:
-    existing_group_vars: "{{ lookup('file', './inventory/group_vars/all.yaml') | from_yaml | default({}) }}"
-
-- name: Render group_vars/all.yaml with merged values
+- name: Render group_vars/all.yaml from environment
   ansible.builtin.template:
     src: templates/all.yaml.j2
     dest: "./inventory/group_vars/all.yaml"

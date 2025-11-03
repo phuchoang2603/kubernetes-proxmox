@@ -144,12 +144,20 @@
 - name: Fetch kubeconfig from remote user's ~/.kube/config
   ansible.builtin.fetch:
     src: "/home/{{ ansible_user }}/.kube/config"
-    dest: "/tmp/proxmox.yaml"
+    dest: "/tmp/{{ env }}.yaml"
     flat: true
   when: inventory_hostname == groups['servers'][0]
 
-- name: Move fetched kubeconfig to ~/.kube/proxmox.yml
+- name: Move fetched kubeconfig to ~/.kube/{{env}}.yml
   ansible.builtin.command:
-    cmd: mv /tmp/proxmox.yaml "{{ kubeconfig_path }}"
+    cmd: "mv /tmp/{{ env }}.yaml {{ lookup('env', 'HOME') }}/.kube/{{env}}.yml"
+  delegate_to: localhost
+  run_once: true
+
+- name: Rename context from 'default' to a unique name
+  ansible.builtin.replace:
+    path: "{{ lookup('env', 'HOME') }}/.kube/{{env}}.yml"
+    regexp: "default"
+    replace: "{{env}}"
   delegate_to: localhost
   run_once: true

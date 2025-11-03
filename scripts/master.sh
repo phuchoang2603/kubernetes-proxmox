@@ -26,6 +26,3 @@ ansible-playbook prepare-local.yaml
 ansible-playbook site.yaml
 
 cd -
-
-# Rename kubectl environment
-kubectx $TF_VAR_env=default
