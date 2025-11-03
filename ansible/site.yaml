@@ -1,7 +1,3 @@
-###############################################################
-# MAKE SURE YOU CHANGE group_vars/all.yaml VARIABLES!!!!!!!!!!!
-###############################################################
-
 # bootstraps first server and copies configs for others/agents
 - name: Prepare all nodes
   hosts: rke2
