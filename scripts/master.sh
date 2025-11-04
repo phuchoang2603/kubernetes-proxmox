@@ -8,8 +8,8 @@ source ../.env
 
 # Terraform: provision VMs
 cd ../terraform/
-make init MODULE=k8s-cluster
-make apply MODULE=k8s-cluster
+mise exec terraform -- terraform init -reconfigure -backend-config="../../config/${env}.s3.tfbackend"
+mise exec terraform -- terraform apply -auto-approve
 
 cd -
 
