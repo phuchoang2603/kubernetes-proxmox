@@ -1,5 +1,0 @@
-- name: Prepare localhost
-  hosts: localhost
-  gather_facts: false
-  roles:
-    - prepare-local
