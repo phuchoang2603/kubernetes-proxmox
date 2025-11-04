@@ -8,8 +8,8 @@ proxmox_password       = "Phuc@2006"
 proxmox_ssh_public_key = "/home/felix/.ssh/id_ed25519.pub" # Absolute path of your ssh public key on your machine
 
 # General VM settings - PLEASE REVIEW AND ADJUST
-vm_node_name    = "pve"           # Proxmox node where VMs are created
-vm_datastore_id = "truenas-scale" # storage for downloading cloud img, storing snippets, etc.
+vm_node_name    = "pve"     # Proxmox node where VMs are created
+vm_datastore_id = "truenas" # storage for downloading cloud img, storing snippets, etc.
 vm_bridge       = "vmbr0"
 vm_timezone     = "America/New_York"
 vm_username     = "ubuntu"

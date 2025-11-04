@@ -1,7 +1,7 @@
 access_key                  = "terraform"
 secret_key                  = "QmwRghG9X80kC%"
 bucket                      = "terraform"
-key                         = "dev-terraform.tfstate"
+key                         = "dev.tfstate"
 region                      = "us-east-1"
 
 # --- MinIO Specific Settings ---
