@@ -3,7 +3,7 @@ terraform = "1.6.6"
 
 [tasks."terraform:init"]
 description = "Initializes a Terraform working directory"
-run = "terraform -chdir=terraform init"
+run = "terraform init"
 
 [tasks."terraform:plan"]
 description = "Generates an execution plan for Terraform"
@@ -19,11 +19,11 @@ run = "terraform -chdir=terraform destroy"
 
 [tasks."terraform:validate"]
 description = "Validates the Terraform files"
-run = "terraform -chdir=terraform validate"
+run = "terraform validate"
 
 [tasks."terraform:format"]
 description = "Formats the Terraform files"
-run = "terraform -chdir=terraform fmt"
+run = "terraform fmt -recursive"
 
 [tasks."terraform:check"]
 description = "Checks the Terraform files"
