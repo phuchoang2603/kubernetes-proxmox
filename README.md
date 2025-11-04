@@ -22,21 +22,23 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes c
 
 ---
 
+## Clone the Repository
+
+```bash
+git clone https://github.com/phuchoang2603/kubernetes-proxmox
+cd kubernetes-proxmox
+```
+
+---
+
 ## Initial Setup
 
 Before proceeding, run the `pre-setup.sh` script to install essential tools like `mise`, `kubectl`, `helm`, and `kubectx`.
 
 ```bash
 ./scripts/pre-setup.sh
-```
-
----
-
-## Clone the Repository
-
-```bash
-git clone https://github.com/phuchoang2603/kubernetes-proxmox
-cd kubernetes-proxmox
+cd terraform
+mise use terraform
 ```
 
 ---
@@ -49,28 +51,22 @@ Customize your VM specifications, hostnames, and IP addresses in `terraform/env/
 
 ### 2. Initialize Workspaces, Backend, and Variables
 
-Navigate to the `terraform` directory:
-
-```bash
-cd terraform
-```
-
-#### Initialize Terraform and Select a Workspace
-
 To manage different environments (e.g., `dev` and `prod`), it is best practice to use separate Terraform workspaces. This prevents conflicts and ensures that you are working in the correct environment.
 
-First, create a new workspace for your environment:
+First, initialize Terraform:
+
+```bash
+terraform init -reconfigure -backend-config=env/dev/backend.hcl
+# For production:
+# terraform init -reconfigure -backend-config=env/prod/backend.hcl
+```
+
+Then, create a new workspace for your environment:
 
 ```bash
 terraform workspace new dev
 # For production:
 # terraform workspace new prod
-```
-
-Then, initialize Terraform:
-
-```bash
-terraform init
 ```
 
 ### 3. Apply Terraform Changes

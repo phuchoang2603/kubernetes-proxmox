@@ -1,23 +1,11 @@
 # Environment name
 env = "dev"
 
-# S3 settings for remote state
-s3_access_key                  = "terraform"
-s3_secret_key                  = ""
-s3_bucket                      = "terraform"
-s3_key                         = "dev-terraform.tfstate"
-s3_region                      = "us-east-1"
-s3_endpoint                    = "http://10.69.1.102:9000"
-s3_skip_credentials_validation = true
-s3_skip_metadata_api_check     = true
-s3_skip_region_validation      = true
-s3_force_path_style            = true
-
 # Proxmox API details - PLEASE FILL THESE IN
 proxmox_endpoint       = "https://10.69.1.1:8006/"
 proxmox_username       = "root@pam"
-proxmox_password       = ""
-proxmox_ssh_public_key = "" # Paste your ssh public key on your machine here
+proxmox_password       = "Phuc@2006"
+proxmox_ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL52EDCs01sr3fEP8ye32xTcEI3GBovbQ1V2RPPMZ/bb" # Paste your ssh public key on your machine here
 
 # General VM settings - PLEASE REVIEW AND ADJUST
 vm_node_name    = "pve"           # Proxmox node where VMs are created
