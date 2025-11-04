@@ -2,9 +2,11 @@
 
 This project automates the provisioning and configuration of a RKE2 Kubernetes on **Proxmox** using **Terraform** and **Ansible**, with following features:
 
-- `AWS S3` for `Terraform` remote state
+- `S3-compatible` object storage for `Terraform` remote state
 - Separate `dev` and `prod` environment variables
 - Multiple nodes `Proxmox` cluster
+
+Pre-deployed applications:
 
 - `kube-vip` for high availability virtual IP
 - SSL via `cert-manager` with `Cloudflare` DNS
@@ -33,7 +35,7 @@ cd kubernetes-proxmox
 cp .env.example .env
 ```
 
-Then edit .env to reflect your Proxmox IP, credentials, Cloudflare token, etc. You also need to customize your hostnames and IPs in `config/k8s_nodes.json` and `config/longhorn_nodes.json`.
+Then edit .env to reflect your Proxmox IP, credentials, Cloudflare token, etc. You also need to customize your VM specs, hostnames and IPs in `config/dev.env`, `config/dev_k8s_nodes.json` and `config/dev_longhorn_nodes.json` based on your set environment (dev or prod).
 
 If you want to use S3-compatible storage for Terraform remote state, set the relevant variables in `config/dev.s3.tfbackend` as well.
 
@@ -54,9 +56,6 @@ uv sync
 ```bash
 cd scripts
 ./master.sh
-
-# If you want to skip Longhorn, SSL, or kube-vip setup, you can use the flags:
-./master.sh --skip-longhorn --skip-ssl --skip-kube_vip
 ```
 
 ---
@@ -69,12 +68,13 @@ The `master.sh` script orchestrates everything:
 
 - Configure backend state to use Amazon S3 or not
 - Downloads the base cloud-init image
+- Create snippets to inject value to the cloud-init
 - Provisions Kubernetes and (optionally) Longhorn VMs on Proxmox
 
 ### Phase 2: Ansible – Cluster Bootstrap
 
 - Installs RKE2 (Kubernetes)
-- Configures kube-vip, Longhorn, and cert-manager + Cloudflare if enabled
+- Configures kube-vip, Longhorn, and cert-manager + Cloudflare SSL
 
 ---
 
