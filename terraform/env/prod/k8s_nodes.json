@@ -1,0 +1,20 @@
+{
+  "prod-server1": {
+    "vm_id": 121,
+    "node": "pve",
+    "role": "server",
+    "address": "10.69.1.121/16"
+  },
+  "prod-server2": {
+    "vm_id": 122,
+    "node": "pve2",
+    "role": "server",
+    "address": "10.69.1.122/16"
+  },
+  "prod-server3": {
+    "vm_id": 123,
+    "node": "pve3",
+    "role": "server",
+    "address": "10.69.1.123/16"
+  }
+}
