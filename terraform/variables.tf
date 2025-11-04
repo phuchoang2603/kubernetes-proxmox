@@ -80,15 +80,7 @@ variable "k8s_disk_size_gb" {
   description = "Disk size in GB for VM disk"
   type        = number
 }
-variable "k8s_nodes" {
-  description = "Map of Kubernetes nodes with roles and IP addresses"
-  type = map(object({
-    vm_id   = number
-    node    = string
-    role    = string
-    address = string
-  }))
-}
+
 
 variable "longhorn_cpu_cores" {
   description = "Number of CPU cores per VM"
@@ -110,12 +102,4 @@ variable "longhorn_disk_size_gb" {
   description = "Disk size in GB for VM disk"
   type        = number
 }
-variable "longhorn_nodes" {
-  description = "Map of Kubernetes nodes with roles and IP addresses"
-  type = map(object({
-    vm_id   = number
-    node    = string
-    role    = string
-    address = string
-  }))
-}
+

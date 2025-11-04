@@ -36,7 +36,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
 }
 
 resource "proxmox_virtual_environment_file" "meta_data_cloud_config" {
-  for_each     = merge(var.k8s_nodes, var.longhorn_nodes)
+  for_each     = merge(local.k8s_nodes, local.longhorn_nodes)
   content_type = "snippets"
   datastore_id = var.vm_datastore_id
   node_name    = var.vm_node_name

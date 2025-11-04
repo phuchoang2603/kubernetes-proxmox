@@ -22,7 +22,6 @@ k8s_cpu_type     = "x86-64-v2-AES"
 k8s_memory_mb    = 4096
 k8s_disk_size_gb = 64
 k8s_datastore_id = "local-lvm"
-k8s_nodes        = jsondecode(file("./k8s_nodes.json"))
 
 # longhorn cluster settings
 longhorn_cpu_cores    = 2
@@ -30,4 +29,3 @@ longhorn_cpu_type     = "x86-64-v2-AES"
 longhorn_memory_mb    = 2048
 longhorn_disk_size_gb = 300
 longhorn_datastore_id = "local-lvm"
-longhorn_nodes        = jsondecode(file("./longhorn_nodes.json"))

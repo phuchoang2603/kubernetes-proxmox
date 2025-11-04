@@ -2,7 +2,7 @@
 module "k8s_nodes" {
   source = "./modules/vm"
 
-  for_each = var.k8s_nodes
+  for_each = local.k8s_nodes
 
   name              = each.key
   node_name         = each.value.node
@@ -24,7 +24,7 @@ module "k8s_nodes" {
 module "longhorn_nodes" {
   source = "./modules/vm"
 
-  for_each = var.longhorn_nodes
+  for_each = local.longhorn_nodes
 
   name              = each.key
   node_name         = each.value.node
