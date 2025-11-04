@@ -26,6 +26,3 @@ Thumbs.db
 .envrc
 .venv
 debug.yaml
-
-# Ansible environment variables
-ansible/inventory/
