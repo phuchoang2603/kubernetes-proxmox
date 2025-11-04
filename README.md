@@ -49,11 +49,9 @@ mise use terraform
 
 Customize your VM specifications, hostnames, and IP addresses in `terraform/env/dev/k8s_nodes.json` based on your environment (dev or prod). All other environment variables are located in `terraform/env/dev/main.tfvars`.
 
-### 2. Initialize Workspaces, Backend, and Variables
+### 2. Initialize Backend and Variables
 
-To manage different environments (e.g., `dev` and `prod`), it is best practice to use separate Terraform workspaces. This prevents conflicts and ensures that you are working in the correct environment.
-
-First, initialize Terraform:
+To manage different environments (e.g., `dev` and `prod`), it is best practice to use `init -reconfigure`. This prevents conflicts and ensures that you are working in the correct environment.
 
 ```bash
 terraform init -reconfigure -backend-config=env/dev/backend.hcl
@@ -61,17 +59,9 @@ terraform init -reconfigure -backend-config=env/dev/backend.hcl
 # terraform init -reconfigure -backend-config=env/prod/backend.hcl
 ```
 
-Then, create a new workspace for your environment:
-
-```bash
-terraform workspace new dev
-# For production:
-# terraform workspace new prod
-```
-
 ### 3. Apply Terraform Changes
 
-To apply the Terraform configuration and provision the VMs, use the appropriate variables for your selected workspace:
+To apply the Terraform configuration and provision the VMs, use the appropriate variables for your selected environments:
 
 ```bash
 terraform apply -var-file="env/dev/main.tfvars"
@@ -81,7 +71,7 @@ terraform apply -var-file="env/dev/main.tfvars"
 
 ### 4. Destroy Terraform Resources
 
-To destroy all resources provisioned by Terraform in the current workspace:
+To destroy all resources provisioned by Terraform in the current environments:
 
 ```bash
 terraform destroy -var-file="env/dev/main.tfvars"

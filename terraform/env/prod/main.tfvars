@@ -5,7 +5,7 @@ env = "prod"
 proxmox_endpoint       = "https://10.69.1.1:8006/"
 proxmox_username       = "root@pam"
 proxmox_password       = "Phuc@2006"
-proxmox_ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL52EDCs01sr3fEP8ye32xTcEI3GBovbQ1V2RPPMZ/bb" # Paste your ssh public key on your machine here
+proxmox_ssh_public_key = "/home/felix/.ssh/id_ed25519.pub" # Absolute path of your ssh public key on your machine
 
 # General VM settings - PLEASE REVIEW AND ADJUST
 vm_node_name    = "pve"           # Proxmox node where VMs are created
