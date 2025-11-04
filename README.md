@@ -141,6 +141,15 @@ The Ansible playbook automates the following tasks:
 
 ## Utilities
 
+### Auto-generate Ansible hosts.ini file
+
+If you don't want to parse the IP and node-name from `terraform/env/dev/k8s_nodes.json` to `ansible/inventory/hosts.ini` manually, you can use the following script (make sure to change the file path in the script accordingly):
+
+```bash
+./scripts/generate-all-hosts.sh
+
+```
+
 ### Clean Up SSH Known Hosts
 
 If you encounter SSH connection issues or need to clear old host entries, you can use the following script:

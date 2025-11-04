@@ -2,11 +2,16 @@
 
 set -e
 
+ROOT_DIR="$(git rev-parse --show-toplevel)"
 KNOWN_HOSTS_FILE="${3:-$HOME/.ssh/known_hosts}"
+K8S_NODES_PATH="$ROOT_DIR/terraform/env/dev/k8s_nodes.json"
+LONGHORN_NODES_PATH="$ROOT_DIR/terraform/env/dev/longhorn_nodes.json"
 
-ALL_IPS=("$vip")
-ALL_IPS+=($(echo "$TF_VAR_k8s_nodes" | jq -r 'to_entries[] | .value.address' | cut -d '/' -f1))
-ALL_IPS+=($(echo "$TF_VAR_longhorn_nodes" | jq -r 'to_entries[] | .value.address' | cut -d '/' -f1))
+# Combine JSON files
+COMBINED_JSON=$(jq -s 'add' "$K8S_NODES_PATH" "$LONGHORN_NODES_PATH")
+
+# Get IPs
+ALL_IPS+=($(echo "$COMBINED_JSON" | jq -r 'to_entries[] | .value.address' | cut -d '/' -f1))
 
 # Deduplicate IPs
 ALL_IPS=($(printf "%s\n" "${ALL_IPS[@]}" | sort -u))
@@ -16,7 +21,7 @@ cp "$KNOWN_HOSTS_FILE" "${KNOWN_HOSTS_FILE}.bak"
 
 # Remove entries
 for ip in "${ALL_IPS[@]}"; do
-  echo "🔧 Removing $ip from known_hosts..."
+  echo "Removing $ip from known_hosts..."
   ssh-keygen -R "$ip" -f "$KNOWN_HOSTS_FILE" >/dev/null || true
 done
 
