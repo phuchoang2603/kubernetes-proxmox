@@ -15,7 +15,7 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes c
 - `Longhorn` for persistent storage
 - `ArgoCD` for GitOps deployments
 
-**Blog post:** <https://phuchoang.sbs/posts/terraform-ansible-proxmox-k8s/>
+**Blog post:** <https://phuchoang.sbs/posts/on-premise-provision-terraform/>
 
 **Video demo:**
 [![Youtube video](https://img.youtube.com/vi/Ao6IPSmUFcE/maxresdefault.jpg)](https://youtu.be/Ao6IPSmUFcE)
