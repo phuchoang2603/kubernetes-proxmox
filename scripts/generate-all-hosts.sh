@@ -2,9 +2,22 @@
 
 set -e
 
+# Check if the environment argument is provided
+if [ -z "$1" ]; then
+  echo "Error: Environment argument is not provided. Please provide 'dev' or 'prod'."
+  exit 1
+fi
+
+# Check if the environment is valid
+if [ "$1" != "dev" ] && [ "$1" != "prod" ]; then
+  echo "Error: Invalid environment. Please use 'dev' or 'prod'."
+  exit 1
+fi
+
+ENV=$1
 ROOT_DIR="$(git rev-parse --show-toplevel)"
-K8S_NODES_PATH="$ROOT_DIR/terraform/env/dev/k8s_nodes.json"
-LONGHORN_NODES_PATH="$ROOT_DIR/terraform/env/dev/longhorn_nodes.json"
+K8S_NODES_PATH="$ROOT_DIR/terraform/env/$ENV/k8s_nodes.json"
+LONGHORN_NODES_PATH="$ROOT_DIR/terraform/env/$ENV/longhorn_nodes.json"
 HOSTS_INI_PATH="$ROOT_DIR/ansible/inventory/hosts.ini"
 
 # Combine JSON files

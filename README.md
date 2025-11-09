@@ -18,7 +18,7 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes c
 **Blog post:** <https://phuchoang.sbs/posts/on-premise-provision-terraform/>
 
 **Video demo:**
-[![Youtube video](https://img.youtube.com/vi/Ao6IPSmUFcE/maxresdefault.jpg)](https://youtu.be/Ao6IPSmUFcE)
+[![Youtube video](https://img.youtube.com/vi/IrlKAG5bctk/maxresdefault.jpg)](https://youtu.be/IrlKAG5bctk)
 
 ---
 
@@ -146,8 +146,9 @@ The Ansible playbook automates the following tasks:
 If you don't want to parse the IP and node-name from `terraform/env/dev/k8s_nodes.json` to `ansible/inventory/hosts.ini` manually, you can use the following script (make sure to change the file path in the script accordingly):
 
 ```bash
-./scripts/generate-all-hosts.sh
-
+./scripts/generate-all-hosts.sh dev
+# For production:
+# ./scripts/generate-all-hosts.sh prod
 ```
 
 ### Clean Up SSH Known Hosts
@@ -155,5 +156,7 @@ If you don't want to parse the IP and node-name from `terraform/env/dev/k8s_node
 If you encounter SSH connection issues or need to clear old host entries, you can use the following script:
 
 ```bash
-./scripts/clean-up-ssh-known-hosts.sh
+./scripts/clean-up-ssh-known-hosts.sh dev
+# For production:
+# ./scripts/clean-up-ssh-known-hosts.sh prod
 ```
