@@ -30,9 +30,16 @@
     mode: "0755"
     state: file
 
-- name: Create directory for rke2 configs & manifests
+- name: Create directory for rke2 manifests
   ansible.builtin.file:
     path: "/var/lib/rancher/rke2/server/manifests"
     state: directory
     mode: "0755"
+  when: inventory_hostname in groups['servers']
+
+- name: Create directory for RKE2 config
+  ansible.builtin.file:
+    path: "/etc/rancher/rke2"
+    state: directory
+    mode: "0644"
   when: inventory_hostname in groups['servers']

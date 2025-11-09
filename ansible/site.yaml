@@ -1,18 +1,11 @@
 - name: Prepare all nodes & Download RKE2
   hosts: rke2 # servers + agents + longhorn nodes combined
   gather_facts: false
-  become: true
   roles:
     - download-rke2
 
 # Bootstrap k8s
-- name: Bootstraps the first server
-  hosts: servers
-  gather_facts: true
-  roles:
-    - prepare-rke2
-
-- name: Add additional RKE2 Servers
+- name: Bootstrap RKE2 Servers
   hosts: servers
   gather_facts: true
   roles:
@@ -28,6 +21,7 @@
 - name: Deploy Kube VIP
   hosts: servers
   gather_facts: true
+  run_once: true
   roles:
     - role: apply-kube-vip
       tags: [kube_vip]
@@ -35,6 +29,7 @@
 - name: Deploy Cert-Manager & Traefik
   hosts: servers
   gather_facts: true
+  run_once: true
   roles:
     - role: apply-ssl
       tags: [ssl]
@@ -42,8 +37,40 @@
 - name: Deploy Optional services
   hosts: servers
   gather_facts: true
+  run_once: true
   roles:
     - role: apply-longhorn
       tags: [longhorn]
     - role: apply-argocd
       tags: [argocd]
+
+- name: Fetch kubeconfig from the first server
+  hosts: servers
+  tasks:
+    - name: Fetch kubeconfig
+      ansible.builtin.fetch:
+        src: "/home/{{ ansible_user }}/.kube/config"
+        dest: "/tmp/{{ env }}.yaml"
+        flat: true
+      when: inventory_hostname == groups['servers'][0]
+
+- name: Configure kubectl on localhost
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Ensure .kube directory exists on localhost
+      ansible.builtin.file:
+        path: "{{ lookup('env', 'HOME') }}/.kube"
+        state: directory
+        mode: "0755"
+
+    - name: Move fetched kubeconfig to ~/.kube/{{env}}.yml
+      ansible.builtin.command:
+        cmd: "mv /tmp/{{ env }}.yaml {{ lookup('env', 'HOME') }}/.kube/{{env}}.yml"
+      changed_when: true
+
+    - name: Rename context from 'default' to a unique name
+      ansible.builtin.replace:
+        path: "{{ lookup('env', 'HOME') }}/.kube/{{env}}.yml"
+        regexp: "default"
+        replace: "{{env}}"
