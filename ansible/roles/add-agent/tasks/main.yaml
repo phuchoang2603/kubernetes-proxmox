@@ -11,18 +11,16 @@
     owner: root
     group: root
     mode: "0644"
-  when: inventory_hostname in groups['agents']
 
-- name: Deploy RKE2 Agent Configuration
+# replaces two separate config tasks
+- name: Deploy RKE2 Agent or Longhorn Configuration
   ansible.builtin.template:
-    src: templates/rke2-agent-config.j2
+    src: "{{ 'templates/rke2-longhorn-config.j2' if inventory_hostname in groups['longhorn'] else 'templates/rke2-agent-config.j2' }}"
     dest: /etc/rancher/rke2/config.yaml
     owner: root
     group: root
     mode: "0644"
-  when: inventory_hostname in groups['agents']
 
-# Check agents have restarted to pick up config
 - name: Ensure RKE2 agents are enabled and running
   ansible.builtin.systemd:
     name: rke2-agent

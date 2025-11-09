@@ -18,18 +18,11 @@
   roles:
     - add-server
 
-- name: Add additional RKE2 Agents
-  hosts: agents
+- name: Add additional RKE2 agents & longhorn agents
+  hosts: agents, longhorn
   gather_facts: true
   roles:
     - add-agent
-
-- name: Add additional RKE2 longhorn agents with tags longhorn=true
-  hosts: longhorn
-  gather_facts: true
-  roles:
-    - role: add-longhorn
-      tags: [longhorn]
 
 # Deploy applications
 - name: Deploy Kube VIP
