@@ -1,13 +1,10 @@
-# bootstraps first server and copies configs for others/agents
-- name: Prepare all nodes
-  hosts: rke2
-  gather_facts: false # fact gathering is slow and not needed for any of our tasks
+- name: Prepare all nodes & Download RKE2
+  hosts: rke2 # servers + agents + longhorn nodes combined
+  gather_facts: false
   become: true
   roles:
-    - prepare-nodes
     - download-rke2
 
-# Creates RKE2 bootstrap manifests folder and copies kube-vip template over (configured with variables)
 - name: Deploy Kube VIP
   hosts: servers
   gather_facts: true
@@ -48,9 +45,7 @@
   hosts: servers
   gather_facts: true
   roles:
-    - role: apply-cert-manager
-      tags: [ssl]
-    - role: apply-traefik
+    - role: apply-ssl
       tags: [ssl]
 
 - name: Deploy Optional services
