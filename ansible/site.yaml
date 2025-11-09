@@ -5,6 +5,33 @@
   roles:
     - download-rke2
 
+# Bootstrap k8s
+- name: Bootstraps the first server
+  hosts: servers
+  gather_facts: true
+  roles:
+    - prepare-rke2
+
+- name: Add additional RKE2 Servers
+  hosts: servers
+  gather_facts: true
+  roles:
+    - add-server
+
+- name: Add additional RKE2 Agents
+  hosts: agents
+  gather_facts: true
+  roles:
+    - add-agent
+
+- name: Add additional RKE2 longhorn agents with tags longhorn=true
+  hosts: longhorn
+  gather_facts: true
+  roles:
+    - role: add-longhorn
+      tags: [longhorn]
+
+# Deploy applications
 - name: Deploy Kube VIP
   hosts: servers
   gather_facts: true
@@ -12,36 +39,7 @@
     - role: apply-kube-vip
       tags: [kube_vip]
 
-# bootstraps the first server, copies configs to nodes, saves token to use later
-- name: Prepare RKE2 on Servers
-  hosts: servers
-  gather_facts: true
-  roles:
-    - prepare-rke2
-
-# Adds additional servers using the token from the previous task
-- name: Add additional RKE2 Servers
-  hosts: servers
-  gather_facts: true
-  roles:
-    - add-server
-
-# Adds agents to the cluster
-- name: Add additional RKE2 Agents
-  hosts: agents
-  gather_facts: true
-  roles:
-    - add-agent
-
-# Adds longhorn agents to the cluster with tags longhorn=true
-- name: Add additional RKE2 longhorn
-  hosts: longhorn
-  gather_facts: true
-  roles:
-    - role: add-longhorn
-      tags: [longhorn]
-
-- name: Apply Cert-Manager & Traefik manifests
+- name: Deploy Cert-Manager & Traefik
   hosts: servers
   gather_facts: true
   roles:

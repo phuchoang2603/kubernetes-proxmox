@@ -13,7 +13,6 @@
     mode: "0644"
   when: inventory_hostname in groups['agents']
 
-# Copy agent config to all agents - we need to change agent2 & 3 later with the token
 - name: Deploy RKE2 Agent Configuration
   ansible.builtin.template:
     src: templates/rke2-agent-config.j2

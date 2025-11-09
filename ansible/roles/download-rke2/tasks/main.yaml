@@ -30,7 +30,7 @@
     mode: "0755"
     state: file
 
-- name: Create directory for rke2 manifests
+- name: Create directory for rke2 configs & manifests
   ansible.builtin.file:
     path: "/var/lib/rancher/rke2/server/manifests"
     state: directory

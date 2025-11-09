@@ -1,4 +1,5 @@
 write-kubeconfig-mode: "0644"
+token: {{ rke2_token }}
 tls-san:
   - {{ vip }}
 {% for host in groups['servers'] %}

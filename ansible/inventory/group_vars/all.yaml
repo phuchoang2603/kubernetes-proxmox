@@ -1,7 +1,7 @@
 ansible_user: ubuntu
 rke2_version: "v1.32.3+rke2r1"
 arch: amd64
-token: dev # for authenticate & add nodes in cluster
+rke2_token: dev # for authenticate & add nodes in cluster
 env: dev
 vip: "10.69.1.110" # for virtual ip of the servers
 vip_cidr: "16"
