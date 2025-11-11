@@ -1,6 +1,6 @@
 - name: Prepare all nodes & Download RKE2
   hosts: rke2 # servers + agents + longhorn nodes combined
-  gather_facts: false
+  gather_facts: true
   roles:
     - download-rke2
 
