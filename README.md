@@ -1,5 +1,7 @@
 # RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
+![arch](./scripts/img.png)
+
 This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**.
 
 **Features:**
