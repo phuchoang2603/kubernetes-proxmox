@@ -33,7 +33,9 @@ cd kubernetes-proxmox
 
 ---
 
-## Initial Setup
+## Terraform Operations: Create VMs
+
+### 1. Set Up Environment Variables
 
 Before proceeding, run the `pre-setup.sh` script to install essential tools like `mise`, `kubectl`, `helm`, and `kubectx`.
 
@@ -42,12 +44,6 @@ Before proceeding, run the `pre-setup.sh` script to install essential tools like
 cd terraform
 mise use terraform
 ```
-
----
-
-## Terraform Operations: Create VMs
-
-### 1. Set Up Environment Variables
 
 Customize your VM specifications, hostnames, and IP addresses in `terraform/env/dev/k8s_nodes.json` based on your environment (dev or prod). All other environment variables are located in `terraform/env/dev/main.tfvars`.
 
@@ -94,15 +90,20 @@ terraform destroy -var-file="env/dev/main.tfvars"
 
 ### 1. Set up Ansible and Environments
 
-It is recommended to use `uv` to manage the Python virtual environment. If you choose not to, ensure that you have Ansible and the required collections installed in your environment.
-
 ```bash
-uv venv
-source .venv/bin/activate
-uv sync
+cd ansible
+mise use ansible
 ```
 
 Customize the hostnames and IP addresses of the machines in `ansible/inventory/hosts.ini`. Change all other environment variables in `ansible/inventory/group_vars/all.yaml`.
+
+You can run my script to parse the IP and node-name from `terraform/env/dev/k8s_nodes.json` to `ansible/inventory/hosts.ini` automatically (make sure to change the file path in the script accordingly):
+
+```bash
+./scripts/generate-all-hosts.sh dev
+# For production:
+# ./scripts/generate-all-hosts.sh prod
+```
 
 ### 2. Run the Ansible Playbook
 
@@ -142,16 +143,6 @@ The Ansible playbook automates the following tasks:
 ---
 
 ## Utilities
-
-### Auto-generate Ansible hosts.ini file
-
-If you don't want to parse the IP and node-name from `terraform/env/dev/k8s_nodes.json` to `ansible/inventory/hosts.ini` manually, you can use the following script (make sure to change the file path in the script accordingly):
-
-```bash
-./scripts/generate-all-hosts.sh dev
-# For production:
-# ./scripts/generate-all-hosts.sh prod
-```
 
 ### Clean Up SSH Known Hosts
 
