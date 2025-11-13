@@ -123,7 +123,7 @@ jobs:
           ssh-keygen -t rsa -b 4096 -f ./runner_key -q -N ""
 
           # Send the Public Key to Vault for signing
-          vault write -field=signed_key ssh-client-signer/sign/github-runner \
+          vault write -field=signed_key ${{vars.ENV_NAME}}_ssh_client_signer/sign/github-runner \
             public_key=@./runner_key.pub \
             valid_principals=ubuntu > runner_key-cert.pub
 
