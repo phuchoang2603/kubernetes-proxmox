@@ -1,6 +1,3 @@
-# Environment name
-env = "dev"
-
 # General VM settings - PLEASE REVIEW AND ADJUST
 vm_node_name    = "pve"     # Proxmox node where VMs are created
 vm_datastore_id = "truenas" # storage for downloading cloud img, storing snippets, etc.

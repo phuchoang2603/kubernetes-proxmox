@@ -42,7 +42,7 @@ jobs:
           url: ${{ vars.VAULT_ADDR }}
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            kv/dev/data/minio *
+            kv/${{vars.ENV_NAME}}/data/minio *
 
       - name: Create Terraform Backend Configuration
         run: |
@@ -56,4 +56,8 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -var-file="env/dev/main.tfvars"
+        env:
+          TF_VAR_env: ${{ vars.ENV_NAME }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+        run: terraform plan -var-file="env/${{ vars.ENV_NAME }}/main.tfvars"
