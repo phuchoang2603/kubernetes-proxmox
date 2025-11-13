@@ -24,7 +24,7 @@ spec:
     service:
       type: LoadBalancer
       spec: 
-        loadBalancerIP: {{ ssl_ingress_ip }}
+        loadBalancerIP: {{ vip_ingress_ip }}
     tlsStore:
       default:
         defaultCertificate:
