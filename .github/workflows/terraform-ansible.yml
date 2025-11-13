@@ -124,7 +124,8 @@ jobs:
           # Send ONLY the Public Key to Vault for signing
           # matches your command: uses @ to read file, writes output to -cert.pub
           vault write -field=signed_key ssh-client-signer/sign/github-runner \
-            public_key=@./runner_key.pub > runner_key-cert.pub
+            public_key=@./runner_key.pub \
+            valid_principals=ubuntu > runner_key-cert.pub
 
           # Set strict permissions (SSH is picky!)
           chmod 600 runner_key
