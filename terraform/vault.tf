@@ -7,7 +7,7 @@ data "vault_generic_secret" "proxmox" {
 # 1. Mount SSH engine path
 resource "vault_mount" "ssh_client_signer" {
   type = "ssh"
-  path = "ssh-client-signer"
+  path = "${var.env}_ssh_client_signer"
 }
 
 # 2. Config SSH CA signer at the path above
