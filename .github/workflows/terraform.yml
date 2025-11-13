@@ -42,47 +42,18 @@ jobs:
           url: ${{ vars.VAULT_ADDR }}
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            kv/dev/data/minio access_key | B2_ACCESS_KEY;
-            kv/dev/data/minio secret_key | B2_SECRET_KEY;
-            kv/dev/data/minio bucket | B2_BUCKET;
-            kv/dev/data/minio key | B2_KEY;
-            kv/dev/data/minio region | B2_REGION;
-            kv/dev/data/minio endpoints | B2_ENDPOINT;
-            kv/dev/data/minio skip_credentials_validation | B2_SKIP_CREDENTIALS_VALIDATION;
-            kv/dev/data/minio skip_metadata_api_check | B2_SKIP_METADATA_API_CHECK;
-            kv/dev/data/minio skip_region_validation | B2_SKIP_REGION_VALIDATION;
-            kv/dev/data/minio skip_requesting_account_id | B2_SKIP_REQUESTING_ACCOUNT_ID;
-            kv/dev/data/minio use_path_style | B2_USE_PATH_STYLE;
+            kv/dev/data/minio *
 
-      - name: Create Terraform backend config
+      - name: Create Terraform Backend Configuration
         run: |
-          echo "Creating backend.hcl..."
-          cat <<EOF > backend.hcl
-          bucket                      = "${{ env.B2_BUCKET }}"
-          key                         = "${{ env.B2_KEY }}"
-          region                      = "${{ env.B2_REGION }}"
-          access_key                  = "${{ env.B2_ACCESS_KEY }}"
-          secret_key                  = "${{ env.B2_SECRET_KEY }}"
-          endpoint                    = "${{ env.B2_ENDPOINT }}"
-          skip_credentials_validation = ${{ env.B2_SKIP_CREDENTIALS_VALIDATION }}
-          skip_metadata_api_check     = ${{ env.B2_SKIP_METADATA_API_CHECK }}
-          skip_region_validation      = ${{ env.B2_SKIP_REGION_VALIDATION }}
-          skip_requesting_account_id  = ${{ env.B2_SKIP_REQUESTING_ACCOUNT_ID }}
-          use_path_style              = ${{ env.B2_USE_PATH_STYLE }}
-          EOF
-          echo "backend.hcl created."
-          cat backend.hcl
+          echo '${{ toJson(steps.import-secrets.outputs) }}' > secrets.json
+          jq '.endpoints = {s3: .endpoints}' secrets.json > secrets.json.tmp && mv secrets.json.tmp secrets.json
+          cat secrets.json
 
       - name: Terraform Init
         id: init
-        run: terraform init -reconfigure -backend-config=backend.hcl
+        run: terraform init -reconfigure -backend-config=secrets.json
 
       - name: Terraform Plan
         id: plan
         run: terraform plan -var-file="env/dev/main.tfvars"
-
-      - name: Remove backend.hcl
-        run: |
-          echo "Removing backend.hcl..."
-          rm backend.hcl
-          echo "backend.hcl removed."
