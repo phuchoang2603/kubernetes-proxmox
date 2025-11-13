@@ -3,11 +3,6 @@ variable "env" {
   type        = string
 }
 
-variable "proxmox_ssh_public_key" {
-  description = "SSH public key for VM access"
-  type        = string
-}
-
 variable "vm_node_name" {
   description = "Proxmox node where VMs are created"
   type        = string
@@ -88,3 +83,4 @@ locals {
 data "vault_generic_secret" "proxmox" {
   path = "kv/${var.env}/proxmox"
 }
+

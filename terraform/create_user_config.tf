@@ -1,5 +1,20 @@
-data "local_file" "ssh_public_key" {
-  filename = var.proxmox_ssh_public_key
+resource "vault_mount" "ssh_client_signer" {
+  type = "ssh"
+  path = "ssh-client-signer"
+}
+
+resource "vault_ssh_secret_backend_ca" "ssh_ca" {
+  backend              = vault_mount.ssh_client_signer.path
+  generate_signing_key = true
+}
+
+resource "vault_ssh_secret_backend_role" "github_runner" {
+  backend                 = vault_mount.ssh_client_signer.path
+  name                    = "github-runner"
+  key_type                = "ca"
+  allow_user_certificates = true
+  allowed_users           = var.vm_username
+  ttl                     = "1800" # 30 minutes
 }
 
 resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
@@ -18,8 +33,6 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
         groups:
           - sudo
         shell: /bin/bash
-        ssh_authorized_keys:
-          - ${trimspace(data.local_file.ssh_public_key.content)}
         sudo: ALL=(ALL) NOPASSWD:ALL
     package_update: true
     packages:
@@ -27,11 +40,18 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
       - net-tools
       - curl
       - cryptsetup
+    write_files:
+      - path: /etc/ssh/ca.pub
+        content: |
+          ${vault_ssh_secret_backend_ca.ssh_ca.public_key}
+        permissions: '0644'
     runcmd:
       - systemctl start qemu-guest-agent
+      - echo "TrustedUserCAKeys /etc/ssh/ca.pub" >> /etc/ssh/sshd_config
+      - systemctl restart sshd
     EOF
 
-    file_name = "user-data-cloud-config.yaml"
+    file_name = "${var.env}-user-data-cloud-config.yaml"
   }
 }
 

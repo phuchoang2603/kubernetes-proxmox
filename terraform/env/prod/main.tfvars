@@ -1,9 +1,6 @@
 # Environment name
 env = "prod"
 
-# Proxmox API details - PLEASE FILL THESE IN
-proxmox_ssh_public_key = "/home/felix/.ssh/id_ed25519.pub" # Absolute path of your ssh public key on your machine
-
 # General VM settings - PLEASE REVIEW AND ADJUST
 vm_node_name    = "pve"     # Proxmox node where VMs are created
 vm_datastore_id = "truenas" # storage for downloading cloud img, storing snippets, etc.
