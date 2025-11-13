@@ -76,5 +76,6 @@
   retries: 120
   delay: 10
   changed_when: true
+  become: true
   become_user: "{{ ansible_user }}"
   when: inventory_hostname == groups['servers'][0]

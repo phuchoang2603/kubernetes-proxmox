@@ -1,0 +1,53 @@
+name: Lint
+
+on:
+  pull_request:
+
+jobs:
+  terraform-lint:
+    name: Terraform Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+  ansible-lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ansible
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install ansible-lint
+        run: pip install ansible-lint
+
+      - name: Install Ansible collections
+        run: ansible-galaxy install -r requirements.yml
+
+      - name: Run ansible-lint
+        run: ansible-lint

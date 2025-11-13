@@ -136,11 +136,16 @@ jobs:
           ../scripts/generate-all-hosts.sh dev
           cat ./inventory/hosts.ini
 
+      - name: Install Ansible
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Install Ansible collections
+        run: ansible-galaxy install -r requirements.yml
+
       - name: Run playbook
-        uses: dawidd6/action-ansible-playbook@v5
         env:
           ENV: ${{ vars.ENV_NAME }}
-        with:
-          directory: ./ansible
-          playbook: site.yaml
-          key: runner_key
+        run: ansible-playbook --private-key runner_key site.yaml
