@@ -75,7 +75,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -reconfigure
+        run: terraform init -reconfigure -backend-config=backend.hcl
 
       - name: Terraform Plan
         id: plan
