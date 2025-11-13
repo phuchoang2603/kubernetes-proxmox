@@ -142,6 +142,9 @@ jobs:
           sudo apt update
           sudo apt install -y ansible
 
+      - name: Install Ansible collections
+        run: ansible-galaxy install -r requirements.yml
+
       - name: Run playbook
         env:
           ENV: ${{ vars.ENV_NAME }}
