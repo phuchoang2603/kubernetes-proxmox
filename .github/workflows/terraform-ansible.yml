@@ -109,7 +109,14 @@ jobs:
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
             kv/${{vars.ENV_NAME}}/data/rke2 * | RKE2_ ;
 
+      - uses: eLco/setup-vault@v1
+        with:
+          vault_version: 1.21.0
+
       - name: Generate and Sign SSH Key
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
         run: |
           # Generate a fresh SSH keypair locally (no passphrase)
           ssh-keygen -t rsa -b 4096 -f ./runner_key -q -N ""
