@@ -1,22 +1,3 @@
-resource "vault_mount" "ssh_client_signer" {
-  type = "ssh"
-  path = "ssh-client-signer"
-}
-
-resource "vault_ssh_secret_backend_ca" "ssh_ca" {
-  backend              = vault_mount.ssh_client_signer.path
-  generate_signing_key = true
-}
-
-resource "vault_ssh_secret_backend_role" "github_runner" {
-  backend                 = vault_mount.ssh_client_signer.path
-  name                    = "github-runner"
-  key_type                = "ca"
-  allow_user_certificates = true
-  allowed_users           = var.vm_username
-  ttl                     = "1800" # 30 minutes
-}
-
 resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
   content_type = "snippets"
   datastore_id = var.vm_datastore_id
