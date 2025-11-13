@@ -60,7 +60,14 @@ jobs:
           TF_VAR_env: ${{ vars.ENV_NAME }}
           VAULT_ADDR: ${{ vars.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-        run: terraform plan -var-file="env/${{ vars.ENV_NAME }}/main.tfvars" -out .planfile
+        run: |
+          # Check if Destroy mode is enabled
+          PLAN_ARGS=""
+          if [ "${{ vars.DESTROY }}" == "true" ]; then
+            PLAN_ARGS="-destroy"
+          fi
+
+          terraform plan $PLAN_ARGS -var-file="env/${{ vars.ENV_NAME }}/main.tfvars" -out .planfile
 
       - name: Post PR comment
         uses: borchero/terraform-plan-comment@v2
@@ -81,7 +88,8 @@ jobs:
   ansible-bootstrap:
     runs-on: ubuntu-latest
     needs: terraform-plan-apply
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    # Only run if on master, is a push, AND destroy mode is NOT enabled
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push' && vars.DESTROY != 'true'
     environment: ${{ vars.ENV_NAME }}
 
     defaults:
