@@ -54,11 +54,9 @@ jobs:
           cat secrets.json
 
       - name: Terraform Init
-        id: init
         run: terraform init -reconfigure -backend-config=secrets.json
 
       - name: Terraform Plan
-        id: plan
         env:
           TF_VAR_env: ${{ vars.ENV_NAME }}
           VAULT_ADDR: ${{ vars.VAULT_ADDR }}
@@ -76,4 +74,8 @@ jobs:
       # 👇 THE NEW STEP
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        env:
+          TF_VAR_env: ${{ vars.ENV_NAME }}
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
         run: terraform apply -auto-approve .planfile
