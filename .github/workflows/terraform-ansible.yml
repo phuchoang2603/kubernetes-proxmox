@@ -133,7 +133,7 @@ jobs:
 
       - name: Generate Ansible Inventory
         run: |
-          ../scripts/generate-all-hosts.sh dev
+          ../scripts/generate-all-hosts.sh ${{ vars.ENV_NAME }}
           cat ./inventory/hosts.ini
 
       - name: Install Ansible
