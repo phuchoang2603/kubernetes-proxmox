@@ -14,6 +14,10 @@ jobs:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read # Required to checkout code
+      pull-requests: write # Required to post comments on PRs
+
     defaults:
       run:
         shell: bash
@@ -60,4 +64,11 @@ jobs:
           TF_VAR_env: ${{ vars.ENV_NAME }}
           VAULT_ADDR: ${{ vars.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-        run: terraform plan -var-file="env/${{ vars.ENV_NAME }}/main.tfvars"
+        run: terraform plan -no-color -var-file="env/${{ vars.ENV_NAME }}/main.tfvars" -out .planfile
+
+      - name: Post PR comment
+        uses: borchero/terraform-plan-comment@v2
+        with:
+          token: ${{ github.token }}
+          planfile: .planfile
+          working-directory: "./terraform"
