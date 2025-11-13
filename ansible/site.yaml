@@ -53,6 +53,7 @@
         dest: "/tmp/{{ env }}.yaml"
         flat: true
       when: inventory_hostname == groups['servers'][0]
+  when: lookup('env', 'FETCH_KUBECONFIG') == 'true'
 
 - name: Configure kubectl on localhost
   hosts: localhost
@@ -74,3 +75,4 @@
         path: "{{ lookup('env', 'HOME') }}/.kube/{{env}}.yml"
         regexp: "default"
         replace: "{{env}}"
+  when: lookup('env', 'FETCH_KUBECONFIG') == 'true'
