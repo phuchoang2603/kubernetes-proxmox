@@ -51,7 +51,6 @@ jobs:
         run: |
           echo '${{ toJson(steps.import-secrets.outputs) }}' > secrets.json
           jq '.endpoints = {s3: .endpoints}' secrets.json > secrets.json.tmp && mv secrets.json.tmp secrets.json
-          cat secrets.json
 
       - name: Terraform Init
         run: terraform init -reconfigure -backend-config=secrets.json
@@ -123,13 +122,12 @@ jobs:
           # Generate a fresh SSH keypair locally (no passphrase)
           ssh-keygen -t rsa -b 4096 -f ./runner_key -q -N ""
 
-          # Send ONLY the Public Key to Vault for signing
-          # matches your command: uses @ to read file, writes output to -cert.pub
+          # Send the Public Key to Vault for signing
           vault write -field=signed_key ssh-client-signer/sign/github-runner \
             public_key=@./runner_key.pub \
             valid_principals=ubuntu > runner_key-cert.pub
 
-          # Set strict permissions (SSH is picky!)
+          # Set strict permissions
           chmod 600 runner_key
           chmod 644 runner_key-cert.pub
 
