@@ -35,7 +35,7 @@ jobs:
           tags: tag:ci
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.6
 
@@ -45,8 +45,7 @@ jobs:
         with:
           url: ${{ vars.VAULT_ADDR }}
           token: ${{ secrets.VAULT_TOKEN }}
-          secrets: |
-            kv/${{vars.ENV_NAME}}/data/minio *
+          secrets: kv/${{vars.ENV_NAME}}/data/minio *
 
       - name: Create Terraform Backend Configuration
         run: |
@@ -64,11 +63,11 @@ jobs:
           TF_VAR_env: ${{ vars.ENV_NAME }}
           VAULT_ADDR: ${{ vars.VAULT_ADDR }}
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
-        run: terraform plan -no-color -var-file="env/${{ vars.ENV_NAME }}/main.tfvars" -out .planfile
+        run: terraform plan -var-file="env/${{ vars.ENV_NAME }}/main.tfvars" -out .planfile
 
       - name: Post PR comment
         uses: borchero/terraform-plan-comment@v2
         with:
           token: ${{ github.token }}
-          planfile: .planfile
           working-directory: "./terraform"
+          planfile: .planfile
