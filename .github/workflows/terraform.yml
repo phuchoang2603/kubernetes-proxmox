@@ -1,4 +1,4 @@
-name: Terraform plan
+name: Terraform Plan and Apply
 
 on:
   push:
@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  terraform-plan:
-    name: "Terraform Plan"
+  terraform-plan-apply:
+    name: "Terraform Plan and Apply"
     runs-on: ubuntu-latest
 
     permissions:
@@ -67,7 +67,13 @@ jobs:
 
       - name: Post PR comment
         uses: borchero/terraform-plan-comment@v2
+        if: github.event_name == 'pull_request' # Only comment on PRs
         with:
           token: ${{ github.token }}
           working-directory: "./terraform"
           planfile: .planfile
+
+      # 👇 THE NEW STEP
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: terraform apply -auto-approve .planfile
