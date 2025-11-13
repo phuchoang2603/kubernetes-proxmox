@@ -1,0 +1,88 @@
+name: Terraform plan
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  terraform-plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.6
+
+      - name: Import Secrets from Vault
+        id: import-secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ vars.VAULT_ADDR }}
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            kv/data/dev/minio access_key | B2_ACCESS_KEY;
+            kv/data/dev/minio secret_key | B2_SECRET_KEY;
+            kv/data/dev/minio bucket | B2_BUCKET;
+            kv/data/dev/minio key | B2_KEY;
+            kv/data/dev/minio region | B2_REGION;
+            kv/data/dev/minio endpoints | B2_ENDPOINT;
+            kv/data/dev/minio skip_credentials_validation | B2_SKIP_CREDENTIALS_VALIDATION;
+            kv/data/dev/minio skip_metadata_api_check | B2_SKIP_METADATA_API_CHECK;
+            kv/data/dev/minio skip_region_validation | B2_SKIP_REGION_VALIDATION;
+            kv/data/dev/minio skip_requesting_account_id | B2_SKIP_REQUESTING_ACCOUNT_ID;
+            kv/data/dev/minio use_path_style | B2_USE_PATH_STYLE;
+
+      - name: Create Terraform backend config
+        run: |
+          echo "Creating backend.hcl..."
+          cat <<EOF > backend.hcl
+          bucket                      = "${{ env.B2_BUCKET }}"
+          key                         = "${{ env.B2_KEY }}"
+          region                      = "${{ env.B2_REGION }}"
+          access_key                  = "${{ env.B2_ACCESS_KEY }}"
+          secret_key                  = "${{ env.B2_SECRET_KEY }}"
+          endpoint                    = "${{ env.B2_ENDPOINT }}"
+          skip_credentials_validation = ${{ env.B2_SKIP_CREDENTIALS_VALIDATION }}
+          skip_metadata_api_check     = ${{ env.B2_SKIP_METADATA_API_CHECK }}
+          skip_region_validation      = ${{ env.B2_SKIP_REGION_VALIDATION }}
+          skip_requesting_account_id  = ${{ env.B2_SKIP_REQUESTING_ACCOUNT_ID }}
+          use_path_style              = ${{ env.B2_USE_PATH_STYLE }}
+          EOF
+          echo "backend.hcl created."
+          cat backend.hcl
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -reconfigure
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file="env/dev/main.tfvars"
+
+      - name: Remove backend.hcl
+        run: |
+          echo "Removing backend.hcl..."
+          rm backend.hcl
+          echo "backend.hcl removed."
