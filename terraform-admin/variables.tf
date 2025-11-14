@@ -22,8 +22,9 @@ variable "github_repository" {
   default     = "kubernetes-proxmox"
 }
 
-variable "oidc_ttl" {
-  type        = number
-  description = "The default incremental time-to-live for the generated token, in seconds."
-  default     = 100
+variable "github_branch" {
+  type        = string
+  description = "The GitHub branch name to restrict access to."
+  default     = "master"
+
 }
