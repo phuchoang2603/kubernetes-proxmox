@@ -134,10 +134,13 @@ jobs:
 
       - name: Import Secrets from Vault
         uses: hashicorp/vault-action@v3
+        id: vault_auth
         with:
           method: jwt
           url: ${{ vars.VAULT_ADDR }}
           role: ${{ steps.set-role.outputs.role }}
+          exportToken: true
+          outputToken: true
           secrets: |
             kv/shared/data/cloudflare * | SSL_ ;
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
@@ -150,7 +153,7 @@ jobs:
       - name: Generate and Sign SSH Key
         env:
           VAULT_ADDR: ${{ vars.VAULT_ADDR }}
-          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+          VAULT_TOKEN: ${{ steps.vault_auth.outputs.vault_token }}
         run: |
           # Generate a fresh SSH keypair locally (no passphrase)
           ssh-keygen -t rsa -b 4096 -f ./runner_key -q -N ""
