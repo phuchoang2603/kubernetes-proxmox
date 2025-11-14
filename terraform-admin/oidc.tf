@@ -29,6 +29,6 @@ resource "vault_jwt_auth_backend_role" "github_actions_pr_role" {
   bound_claims = {
     "repository" = "${var.github_organization}/${var.github_repository}"
     "event_name" = "pull_request"
-    "base_ref"   = "refs/heads/${var.github_branch}"
+    "base_ref"   = var.github_branch
   }
 }
