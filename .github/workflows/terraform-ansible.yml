@@ -12,7 +12,6 @@ on:
 jobs:
   terraform-plan-apply:
     runs-on: ubuntu-latest
-    environment: ${{ vars.ENV_NAME }}
 
     permissions:
       contents: read # Required to checkout code
@@ -61,7 +60,7 @@ jobs:
           secrets: |
             kv/shared/data/minio access_key | AWS_ACCESS_KEY_ID ;
             kv/shared/data/minio secret_key | AWS_SECRET_ACCESS_KEY ;
-            kv/shared/data/proxmox ** | TF_VAR_proxmox_
+            kv/shared/data/proxmox ** | TF_VAR_proxmox_ ;
             kv/${{ vars.ENV_NAME }}/data/ssh_ca_public_key public_key | TF_VAR_proxmox_ssh_public_key
 
       - name: Terraform Init
@@ -98,7 +97,6 @@ jobs:
     needs: terraform-plan-apply
     # Only run if on master, is a push, AND destroy mode is NOT enabled
     if: github.ref == 'refs/heads/master' && github.event_name == 'push' && vars.DESTROY != 'true'
-    environment: ${{ vars.ENV_NAME }}
 
     defaults:
       run:
