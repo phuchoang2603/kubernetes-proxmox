@@ -17,8 +17,8 @@ fi
 ENV=$1
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 KNOWN_HOSTS_FILE="${3:-$HOME/.ssh/known_hosts}"
-K8S_NODES_PATH="$ROOT_DIR/terraform/env/$ENV/k8s_nodes.json"
-LONGHORN_NODES_PATH="$ROOT_DIR/terraform/env/$ENV/longhorn_nodes.json"
+K8S_NODES_PATH="$ROOT_DIR/terraform-provision/env/$ENV/k8s_nodes.json"
+LONGHORN_NODES_PATH="$ROOT_DIR/terraform-provision/env/$ENV/longhorn_nodes.json"
 
 # Combine JSON files
 COMBINED_JSON=$(jq -s 'add' "$K8S_NODES_PATH" "$LONGHORN_NODES_PATH")

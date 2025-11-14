@@ -1,3 +1,12 @@
+# Environment name - Should be created via github actions
+# env = 
+
+# Proxmox API details - Should be created via Vault
+# proxmox_endpoint       = ""
+# proxmox_username       = ""
+# proxmox_password       = ""
+# proxmox_ssh_public_key = "" 
+
 # General VM settings - PLEASE REVIEW AND ADJUST
 vm_node_name    = "pve"     # Proxmox node where VMs are created
 vm_datastore_id = "truenas" # storage for downloading cloud img, storing snippets, etc.
