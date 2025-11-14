@@ -48,30 +48,32 @@ jobs:
             echo "role=${{ vars.ENV_NAME }}-github-actions-pr-role" >> $GITHUB_OUTPUT
           fi
 
-      # - name: Troubleshooting
-      #   env:
-      #     VAULT_URL: ${{ vars.VAULT_ADDR }}
-      #     VAULT_AUTH_PATH: github-oidc
-      #     VAULT_ROLE: ${{ steps.set-role.outputs.role }}
-      #   run: |
-      #     curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | \
-      #     jq "{ jwt: .value, role: \"$VAULT_ROLE\" }" > ./token.json
-      #
-      #     echo 'GitHub Actions Token Claims'
-      #     cat ./token.json | jq -r '.jwt | split(".") | .[1] | @base64d' | jq
-      #
-      #     echo 'Vault Login Response'
-      #     curl -sSLf -X POST -H "Content-Type: application/json" --data @token.json $VAULT_URL/v1/auth/$VAULT_AUTH_PATH/login
-      #
-      #     rm ./token.json
+      - name: Troubleshooting
+        env:
+          VAULT_URL: ${{ vars.VAULT_ADDR }}
+          VAULT_AUTH_PATH: github-oidc
+          VAULT_ROLE: ${{ steps.set-role.outputs.role }}
+        run: |
+          curl -sSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL" | \
+          jq "{ jwt: .value, role: \"$VAULT_ROLE\" }" > ./token.json
+
+          cat ./token.json
+
+          echo 'GitHub Actions Token Claims'
+          cat ./token.json | jq -r '.jwt | split(".") | .[1] | @base64d' | jq
+
+          echo 'Vault Login Response'
+          curl -sSLf -X POST -H "Content-Type: application/json" --data @token.json $VAULT_URL/v1/auth/$VAULT_AUTH_PATH/login
+
+          rm ./token.json
 
       - name: Import Secrets from Vault
         id: import-secrets
         uses: hashicorp/vault-action@v2
         with:
+          method: jwt
           url: ${{ vars.VAULT_ADDR }}
           role: ${{ steps.set-role.outputs.role }}
-          method: jwt
           secrets: |
             kv/shared/data/minio access_key | AWS_ACCESS_KEY_ID ;
             kv/shared/data/minio secret_key | AWS_SECRET_ACCESS_KEY ;
