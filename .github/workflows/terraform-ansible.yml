@@ -48,8 +48,7 @@ jobs:
             echo "role=${{ vars.ENV_NAME }}-github-actions-pr-role" >> $GITHUB_OUTPUT
           fi
 
-      - name: Import Secrets from Vault
-        id: import-secrets
+      - name: Import Matching Secrets from Vault
         uses: hashicorp/vault-action@v2
         with:
           method: jwt
@@ -58,8 +57,16 @@ jobs:
           secrets: |
             kv/shared/data/minio access_key | AWS_ACCESS_KEY_ID ;
             kv/shared/data/minio secret_key | AWS_SECRET_ACCESS_KEY ;
-            kv/shared/data/proxmox ** | TF_VAR_proxmox_ ;
             kv/${{ vars.ENV_NAME }}/data/ssh_ca_public_key public_key | TF_VAR_proxmox_ssh_public_key
+
+      - name: Import Multiple Proxmox Creds from Vault
+        uses: hashicorp/vault-action@v2
+        with:
+          method: jwt
+          url: ${{ vars.VAULT_ADDR }}
+          role: ${{ steps.set-role.outputs.role }}
+          secrets: |
+            kv/shared/data/proxmox ** | TF_VAR_proxmox_ ;
 
       - name: Terraform Init
         run: terraform init --backend-config="key=${{ vars.ENV_NAME }}.tfstate"
