@@ -139,7 +139,6 @@ jobs:
           method: jwt
           url: ${{ vars.VAULT_ADDR }}
           role: ${{ steps.set-role.outputs.role }}
-          exportToken: true
           outputToken: true
           secrets: |
             kv/shared/data/cloudflare * | SSL_ ;
@@ -160,7 +159,8 @@ jobs:
 
           # Send the Public Key to Vault for signing
           vault write -field=signed_key ${{vars.ENV_NAME}}-ssh-client-signer/sign/github-runner \
-            public_key=@./runner_key.pub > runner_key-cert.pub
+            public_key=@./runner_key.pub \
+            valid_principals=ubuntu > runner_key-cert.pub
 
           # Set strict permissions
           chmod 600 runner_key
