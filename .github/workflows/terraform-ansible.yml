@@ -103,6 +103,10 @@ jobs:
     # Only run if on master, is a push, AND destroy mode is NOT enabled
     if: github.ref == 'refs/heads/master' && github.event_name == 'push' && vars.DESTROY != 'true'
 
+    permissions:
+      contents: read # Required to checkout code
+      id-token: write # Required to authenticate
+
     defaults:
       run:
         shell: bash
