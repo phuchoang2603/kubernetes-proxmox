@@ -48,7 +48,7 @@ jobs:
             echo "role=${{ vars.ENV_NAME }}-github-actions-pr-role" >> $GITHUB_OUTPUT
           fi
 
-      - name: Import Matching Secrets from Vault
+      - name: Import Secrets from Vault
         uses: hashicorp/vault-action@v3
         with:
           method: jwt
@@ -58,14 +58,6 @@ jobs:
             kv/shared/data/minio access_key | AWS_ACCESS_KEY_ID ;
             kv/shared/data/minio secret_key | AWS_SECRET_ACCESS_KEY ;
             kv/${{ vars.ENV_NAME }}/data/ssh_ca_public_key public_key | TF_VAR_proxmox_ssh_public_key
-
-      - name: Import Multiple Proxmox Creds from Vault
-        uses: hashicorp/vault-action@v3
-        with:
-          method: jwt
-          url: ${{ vars.VAULT_ADDR }}
-          role: ${{ steps.set-role.outputs.role }}
-          secrets: |
             kv/shared/data/proxmox ** | TF_VAR_proxmox_ ;
 
       - name: Terraform Init
@@ -88,7 +80,7 @@ jobs:
         if: github.event_name == 'pull_request' # Only comment on PRs
         with:
           token: ${{ github.token }}
-          working-directory: "./terraform"
+          working-directory: "./terraform-provision"
           planfile: .planfile
 
       - name: Terraform Apply
@@ -119,13 +111,23 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Authenticate Vault
-        uses: hashicorp/vault-action@v2
+      - name: Set Vault Role
+        id: set-role
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "role=${{ vars.ENV_NAME }}-github-actions-push-role" >> $GITHUB_OUTPUT
+          else
+            echo "role=${{ vars.ENV_NAME }}-github-actions-pr-role" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Import Secrets from Vault
+        uses: hashicorp/vault-action@v3
         with:
+          method: jwt
           url: ${{ vars.VAULT_ADDR }}
-          token: ${{ secrets.VAULT_TOKEN }}
+          role: ${{ steps.set-role.outputs.role }}
           secrets: |
-            kv/${{vars.ENV_NAME}}/data/cloudflare * | SSL_ ;
+            kv/shared/data/cloudflare * | SSL_ ;
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
             kv/${{vars.ENV_NAME}}/data/rke2 * | RKE2_ ;
 
@@ -142,7 +144,7 @@ jobs:
           ssh-keygen -t rsa -b 4096 -f ./runner_key -q -N ""
 
           # Send the Public Key to Vault for signing
-          vault write -field=signed_key ${{vars.ENV_NAME}}_ssh_client_signer/sign/github-runner \
+          vault write -field=signed_key ${{vars.ENV_NAME}}-ssh-client-signer/sign/github-runner \
             public_key=@./runner_key.pub > runner_key-cert.pub
 
           # Set strict permissions
@@ -164,6 +166,4 @@ jobs:
         run: ansible-galaxy install -r requirements.yml
 
       - name: Run playbook
-        env:
-          ENV: ${{ vars.ENV_NAME }}
-        run: ansible-playbook --private-key runner_key site.yaml
+        run: ansible-playbook -e "env=${{ vars.ENV_NAME }}" --private-key runner_key site.yaml

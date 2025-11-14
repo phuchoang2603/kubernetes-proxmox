@@ -2,11 +2,10 @@ ansible_user: ubuntu
 rke2_version: "v1.32.3+rke2r1"
 arch: amd64 # type of machine, raspberry pi use arm64
 rke2_token: "{{ lookup('env', 'RKE2_TOKEN') }}" # for authenticate & add nodes in cluster
-env: "{{ lookup('env', 'ENV') }}"
 vip: "{{ lookup('env', 'IP_VIP') }}" # for virtual ip of the servers
 vip_cidr: "{{ lookup('env', 'IP_CIDR') }}"
 vip_lb_range: "{{ lookup('env', 'IP_LB_RANGE') }}" # load balancer ip range
 vip_ingress_ip: "{{ lookup('env', 'IP_INGRESS') }}" # default traefik ip, must be in the range above
-ssl_local_domain: "{{ lookup('env', 'SSL_LOCAL_DOMAIN') }}"
+ssl_local_domain: "{{ env }}.{{ lookup('env', 'SSL_DOMAIN') }}"
 ssl_cloudflare_api_token: "{{ lookup('env', 'SSL_API_TOKEN') }}"
 ssl_email: "{{ lookup('env', 'SSL_EMAIL') }}"

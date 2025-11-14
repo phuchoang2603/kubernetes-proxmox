@@ -16,8 +16,8 @@ fi
 
 ENV=$1
 ROOT_DIR="$(git rev-parse --show-toplevel)"
-K8S_NODES_PATH="$ROOT_DIR/terraform/env/$ENV/k8s_nodes.json"
-LONGHORN_NODES_PATH="$ROOT_DIR/terraform/env/$ENV/longhorn_nodes.json"
+K8S_NODES_PATH="$ROOT_DIR/terraform-provision/env/$ENV/k8s_nodes.json"
+LONGHORN_NODES_PATH="$ROOT_DIR/terraform-provision/env/$ENV/longhorn_nodes.json"
 HOSTS_INI_PATH="$ROOT_DIR/ansible/inventory/hosts.ini"
 
 # Combine JSON files
