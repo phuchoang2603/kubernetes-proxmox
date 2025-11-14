@@ -26,5 +26,6 @@ resource "vault_ssh_secret_backend_role" "github_runner" {
   name                    = "github-runner"
   key_type                = "ca"
   allow_user_certificates = true
+  allowed_users           = "ubuntu"
   ttl                     = "1800" # 30 minutes
 }

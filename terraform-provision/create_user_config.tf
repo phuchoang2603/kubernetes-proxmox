@@ -10,7 +10,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
     timezone: ${var.vm_timezone}
     users:
       - default
-      - name: ${var.vm_username}
+      - name: ubuntu
         groups:
           - sudo
         shell: /bin/bash

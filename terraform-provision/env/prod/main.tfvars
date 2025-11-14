@@ -12,7 +12,6 @@ vm_node_name    = "pve"     # Proxmox node where VMs are created
 vm_datastore_id = "truenas" # storage for downloading cloud img, storing snippets, etc.
 vm_bridge       = "vmbr1"
 vm_timezone     = "America/New_York"
-vm_username     = "ubuntu"
 vm_ip_gateway   = "10.69.0.1"
 dns_server      = "1.1.1.1"
 
