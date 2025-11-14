@@ -49,7 +49,7 @@ jobs:
           fi
 
       - name: Import Matching Secrets from Vault
-        uses: hashicorp/vault-action@v2
+        uses: hashicorp/vault-action@v3
         with:
           method: jwt
           url: ${{ vars.VAULT_ADDR }}
@@ -60,7 +60,7 @@ jobs:
             kv/${{ vars.ENV_NAME }}/data/ssh_ca_public_key public_key | TF_VAR_proxmox_ssh_public_key
 
       - name: Import Multiple Proxmox Creds from Vault
-        uses: hashicorp/vault-action@v2
+        uses: hashicorp/vault-action@v3
         with:
           method: jwt
           url: ${{ vars.VAULT_ADDR }}
