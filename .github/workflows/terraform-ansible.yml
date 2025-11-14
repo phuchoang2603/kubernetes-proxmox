@@ -92,7 +92,8 @@ jobs:
           planfile: .planfile
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        # TODO: turn off this
+        # if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         env:
           TF_VAR_env: ${{ vars.ENV_NAME }}
         run: terraform apply -auto-approve .planfile
@@ -102,6 +103,7 @@ jobs:
     needs: terraform-plan-apply
     # Only run if on master, is a push, AND destroy mode is NOT enabled
     # if: github.ref == 'refs/heads/master' && github.event_name == 'push' && vars.DESTROY != 'true'
+    # TODO: turn off this
 
     permissions:
       contents: read # Required to checkout code
