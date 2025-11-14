@@ -31,4 +31,6 @@ resource "vault_jwt_auth_backend_role" "github_actions_pr_role" {
     "event_name" = "pull_request"
     "base_ref"   = var.github_branch
   }
+
+  bound_claims_type = "glob"
 }
