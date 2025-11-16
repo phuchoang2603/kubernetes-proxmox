@@ -10,12 +10,10 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
     timezone: ${var.vm_timezone}
     users:
       - default
-      - name: ${var.vm_username}
+      - name: ubuntu
         groups:
           - sudo
         shell: /bin/bash
-        ssh_authorized_keys:
-          - ${var.proxmox_ssh_public_key}
         sudo: ALL=(ALL) NOPASSWD:ALL
     package_update: true
     packages:
@@ -23,8 +21,15 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
       - net-tools
       - curl
       - cryptsetup
+    write_files:
+      - path: /etc/ssh/ca.pub
+        content: |
+          ${var.proxmox_ssh_public_key}
+        permissions: '0644'
     runcmd:
       - systemctl start qemu-guest-agent
+      - echo "TrustedUserCAKeys /etc/ssh/ca.pub" >> /etc/ssh/sshd_config
+      - systemctl restart sshd
     EOF
 
     file_name = "user-data-cloud-config.yaml"

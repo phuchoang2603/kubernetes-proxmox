@@ -47,10 +47,6 @@ variable "vm_timezone" {
   description = "Timezone for the VM"
   type        = string
 }
-variable "vm_username" {
-  description = "Username for the VM template"
-  type        = string
-}
 variable "vm_ip_gateway" {
   description = "Gateway for Kubernetes VMs"
   type        = string
