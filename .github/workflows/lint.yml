@@ -2,6 +2,12 @@ name: Lint
 
 on:
   pull_request:
+    paths:
+      - 'terraform-admin/**'
+      - 'terraform-provision/**'
+      - 'ansible/**'
+      - '.github/workflows/lint.yml'
+      - '.github/workflows/terraform-ansible.yml'
 
 jobs:
   terraform-lint:
