@@ -1,6 +1,6 @@
 # RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
-![arch](./scripts/img.png)
+![arch](./scripts/img2.png)
 
 This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**.
 
@@ -17,7 +17,7 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes c
 - `Longhorn` for persistent storage
 - `ArgoCD` for GitOps deployments
 
-**Blog post:** <https://phuchoang.sbs/posts/on-premise-provision-terraform/>
+**Blog post:** <https://phuchoang.sbs/posts/gitops-github-actions-hashicorp-vault/>
 
 **Video demo:**
 [![Youtube video](https://img.youtube.com/vi/IrlKAG5bctk/maxresdefault.jpg)](https://youtu.be/IrlKAG5bctk)
@@ -75,12 +75,6 @@ The `master` branch is designed for **fully automated deployments via GitHub Act
 5. **S3-compatible storage** (MinIO) for Terraform state
 
 ### Architecture
-
-```
-GitHub Actions → Tailscale VPN → Vault (secrets) → Proxmox (VMs) → RKE2 Cluster
-                                     ↓
-                              Terraform State (S3/MinIO)
-```
 
 ---
 
