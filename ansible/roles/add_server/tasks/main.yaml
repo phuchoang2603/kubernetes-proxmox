@@ -79,3 +79,30 @@
   become: true
   become_user: "{{ ansible_user }}"
   when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy OIDC RBAC - Cluster Admins
+  ansible.builtin.template:
+    src: templates/oidc-rbac-cluster-admin.yaml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/oidc-rbac-cluster-admin.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy OIDC RBAC - Developers
+  ansible.builtin.template:
+    src: templates/oidc-rbac-developer.yaml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/oidc-rbac-developer.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
+
+- name: Deploy OIDC RBAC - Viewers
+  ansible.builtin.template:
+    src: templates/oidc-rbac-viewer.yaml.j2
+    dest: /var/lib/rancher/rke2/server/manifests/oidc-rbac-viewer.yaml
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: inventory_hostname == groups['servers'][0]
