@@ -137,7 +137,7 @@ helm_applications:
         enabled: true
         auth:
           enabled: false
-        image: 
+        image:
           registry: "docker.io"
           repository: "valkey/valkey"
           tag: "8.1.4"
