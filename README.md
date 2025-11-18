@@ -1,7 +1,5 @@
 # RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
-![arch](./scripts/img2.png)
-
 This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**.
 
 **Features:**
@@ -28,14 +26,16 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes c
 
 This project is available in two versions (toggle between branches):
 
+- **`non-vault`**: Manual deployment version for local execution
+  - Run Terraform and Ansible locally from your machine
+  - Use standard environment variables for configuration
+    ![](./scripts/img.png)
 - **`master` (default)**: Automated deployment via GitHub Actions with HashiCorp Vault integration
   - Terraform and Ansible run automatically in GitHub Actions CI/CD pipeline
   - Secrets managed centrally via HashiCorp Vault
   - JWT authentication for GitHub Actions (no secrets stored in GitHub)
   - SSH Certificate Authority for secure VM access
-- **`non-vault`**: Manual deployment version for local execution
-  - Run Terraform and Ansible locally from your machine
-  - Use standard environment variables for configuration
+    ![](./scripts/img2.png)
 
 ### Switch Between Versions
 
@@ -73,8 +73,6 @@ The `master` branch is designed for **fully automated deployments via GitHub Act
 3. **GitHub repository** with appropriate permissions
 4. **Proxmox** cluster with API access
 5. **S3-compatible storage** (MinIO) for Terraform state
-
-### Architecture
 
 ---
 
