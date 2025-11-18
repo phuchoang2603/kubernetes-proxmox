@@ -101,42 +101,28 @@ helm_applications:
     create_namespace: true
     values_content: |
       authentik:
-        secret_key: "{{ lookup('env', 'AUTHENTIK_SECRET_KEY') }}"
+        secret_key: "{{ authentik_secret_key }}"
         postgresql:
-          host: "authentik-postgresql"
-          name: "authentik"
-          user: "authentik"
-          password: "{{ lookup('env', 'AUTHENTIK_DB_PASSWORD') }}"
-        redis:
-          host: "authentik-redis-master"
+          password: "{{ authentik_db_password }}"
 
       server:
-        replicas: 1
         ingress:
           enabled: false
-
-      worker:
-        replicas: 1
 
       postgresql:
         enabled: true
         auth:
-          username: authentik
-          password: "{{ lookup('env', 'AUTHENTIK_DB_PASSWORD') }}"
-          database: authentik
+          password: "{{ authentik_db_password }}"
         primary:
           persistence:
             enabled: true
             size: 8Gi
 
       redis:
-        enabled: true
-        auth:
-          enabled: false
         master:
           persistence:
             enabled: true
-            size: 2Gi
+            size: 1Gi
     ingress:
       enabled: true
       host: "authentik.{{ ssl_local_domain }}"
