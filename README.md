@@ -109,7 +109,7 @@ vault kv put kv/dev/authentik secret_key="..." db_password="..."
 # Prod environment secrets
 vault kv put kv/prod/ip vip="10.69.1.10" cidr="24" lb_range="10.69.1.50-10.69.1.100" ingress="10.69.1.50"
 vault kv put kv/prod/rke2 token="your-rke2-token"
-vault kv put kv/prod/authentik secret_key="..." db_password="..."
+vault kv put kv/prod/authentik secret_key="..." db_password="..." bt_password="..." bt_token="..."
 ```
 
 #### Step 2: Configure GitHub Repository
@@ -178,6 +178,37 @@ The deployment happens automatically:
 3. Click "Run workflow"
 
 #### Step 4: Access Your Cluster
+
+##### Configure Authentik via Terraform
+
+After the cluster is deployed and Authentik is running, configure OIDC settings via Terraform:
+
+```bash
+cd terraform-authentik
+
+# Initialize Terraform
+terraform init
+
+export AUTHENTIK_TOKEN="your-bootstrap-token"
+
+# Apply Authentik configuration
+terraform apply \
+  -var="authentik_url=https://authentik.<your-domain>" \
+  -var="authentik_token=$AUTHENTIK_TOKEN" \
+  -var="kubernetes_issuer_url=https://authentik.<your-domain>/application/o/kubernetes/"
+
+# Save the client secret for kubectl configuration
+terraform output -raw kubernetes_client_secret
+```
+
+This Terraform module creates:
+
+- Three Kubernetes groups: `kubernetes-admins`, `kubernetes-developers`, `kubernetes-viewers`
+- OAuth2/OIDC provider with proper scope mappings (email, profile, groups)
+- Kubernetes application in Authentik
+- Policy bindings to allow group access
+
+**Important**: Store the `kubernetes_client_secret` output securely - you'll need it for kubectl OIDC configuration.
 
 ##### Install kubelogin
 
@@ -331,53 +362,7 @@ ansible-playbook -i inventory/hosts.ini site.yaml
 
 #### Step 5: Access Your Cluster
 
-##### Retrieve Kubeconfig
-
-SSH into your first server node:
-
-```bash
-ssh ubuntu@<server-ip>
-sudo cat /etc/rancher/rke2/rke2.yaml
-```
-
-Copy the kubeconfig to your local machine (`~/.kube/rke2-config`) and update the server address to your VIP:
-
-```yaml
-apiVersion: v1
-kind: Config
-clusters:
-  - cluster:
-      certificate-authority-data: <...>
-      server: https://<your-vip>:6443 # Change this to your VIP
-    name: default
-contexts:
-  - context:
-      cluster: default
-      user: default
-    name: default
-current-context: default
-users:
-  - name: default
-    user:
-      client-certificate-data: <...>
-      client-key-data: <...>
-```
-
-##### Verify Cluster
-
-```bash
-export KUBECONFIG=~/.kube/rke2-config
-kubectl get nodes
-kubectl get pods -A
-```
-
-##### Access Services
-
-- **Traefik Dashboard**: `https://traefik.<your-domain>`
-- **Longhorn UI**: `https://longhorn.<your-domain>`
-- **Authentik**: `https://authentik.<your-domain>`
-- **ArgoCD**: `https://argo.<your-domain>`
-  - Get admin password: `kubectl -n argo-cd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
+Same as [Option A Step 4](#step-4-access-your-cluster)
 
 #### Destroy Infrastructure
 
