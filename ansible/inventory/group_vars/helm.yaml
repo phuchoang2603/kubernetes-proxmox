@@ -1,0 +1,161 @@
+# Helm applications configuration
+# All applications deployed via HelmChart CRD (RKE2)
+helm_applications:
+  # cert-manager: Certificate management for Kubernetes
+  - name: cert-manager
+    chart: cert-manager
+    version: v1.17.2
+    repo: https://charts.jetstack.io
+    namespace: cert-manager
+    create_namespace: true
+    set_values:
+      crds.enabled: "true"
+      extraArgs[0]: "--dns01-recursive-nameservers-only"
+      extraArgs[1]: "--dns01-recursive-nameservers=1.1.1.1:53"
+    additional_manifests:
+      - cert-manager-issuer
+
+  # traefik: Ingress controller and load balancer (required)
+  - name: traefik
+    chart: traefik
+    repo: https://traefik.github.io/charts
+    namespace: traefik
+    create_namespace: true
+    values_content: |
+      service:
+        type: LoadBalancer
+        spec: 
+          loadBalancerIP: {{ vip_ingress_ip }}
+      tlsStore:
+        default:
+          defaultCertificate:
+            secretName: wildcard-tls
+      ingressRoute:
+        dashboard:
+          enabled: true
+          matchRule: Host(`traefik.{{ ssl_local_domain }}`)
+          entryPoints: ["websecure"]
+      ports:
+        web:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
+    additional_manifests:
+      - traefik-wildcard-cert
+
+  # longhorn: Distributed block storage for Kubernetes
+  - name: longhorn
+    chart: longhorn
+    version: v1.8.1
+    repo: https://charts.longhorn.io
+    namespace: longhorn-system
+    create_namespace: true
+    set_values:
+      defaultSettings.createDefaultDiskLabeledNodes: "true"
+      persistence.reclaimPolicy: "Retain"
+    ingress:
+      enabled: true
+      host: "longhorn.{{ ssl_local_domain }}"
+      service_name: longhorn-frontend
+      service_port: 80
+    additional_manifests:
+      - longhorn-iscsi
+      - longhorn-nfs
+
+  # cloudnative-pg: PostgreSQL operator for Kubernetes
+  - name: cloudnative-pg
+    chart: cloudnative-pg
+    version: v0.26.0
+    repo: https://cloudnative-pg.github.io/charts
+    namespace: cloudnative-pg
+    create_namespace: true
+    values_content: |
+      config:
+        clusterWide: true
+
+  # external-secrets: Integrate external secret management systems
+  - name: external-secrets
+    chart: external-secrets
+    version: v0.19.2
+    repo: https://charts.external-secrets.io
+    namespace: external-secrets
+    create_namespace: true
+    values_content: |
+      installCRDs: true
+
+      metrics:
+        service:
+          enabled: true
+        
+        serviceMonitor:
+          enabled: true
+
+  # authentik: Identity provider and SSO
+  - name: authentik
+    chart: authentik
+    version: 2024.10.4
+    repo: https://charts.goauthentik.io
+    namespace: authentik
+    create_namespace: true
+    values_content: |
+      authentik:
+        secret_key: "{{ lookup('env', 'AUTHENTIK_SECRET_KEY') }}"
+        postgresql:
+          host: "authentik-postgresql"
+          name: "authentik"
+          user: "authentik"
+          password: "{{ lookup('env', 'AUTHENTIK_DB_PASSWORD') }}"
+        redis:
+          host: "authentik-redis-master"
+
+      server:
+        replicas: 1
+        ingress:
+          enabled: false
+
+      worker:
+        replicas: 1
+
+      postgresql:
+        enabled: true
+        auth:
+          username: authentik
+          password: "{{ lookup('env', 'AUTHENTIK_DB_PASSWORD') }}"
+          database: authentik
+        primary:
+          persistence:
+            enabled: true
+            size: 8Gi
+
+      redis:
+        enabled: true
+        auth:
+          enabled: false
+        master:
+          persistence:
+            enabled: true
+            size: 2Gi
+    ingress:
+      enabled: true
+      host: "authentik.{{ ssl_local_domain }}"
+      service_name: authentik-server
+      service_port: 80
+
+  # argo-cd: GitOps continuous delivery tool
+  - name: argo-cd
+    chart: argo-cd
+    version: v8.0.9
+    repo: https://argoproj.github.io/argo-helm
+    namespace: argo-cd
+    create_namespace: true
+    values_content: |
+      configs:
+        params:
+          server.insecure: true
+    ingress:
+      enabled: true
+      host: "argo.{{ ssl_local_domain }}"
+      service_name: argo-cd-argocd-server
+      service_port: 80
