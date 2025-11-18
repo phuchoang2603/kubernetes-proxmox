@@ -103,31 +103,55 @@ helm_applications:
       authentik:
         secret_key: "{{ authentik_secret_key }}"
         postgresql:
-          password: "{{ authentik_db_password }}"
+          host: authentik-postgres-rw
+          name: authentik
+          user: file:///postgres-creds/username
+          password: file:///postgres-creds/password
 
       server:
         ingress:
           enabled: false
+        volumes:
+          - name: postgres-creds
+            secret:
+              secretName: authentik-postgres-credentials
+        volumeMounts:
+          - name: postgres-creds
+            mountPath: /postgres-creds
+            readOnly: true
+
+      worker:
+        volumes:
+          - name: postgres-creds
+            secret:
+              secretName: authentik-postgres-credentials
+        volumeMounts:
+          - name: postgres-creds
+            mountPath: /postgres-creds
+            readOnly: true
 
       postgresql:
-        enabled: true
-        auth:
-          password: "{{ authentik_db_password }}"
-        primary:
-          persistence:
-            enabled: true
-            size: 8Gi
+        enabled: false
 
       redis:
+        enabled: true
+        auth:
+          enabled: false
+        image: 
+          registry: "docker.io"
+          repository: "valkey/valkey"
+          tag: "8.1.4"
         master:
           persistence:
             enabled: true
-            size: 1Gi
+            size: 2Gi
     ingress:
       enabled: true
       host: "authentik.{{ ssl_local_domain }}"
       service_name: authentik-server
       service_port: 80
+    additional_manifests:
+      - authentik-cloudnativepg
 
   # argo-cd: GitOps continuous delivery tool
   - name: argo-cd
