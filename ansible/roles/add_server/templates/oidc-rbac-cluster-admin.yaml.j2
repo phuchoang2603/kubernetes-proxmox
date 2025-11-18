@@ -1,0 +1,16 @@
+---
+# Grant cluster-admin to kubernetes-admins group from Authentik
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-cluster-admins
+  annotations:
+    description: "Grants cluster-admin access to Authentik kubernetes-admins group"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: Group
+  name: oidc:kubernetes-admins
+  apiGroup: rbac.authorization.k8s.io

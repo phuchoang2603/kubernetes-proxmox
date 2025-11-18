@@ -9,3 +9,7 @@ vip_ingress_ip: "{{ lookup('env', 'IP_INGRESS') }}" # default traefik ip, must b
 ssl_local_domain: "{{ env }}.{{ lookup('env', 'SSL_DOMAIN') }}"
 ssl_cloudflare_api_token: "{{ lookup('env', 'SSL_API_TOKEN') }}"
 ssl_email: "{{ lookup('env', 'SSL_EMAIL') }}"
+authentik_bt_password: "{{ lookup('env', 'AUTHENTIK_BT_PASSWORD') }}"
+authentik_bt_token: "{{ lookup('env', 'AUTHENTIK_BT_TOKEN') }}"
+authentik_secret_key: "{{ lookup('env', 'AUTHENTIK_SECRET_KEY') }}"
+authentik_db_password: "{{ lookup('env', 'AUTHENTIK_DB_PASSWORD') }}"

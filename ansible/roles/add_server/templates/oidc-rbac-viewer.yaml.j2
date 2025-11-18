@@ -1,0 +1,16 @@
+---
+# Grant view-only access to kubernetes-viewers group
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-viewers
+  annotations:
+    description: "Grants read-only access to Authentik kubernetes-viewers group"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- kind: Group
+  name: oidc:kubernetes-viewers
+  apiGroup: rbac.authorization.k8s.io

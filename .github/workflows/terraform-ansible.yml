@@ -5,23 +5,27 @@ on:
     branches:
       - master
     paths:
-      - 'terraform-admin/**'
-      - 'terraform-provision/**'
-      - 'ansible/**'
-      - '.github/workflows/terraform-ansible.yml'
+      - "terraform-admin/**"
+      - "terraform-provision/**"
+      - "ansible/**"
+      - ".github/workflows/terraform-ansible.yml"
   pull_request:
     branches:
       - master
     paths:
-      - 'terraform-admin/**'
-      - 'terraform-provision/**'
-      - 'ansible/**'
-      - '.github/workflows/terraform-ansible.yml'
+      - "terraform-admin/**"
+      - "terraform-provision/**"
+      - "ansible/**"
+      - ".github/workflows/terraform-ansible.yml"
   workflow_dispatch:
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+
   terraform-plan-apply:
     runs-on: ubuntu-latest
+    needs: lint
 
     permissions:
       contents: read # Required to checkout code
@@ -154,6 +158,7 @@ jobs:
             kv/shared/data/cloudflare * | SSL_ ;
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
             kv/${{vars.ENV_NAME}}/data/rke2 * | RKE2_ ;
+            kv/${{vars.ENV_NAME}}/data/authentik * | AUTHENTIK_ ;
 
       - uses: eLco/setup-vault@v1
         with:

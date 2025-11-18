@@ -1,0 +1,15 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ item.name }}-ingressroute
+  namespace: {{ item.namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ item.ingress.host }}`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: {{ item.ingress.service_name }}
+          port: {{ item.ingress.service_port }}

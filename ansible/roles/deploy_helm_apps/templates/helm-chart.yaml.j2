@@ -1,0 +1,37 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  annotations:
+    helmcharts.cattle.io/managed-by: helm-controller
+  finalizers:
+  - wrangler.cattle.io/on-helm-chart-remove
+  generation: 1
+  name: {{ item.name }}
+  namespace: default
+spec:
+{% if item.version is defined %}
+  version: {{ item.version }}
+{% endif %}
+  chart: {{ item.chart }}
+  repo: {{ item.repo }}
+  targetNamespace: {{ item.namespace }}
+{% if item.create_namespace | default(true) %}
+  createNamespace: true
+{% endif %}
+{% if item.set_values is defined %}
+  set:
+{% for key, value in item.set_values.items() %}
+    {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+{% if item.values_content is defined %}
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: {{ item.name }}
+  namespace: default
+spec:
+  valuesContent: |-
+{{ item.values_content | indent(4, first=True) }}
+{% endif %}

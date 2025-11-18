@@ -2,71 +2,69 @@
 
 This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**.
 
-**Features:**
+## How It Works
 
-- `S3-compatible` object storage for `Terraform` remote state
-- Separate `dev` and `prod` environments
-- Multiple-node `Proxmox` cluster support
+### Terraform Provisioning (`terraform-provision/`)
 
-**Pre-deployed applications:**
+1. Initializes Terraform with S3 backend (environment-specific state file)
+2. Retrieves Proxmox credentials (from Vault or env vars)
+3. Downloads Ubuntu cloud image
+4. Creates cloud-init configuration snippets
+5. Provisions VMs for Kubernetes and Longhorn nodes
 
-- `kube-vip` for a high-availability virtual IP
-- SSL via `cert-manager` with `Cloudflare` DNS
-- `Longhorn` for persistent storage
-- `ArgoCD` for GitOps deployments
+### Ansible Configuration (`ansible/`)
+
+After VMs are ready:
+
+1. Generates inventory from JSON files
+2. Authenticates via Vault SSH CA (automated) or standard SSH (manual)
+3. Installs RKE2 on server and agent nodes with OIDC integration for Authentik
+4. Deploys kube-vip for HA virtual IP
+5. **Deploys all essential applications via data-driven approach** (`deploy_helm_apps` role):
+   - cert-manager with Cloudflare DNS
+   - Traefik ingress controller with auto HTTPS
+   - Longhorn distributed storage
+   - CloudNativePG PostgreSQL operator
+   - External Secrets Operator
+   - Authentik SSO/identity provider
+   - ArgoCD for GitOps
+
+All Helm applications are configured in a single data-driven file. To add/modify applications, simply edit `helm.yaml`:
+
+```yaml
+helm_applications:
+  - name: my-app
+    chart: my-app
+    version: v1.0.0
+    repo: https://charts.example.com
+    namespace: my-namespace
+    values_content: |
+      key: value
+    ingress:
+      enabled: true
+      host: "myapp.{{ ssl_local_domain }}"
+      service_name: my-app-service
+      service_port: 80
+```
+
+The generic `deploy_helm_apps` role automatically:
+
+- Deploys HelmChart resources
+- Creates IngressRoutes for apps with ingress enabled
+- Applies additional manifests (e.g., ClusterIssuers, DaemonSets)
+
+## Choose Your Deployment Method
+
+<details open>
+<summary><h3>Option A: Automated Deployment (GitHub Actions + Vault)</h3></summary>
+
+Fully automated CI/CD pipeline with centralized secret management.
 
 **Blog post:** <https://phuchoang.sbs/posts/gitops-github-actions-hashicorp-vault/>
 
-**Video demo:**
-[![Youtube video](https://img.youtube.com/vi/IrlKAG5bctk/maxresdefault.jpg)](https://youtu.be/IrlKAG5bctk)
+![](./scripts/img2.png)
 
----
-
-## Project Versions
-
-This project is available in two versions (toggle between branches):
-
-- **`non-vault`**: Manual deployment version for local execution
-  - Run Terraform and Ansible locally from your machine
-  - Use standard environment variables for configuration
-    ![](./scripts/img.png)
-- **`master` (default)**: Automated deployment via GitHub Actions with HashiCorp Vault integration
-  - Terraform and Ansible run automatically in GitHub Actions CI/CD pipeline
-  - Secrets managed centrally via HashiCorp Vault
-  - JWT authentication for GitHub Actions (no secrets stored in GitHub)
-  - SSH Certificate Authority for secure VM access
-    ![](./scripts/img2.png)
-
-### Switch Between Versions
-
-```bash
-# Automated GitHub Actions version (default)
-git checkout master
-
-# Manual local deployment version
-git checkout non-vault
-```
-
----
-
-## Clone the Repository
-
-```bash
-git clone https://github.com/phuchoang2603/kubernetes-proxmox
-cd kubernetes-proxmox
-
-# Defaults to master branch (GitHub Actions automation)
-# Switch to non-vault for manual/local deployment:
-# git checkout non-vault
-```
-
----
-
-## Setup Overview (master branch)
-
-The `master` branch is designed for **fully automated deployments via GitHub Actions**. All Terraform provisioning and Ansible configuration runs in CI/CD pipelines.
-
-### Prerequisites
+#### Prerequisites
 
 1. **HashiCorp Vault** instance (accessible via network)
 2. **Tailscale** account for secure network access
@@ -74,13 +72,9 @@ The `master` branch is designed for **fully automated deployments via GitHub Act
 4. **Proxmox** cluster with API access
 5. **S3-compatible storage** (MinIO) for Terraform state
 
----
+#### Step 1: Configure HashiCorp Vault
 
-## Step 1: Configure HashiCorp Vault
-
-Set up Vault to store secrets and provide GitHub Actions authentication.
-
-### 1.1 Deploy Vault Admin Resources
+##### 1.1 Deploy Vault Admin Resources
 
 ```bash
 cd terraform-admin
@@ -95,7 +89,7 @@ This creates:
 - SSH Certificate Authority for both environments
 - Vault roles for push and PR workflows
 
-### 1.2 Store Secrets in Vault
+##### 1.2 Store Secrets in Vault
 
 ```bash
 # Set Vault address and authenticate
@@ -110,17 +104,17 @@ vault kv put kv/shared/cloudflare api_token="..." domain="..." email="..."
 # Dev environment secrets
 vault kv put kv/dev/ip vip="10.69.0.10" cidr="24" lb_range="10.69.0.50-10.69.0.100" ingress="10.69.0.50"
 vault kv put kv/dev/rke2 token="your-rke2-token"
+vault kv put kv/dev/authentik secret_key="..." db_password="..."
 
 # Prod environment secrets
 vault kv put kv/prod/ip vip="10.69.1.10" cidr="24" lb_range="10.69.1.50-10.69.1.100" ingress="10.69.1.50"
 vault kv put kv/prod/rke2 token="your-rke2-token"
+vault kv put kv/prod/authentik secret_key="..." db_password="..." bt_password="..." bt_token="..."
 ```
 
----
+#### Step 2: Configure GitHub Repository
 
-## Step 2: Configure GitHub Repository
-
-### 2.1 Set GitHub Variables
+##### 2.1 Set GitHub Variables
 
 Navigate to your GitHub repository → Settings → Secrets and variables → Actions → Variables:
 
@@ -130,7 +124,7 @@ Navigate to your GitHub repository → Settings → Secrets and variables → Ac
 | `VAULT_ADDR`  | `https://vault.example.com` | Vault server address                    |
 | `DESTROY`     | `false`                     | Set to `true` to destroy infrastructure |
 
-### 2.2 Set GitHub Secrets
+##### 2.2 Set GitHub Secrets
 
 Navigate to Secrets tab and add:
 
@@ -139,11 +133,11 @@ Navigate to Secrets tab and add:
 | `TS_OAUTH_CLIENT_ID` | Your Tailscale OAuth client ID | For VPN access |
 | `TS_OAUTH_SECRET`    | Your Tailscale OAuth secret    | For VPN access |
 
-### 2.3 Update VM Configurations
+##### 2.3 Update VM Configurations
 
 Edit the JSON files for your environment:
 
-**For Dev:** `terraform-provision/env/dev/k8s_nodes.json` and `longhorn_nodes.json`
+**For Dev:** `terraform-provision/env/dev/k8s_nodes.json` and `longhorn_nodes.json`  
 **For Prod:** `terraform-provision/env/prod/k8s_nodes.json` and `longhorn_nodes.json`
 
 Example `k8s_nodes.json`:
@@ -161,116 +155,223 @@ Example `k8s_nodes.json`:
 ]
 ```
 
----
+#### Step 3: Deploy via GitHub Actions
 
-## Step 3: Deploy via GitHub Actions
-
-### Automatic Deployment
-
-The deployment happens automatically via GitHub Actions:
+The deployment happens automatically:
 
 1. **On Pull Request**: Plans Terraform changes and posts a comment with the plan
 2. **On Push to Master**: Applies Terraform changes and runs Ansible playbook
 
-### Workflow Steps
-
-The `.github/workflows/terraform-ansible.yml` workflow:
+**Workflow steps:**
 
 1. Connects to Tailscale VPN for private network access
 2. Authenticates to Vault via JWT (no GitHub secrets needed!)
 3. Retrieves all secrets dynamically from Vault
-4. Provisions VMs with Terraform (`terraform-provision/`)
+4. Provisions VMs with Terraform
 5. Configures RKE2 cluster with Ansible
-6. Deploys kube-vip, cert-manager, Traefik, Longhorn, and ArgoCD
+6. Deploys all applications via data-driven `deploy_helm_apps` role
 
-### Manual Trigger
-
-You can also manually trigger the workflow:
+**Manual trigger:**
 
 1. Go to Actions tab in GitHub
 2. Select "Provision and Bootstrap" workflow
 3. Click "Run workflow"
-4. Choose the branch and run
 
----
+#### Step 4: Access Your Cluster
 
-## Step 4: Access Your Cluster
+##### Configure Authentik via Terraform
 
-After the GitHub Actions workflow completes:
-
-### 4.1 Retrieve Kubeconfig
-
-SSH into your first server node:
+After the cluster is deployed and Authentik is running, configure OIDC settings via Terraform:
 
 ```bash
-ssh ubuntu@<server-ip>
-sudo cat /etc/rancher/rke2/rke2.yaml
+cd terraform-authentik
+
+# Initialize Terraform
+terraform init
+
+export AUTHENTIK_TOKEN="your-bootstrap-token"
+
+# Apply Authentik configuration
+terraform apply \
+  -var="authentik_url=https://authentik.<your-domain>" \
+  -var="authentik_token=$AUTHENTIK_TOKEN" \
+  -var="kubernetes_issuer_url=https://authentik.<your-domain>/application/o/kubernetes/"
+
+# Save the client secret for kubectl configuration
+terraform output -raw kubernetes_client_secret
 ```
 
-Copy the kubeconfig and update the server address to your VIP.
+This Terraform module creates:
 
-### 4.2 Verify Cluster
+- Three Kubernetes groups: `kubernetes-admins`, `kubernetes-developers`, `kubernetes-viewers`
+- OAuth2/OIDC provider with proper scope mappings (email, profile, groups)
+- Kubernetes application in Authentik
+- Policy bindings to allow group access
+
+**Important**: Store the `kubernetes_client_secret` output securely - you'll need it for kubectl OIDC configuration.
+
+##### Install kubelogin
+
+```bash
+# macOS
+brew install int128/kubelogin/kubelogin
+
+# Linux
+wget https://github.com/int128/kubelogin/releases/latest/download/kubelogin_linux_amd64.zip
+unzip kubelogin_linux_amd64.zip
+sudo mv kubelogin /usr/local/bin/
+```
+
+##### Configure kubectl with OIDC
+
+Create a kubeconfig file (`~/.kube/rke2-config`) with OIDC authentication:
+
+```yaml
+apiVersion: v1
+kind: Config
+clusters:
+  - cluster:
+      server: https://<your-vip>:6443
+      # If using self-signed certs, add:
+      # insecure-skip-tls-verify: true
+    name: rke2
+contexts:
+  - context:
+      cluster: rke2
+      user: oidc
+    name: rke2-oidc
+current-context: rke2-oidc
+users:
+  - name: oidc
+    user:
+      exec:
+        apiVersion: client.authentication.k8s.io/v1beta1
+        command: kubectl
+        args:
+          - oidc-login
+          - get-token
+          - --oidc-issuer-url=https://authentik.<your-domain>/application/o/kubernetes/
+          - --oidc-client-id=kubernetes
+          - --oidc-extra-scope=email
+          - --oidc-extra-scope=profile
+```
+
+##### Authenticate and Access
 
 ```bash
 export KUBECONFIG=~/.kube/rke2-config
+
+# This will open a browser for Authentik login
 kubectl get nodes
+
+# Verify cluster access
 kubectl get pods -A
 ```
 
-### 4.3 Access Services
+##### Access Services
 
+- **Traefik Dashboard**: `https://traefik.<your-domain>`
 - **Longhorn UI**: `https://longhorn.<your-domain>`
-- **ArgoCD**: `https://argocd.<your-domain>`
-  - Get admin password: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
+- **Authentik**: `https://authentik.<your-domain>`
+- **ArgoCD**: `https://argo.<your-domain>`
+  - Get admin password: `kubectl -n argo-cd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
 
----
-
-## How It Works
-
-### Terraform Provisioning (`terraform-provision/`)
-
-GitHub Actions workflow:
-
-1. Initializes Terraform with S3 backend (environment-specific state file)
-2. Retrieves Proxmox credentials from Vault
-3. Downloads Ubuntu cloud image
-4. Creates cloud-init configuration snippets
-5. Provisions VMs for Kubernetes and Longhorn nodes
-
-### Ansible Configuration (`ansible/`)
-
-After VMs are ready:
-
-1. Generates inventory from JSON files
-2. Signs ephemeral SSH key via Vault SSH CA (no persistent keys!)
-3. Installs RKE2 on server and agent nodes
-4. Deploys kube-vip for HA virtual IP
-5. Configures cert-manager with Cloudflare DNS
-6. Installs Traefik ingress controller
-7. Deploys Longhorn for persistent storage
-8. Installs ArgoCD for GitOps
-
----
-
-## Destroy Infrastructure
-
-To destroy all resources:
+#### Destroy Infrastructure
 
 1. Set GitHub variable `DESTROY=true`
 2. Push to master or manually trigger workflow
 3. GitHub Actions will run `terraform destroy`
 
-Or manually:
+</details>
+
+<details>
+<summary><h3>Option B: Manual Deployment (Local Execution)</h3></summary>
+
+Run Terraform and Ansible locally from your machine.
+
+**Blog post:** <https://phuchoang.sbs/posts/on-premise-provison-ansible/>
+
+![](./scripts/img.png)
+
+#### Prerequisites
+
+1. **Proxmox** cluster with API access
+2. **S3-compatible storage** (MinIO) for Terraform state (optional)
+3. Local machine with:
+   - Terraform installed
+   - Ansible installed
+   - Network access to Proxmox
+4. **Cloudflare** account for DNS/SSL (optional but recommended)
+
+#### Step 1: Configure Environment Variables
+
+```bash
+# Proxmox
+export PM_API_URL="https://proxmox.example.com/api2/json"
+export PM_API_USER="root@pam"
+export PM_API_PASSWORD="your-password"
+
+# S3 for Terraform state (optional)
+export AWS_ACCESS_KEY_ID="..."
+export AWS_SECRET_ACCESS_KEY="..."
+
+# RKE2 cluster
+export RKE2_TOKEN="your-rke2-token"
+export IP_VIP="10.69.0.10"
+export IP_CIDR="24"
+export IP_LB_RANGE="10.69.0.50-10.69.0.100"
+export IP_INGRESS="10.69.0.50"
+
+# SSL/DNS
+export SSL_DOMAIN="example.com"
+export SSL_API_TOKEN="cloudflare-api-token"
+export SSL_EMAIL="admin@example.com"
+
+# Authentik
+export AUTHENTIK_SECRET_KEY="..."
+export AUTHENTIK_DB_PASSWORD="..."
+```
+
+#### Step 2: Update VM Configurations
+
+Same as [Option A Step 2.3](#23-update-vm-configurations) - edit JSON files for your environment.
+
+#### Step 3: Provision VMs with Terraform
 
 ```bash
 cd terraform-provision
-terraform init -reconfigure -backend-config="key=<env>.tfstate"
-terraform destroy -var-file="env/<env>/main.tfvars"
+
+# Initialize Terraform
+terraform init
+
+# Plan changes
+terraform plan -var-file="env/dev/main.tfvars"
+
+# Apply changes
+terraform apply -var-file="env/dev/main.tfvars"
 ```
 
-**Note:** For local/manual deployment without GitHub Actions, switch to the `non-vault` branch.
+#### Step 4: Configure Cluster with Ansible
 
----
+```bash
+cd ../ansible
+
+# Run the playbook
+ansible-playbook -i inventory/hosts.ini site.yaml
+```
+
+#### Step 5: Access Your Cluster
+
+Same as [Option A Step 4](#step-4-access-your-cluster)
+
+#### Destroy Infrastructure
+
+```bash
+cd terraform-provision
+terraform destroy -var-file="env/dev/main.tfvars"
+```
+
+</details>
 
 ## Credits
 

@@ -32,7 +32,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
       - systemctl restart sshd
     EOF
 
-    file_name = "user-data-cloud-config.yaml"
+    file_name = "${var.env}-user-data-cloud-config.yaml"
   }
 }
 

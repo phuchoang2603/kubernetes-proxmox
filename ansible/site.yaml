@@ -18,28 +18,10 @@
     - add_agent
 
 # Deploy applications
-- name: Deploy Kube VIP
+- name: Deploy applications
   hosts: servers
   gather_facts: true
   run_once: true
   roles:
     - role: apply_kube_vip
-      tags: [kube_vip]
-
-- name: Deploy Cert-Manager & Traefik
-  hosts: servers
-  gather_facts: true
-  run_once: true
-  roles:
-    - role: apply_ssl
-      tags: [ssl]
-
-- name: Deploy Optional services
-  hosts: servers
-  gather_facts: true
-  run_once: true
-  roles:
-    - role: apply_longhorn
-      tags: [longhorn]
-    - role: apply_argocd
-      tags: [argocd]
+    - role: deploy_helm_apps
