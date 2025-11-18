@@ -23,7 +23,7 @@
     - item.ingress.enabled | default(false)
 
 - name: Collect all additional manifests
-  set_fact:
+  ansible.builtin.set_fact:
     all_additional_manifests: "{{ helm_applications | selectattr('additional_manifests', 'defined') | map(attribute='additional_manifests') | flatten | list }}"
   when: inventory_hostname == groups['servers'][0]
 

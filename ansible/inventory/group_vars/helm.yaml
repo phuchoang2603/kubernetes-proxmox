@@ -24,7 +24,7 @@ helm_applications:
     values_content: |
       service:
         type: LoadBalancer
-        spec: 
+        spec:
           loadBalancerIP: {{ vip_ingress_ip }}
       tlsStore:
         default:
@@ -88,7 +88,7 @@ helm_applications:
       metrics:
         service:
           enabled: true
-        
+
         serviceMonitor:
           enabled: true
 
