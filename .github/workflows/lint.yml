@@ -8,6 +8,7 @@ on:
       - 'ansible/**'
       - '.github/workflows/lint.yml'
       - '.github/workflows/terraform-ansible.yml'
+  workflow_call:  # Allow this workflow to be called by other workflows
 
 jobs:
   terraform-lint:
