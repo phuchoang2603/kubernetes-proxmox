@@ -55,11 +55,11 @@ resource "authentik_property_mapping_provider_scope" "groups" {
 
 # Create OAuth2/OIDC Provider for Kubernetes
 resource "authentik_provider_oauth2" "kubernetes" {
-  name                = var.kubernetes_client_id
-  client_id           = var.kubernetes_client_id
-  client_type         = "public"
-  authorization_flow  = data.authentik_flow.default_authorization_flow.id
-  authentication_flow = data.authentik_flow.default_authentication_flow_invalidation.id
+  name               = var.kubernetes_client_id
+  client_id          = var.kubernetes_client_id
+  client_type        = "public"
+  authorization_flow = data.authentik_flow.default_authorization_flow.id
+  invalidation_flow  = data.authentik_flow.default_authentication_flow_invalidation.id
 
   # Convert list of URIs to required object format
   allowed_redirect_uris = [

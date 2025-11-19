@@ -7,7 +7,7 @@ terraform {
     }
     authentik = {
       source  = "goauthentik/authentik"
-      version = "~> 2024.8.0"
+      version = "2025.10.0"
     }
   }
   backend "s3" {
