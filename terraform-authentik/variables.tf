@@ -9,9 +9,10 @@ variable "authentik_token" {
   sensitive   = true
 }
 
-variable "kubernetes_issuer_url" {
-  description = "OIDC issuer URL for Kubernetes (same as configured in kube-apiserver)"
+variable "kubernetes_client_id" {
+  description = "OIDC client ID for Kubernetes"
   type        = string
+  default     = "kubernetes"
 }
 
 variable "kubernetes_redirect_uris" {

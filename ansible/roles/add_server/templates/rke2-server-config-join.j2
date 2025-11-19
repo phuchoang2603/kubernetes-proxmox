@@ -17,8 +17,8 @@ kube-proxy-arg:
 kube-proxy-extra-mount:
 - "/lib/modules:/lib/modules:ro"
 kube-apiserver-arg:
-  - "oidc-issuer-url=https://authentik.{{ ssl_local_domain }}/application/o/kubernetes/"
-  - "oidc-client-id=kubernetes"
+  - "oidc-issuer-url={{ oidc_issuer_url }}/application/o/{{ oidc_client_id }}/"
+  - "oidc-client-id={{ oidc_client_id }}"
   - "oidc-username-claim=email"
   - "oidc-groups-claim=groups"
   - "oidc-groups-prefix=oidc:"

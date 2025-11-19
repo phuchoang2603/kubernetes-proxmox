@@ -30,9 +30,9 @@ resource "authentik_scope_mapping" "groups" {
 
 # Create OAuth2/OIDC Provider for Kubernetes
 resource "authentik_provider_oauth2" "kubernetes" {
-  name               = "kubernetes"
-  client_id          = "kubernetes"
-  client_type        = "confidential"
+  name               = var.kubernetes_client_id
+  client_id          = var.kubernetes_client_id
+  client_type        = "public"
   authorization_flow = data.authentik_flow.default_authorization_flow.id
 
   redirect_uris = var.kubernetes_redirect_uris
@@ -64,7 +64,7 @@ data "authentik_certificate_key_pair" "default" {
 # Create Application for Kubernetes
 resource "authentik_application" "kubernetes" {
   name               = "Kubernetes"
-  slug               = "kubernetes"
+  slug               = var.kubernetes_client_id
   protocol_provider  = authentik_provider_oauth2.kubernetes.id
   meta_launch_url    = "blank://blank"
   meta_description   = "Kubernetes cluster authentication via OIDC"

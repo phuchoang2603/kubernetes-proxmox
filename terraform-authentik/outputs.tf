@@ -4,14 +4,14 @@ output "kubernetes_client_id" {
 }
 
 output "kubernetes_client_secret" {
-  description = "OAuth2 Client Secret for Kubernetes OIDC (store securely!)"
+  description = "OAuth2 Client Secret for Kubernetes OIDC (not needed for public client type)"
   value       = authentik_provider_oauth2.kubernetes.client_secret
   sensitive   = true
 }
 
 output "kubernetes_issuer_url" {
   description = "OIDC Issuer URL for Kubernetes (configure in kube-apiserver)"
-  value       = "${var.authentik_url}/application/o/kubernetes/"
+  value       = "${var.authentik_url}/application/o/${var.kubernetes_client_id}/"
 }
 
 output "kubernetes_groups" {

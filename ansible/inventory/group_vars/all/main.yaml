@@ -9,5 +9,5 @@ vip_ingress_ip: "{{ lookup('env', 'IP_INGRESS') }}" # default traefik ip, must b
 ssl_local_domain: "{{ env }}.{{ lookup('env', 'SSL_DOMAIN') }}"
 ssl_cloudflare_api_token: "{{ lookup('env', 'SSL_API_TOKEN') }}"
 ssl_email: "{{ lookup('env', 'SSL_EMAIL') }}"
-oidc_issuer_base_url: "{{ lookup('env', 'OIDC_ISSUER_BASE_URL') }}"
+oidc_issuer_url: "{{ lookup('env', 'OIDC_ISSUER_URL') }}"
 oidc_client_id: "{{ lookup('env', 'OIDC_CLIENT_ID') }}"
