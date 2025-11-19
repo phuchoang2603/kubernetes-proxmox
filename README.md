@@ -174,10 +174,9 @@ The deployment happens automatically:
 2. Connects to Tailscale VPN for private network access
 3. Authenticates to Vault via JWT (no GitHub secrets needed!)
 4. Retrieves all secrets dynamically from Vault
-5. Configures Authentik OIDC clients via terraform-authentik (using `$OIDC_ISSUER_URL` + dynamic client ID `{env}-kubernetes`)
-6. Provisions VMs with Terraform
-7. Configures RKE2 cluster with Ansible (with OIDC pre-configured from Vault + GitHub variables)
-8. Deploys all applications via data-driven `deploy_helm_apps` role
+5. Provisions VMs and configures Authentik OIDC (single terraform apply in terraform-provision/)
+6. Configures RKE2 cluster with Ansible (with OIDC pre-configured from Vault + GitHub variables)
+7. Deploys all applications via data-driven `deploy_helm_apps` role
 
 #### Step 5: Access Your Cluster
 
