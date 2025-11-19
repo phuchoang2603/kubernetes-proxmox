@@ -5,6 +5,10 @@ terraform {
       source  = "bpg/proxmox"
       version = "0.77.1"
     }
+    authentik = {
+      source  = "goauthentik/authentik"
+      version = "~> 2024.8.0"
+    }
   }
   backend "s3" {
     bucket = "terraform"
@@ -26,4 +30,9 @@ provider "proxmox" {
   min_tls  = var.proxmox_min_tls
   username = var.proxmox_username
   password = var.proxmox_password
+}
+
+provider "authentik" {
+  url   = var.authentik_url
+  token = var.authentik_token
 }
