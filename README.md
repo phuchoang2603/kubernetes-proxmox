@@ -56,8 +56,7 @@ The generic `deploy_helm_apps` role automatically:
 
 ## Choose Your Deployment Method
 
-<details open>
-<summary><h3>Option A: Automated Deployment (GitHub Actions + Vault)</h3></summary>
+### Option A: Automated Deployment (GitHub Actions + Vault)
 
 Fully automated CI/CD pipeline with centralized secret management.
 
@@ -101,6 +100,7 @@ export VAULT_TOKEN="your-vault-token"
 vault kv put kv/shared/minio access_key="..." secret_key="..."
 vault kv put kv/shared/proxmox endpoint="..." username="..." password="..."
 vault kv put kv/shared/cloudflare api_token="..." domain="..." email="..."
+vault kv put kv/shared/oidc bt_token="..."
 
 # Dev environment secrets
 vault kv put kv/dev/ip vip="10.69.0.10" cidr="24" lb_range="10.69.0.50-10.69.0.100" ingress="10.69.0.50"
@@ -117,11 +117,12 @@ vault kv put kv/prod/rke2 token="your-rke2-token"
 
 Navigate to your GitHub repository → Settings → Secrets and variables → Actions → Variables:
 
-| Variable Name | Value                       | Description                             |
-| ------------- | --------------------------- | --------------------------------------- |
-| `ENV_NAME`    | `dev` or `prod`             | Environment to deploy                   |
-| `VAULT_ADDR`  | `https://vault.example.com` | Vault server address                    |
-| `DESTROY`     | `false`                     | Set to `true` to destroy infrastructure |
+| Variable Name     | Value                           | Description                             |
+| ----------------- | ------------------------------- | --------------------------------------- |
+| `ENV_NAME`        | `dev` or `prod`                 | Environment to deploy                   |
+| `VAULT_ADDR`      | `https://vault.example.com`     | Vault server address                    |
+| `OIDC_ISSUER_URL` | `https://authentik.example.com` | Authentik base URL (no trailing slash)  |
+| `DESTROY`         | `false`                         | Set to `true` to destroy infrastructure |
 
 ##### 2.2 Set GitHub Secrets
 
@@ -154,7 +155,13 @@ Example `k8s_nodes.json`:
 ]
 ```
 
-#### Step 3: Deploy via GitHub Actions
+#### Step 3: Deploy Authentik (External)
+
+**Important:** Authentik must be deployed externally (outside the cluster) before configuring the Kubernetes cluster with OIDC.
+
+Deploy Authentik on a separate server using Docker, Docker Compose, or any method of your choice. Ensure it's accessible at a stable URL (e.g., `https://authentik.<your-domain>`).
+
+#### Step 4: Deploy via GitHub Actions
 
 The deployment happens automatically:
 
@@ -163,51 +170,16 @@ The deployment happens automatically:
 
 **Workflow steps:**
 
-1. Connects to Tailscale VPN for private network access
-2. Authenticates to Vault via JWT (no GitHub secrets needed!)
-3. Retrieves all secrets dynamically from Vault
-4. Provisions VMs with Terraform
-5. Configures RKE2 cluster with Ansible
-6. Deploys all applications via data-driven `deploy_helm_apps` role
+1. Runs linting checks (Terraform + Ansible)
+2. Connects to Tailscale VPN for private network access
+3. Authenticates to Vault via JWT (no GitHub secrets needed!)
+4. Retrieves all secrets dynamically from Vault
+5. Configures Authentik OIDC clients via terraform-authentik (using `$OIDC_ISSUER_URL` + dynamic client ID `{env}-kubernetes`)
+6. Provisions VMs with Terraform
+7. Configures RKE2 cluster with Ansible (with OIDC pre-configured from Vault + GitHub variables)
+8. Deploys all applications via data-driven `deploy_helm_apps` role
 
-#### Step 4: Deploy Authentik (External)
-
-**Important:** Authentik must be deployed externally (outside the cluster) before configuring the Kubernetes cluster with OIDC.
-
-Deploy Authentik on a separate server using Docker, Docker Compose, or any method of your choice. Ensure it's accessible at a stable URL (e.g., `https://authentik.<your-domain>`).
-
-#### Step 5: Configure Authentik via Terraform
-
-After Authentik is deployed and accessible, configure OIDC settings via Terraform:
-
-```bash
-cd terraform-authentik
-
-# Initialize Terraform
-terraform init
-
-export AUTHENTIK_TOKEN="your-bootstrap-token"
-
-# Apply Authentik configuration
-terraform apply \
-  -var="authentik_url=https://authentik.<your-domain>" \
-  -var="authentik_token=$AUTHENTIK_TOKEN" \
-  -var="kubernetes_issuer_url=https://authentik.<your-domain>/application/o/kubernetes/"
-
-# Save the client secret for kubectl configuration
-terraform output -raw kubernetes_client_secret
-```
-
-This Terraform module creates:
-
-- Three Kubernetes groups: `kubernetes-admins`, `kubernetes-developers`, `kubernetes-viewers`
-- OAuth2/OIDC provider with proper scope mappings (email, profile, groups)
-- Kubernetes application in Authentik
-- Policy bindings to allow group access
-
-**Important**: Store the `kubernetes_client_secret` output securely - you'll need it for kubectl OIDC configuration.
-
-#### Step 6: Access Your Cluster
+#### Step 5: Access Your Cluster
 
 ##### Install int128/kubelogin & Configure kubectl with OIDC
 
@@ -237,7 +209,7 @@ users:
         args:
           - oidc-login
           - get-token
-          - --oidc-issuer-url=https://authentik.<your-domain>/application/o/kubernetes/
+          - --oidc-issuer-url=https://authentik.example.com/application/o/kubernetes/
           - --oidc-client-id=kubernetes
           - --oidc-extra-scope=email
           - --oidc-extra-scope=profile
@@ -255,134 +227,19 @@ kubectl get nodes
 kubectl get pods -A
 ```
 
-##### Access Services
-
-- **Traefik Dashboard**: `https://traefik.<your-domain>`
-- **Longhorn UI**: `https://longhorn.<your-domain>`
-- **Authentik**: `https://authentik.<your-domain>` (external deployment)
-- **ArgoCD**: `https://argo.<your-domain>`
-  - Get admin password: `kubectl -n argo-cd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
-
 #### Destroy Infrastructure
 
 1. Set GitHub variable `DESTROY=true`
 2. Push to master or manually trigger workflow
 3. GitHub Actions will run `terraform destroy`
 
-</details>
-
-<details>
-<summary><h3>Option B: Manual Deployment (Local Execution)</h3></summary>
+### Option B: Manual Deployment (Local Execution)
 
 Run Terraform and Ansible locally from your machine.
 
 **Blog post:** <https://phuchoang.sbs/posts/on-premise-provison-ansible/>
 
 ![](./scripts/img.png)
-
-#### Prerequisites
-
-1. **Proxmox** cluster with API access
-2. **S3-compatible storage** (MinIO) for Terraform state (optional)
-3. Local machine with:
-   - Terraform installed
-   - Ansible installed
-   - Network access to Proxmox
-4. **Cloudflare** account for DNS/SSL (optional but recommended)
-
-#### Step 1: Configure Environment Variables
-
-```bash
-# Proxmox
-export PM_API_URL="https://proxmox.example.com/api2/json"
-export PM_API_USER="root@pam"
-export PM_API_PASSWORD="your-password"
-
-# S3 for Terraform state (optional)
-export AWS_ACCESS_KEY_ID="..."
-export AWS_SECRET_ACCESS_KEY="..."
-
-# RKE2 cluster
-export RKE2_TOKEN="your-rke2-token"
-export IP_VIP="10.69.0.10"
-export IP_CIDR="24"
-export IP_LB_RANGE="10.69.0.50-10.69.0.100"
-export IP_INGRESS="10.69.0.50"
-
-# SSL/DNS
-export SSL_DOMAIN="example.com"
-export SSL_API_TOKEN="cloudflare-api-token"
-export SSL_EMAIL="admin@example.com"
-```
-
-#### Step 2: Deploy Authentik (External)
-
-**Important:** Deploy Authentik externally before provisioning the Kubernetes cluster, as the RKE2 configuration requires the OIDC issuer URL.
-
-Deploy Authentik on a separate server using Docker, Docker Compose, or any method of your choice. Ensure it's accessible at a stable URL (e.g., `https://authentik.<your-domain>`).
-
-#### Step 3: Configure Authentik via Terraform
-
-Configure OIDC settings in Authentik before deploying the cluster:
-
-```bash
-cd terraform-authentik
-
-# Initialize Terraform
-terraform init
-
-export AUTHENTIK_TOKEN="your-bootstrap-token"
-
-# Apply Authentik configuration
-terraform apply \
-  -var="authentik_url=https://authentik.<your-domain>" \
-  -var="authentik_token=$AUTHENTIK_TOKEN" \
-  -var="kubernetes_issuer_url=https://authentik.<your-domain>/application/o/kubernetes/"
-
-# Save the client secret for kubectl configuration
-terraform output -raw kubernetes_client_secret
-```
-
-#### Step 4: Update VM Configurations
-
-Same as [Option A Step 2.3](#23-update-vm-configurations) - edit JSON files for your environment.
-
-#### Step 5: Provision VMs with Terraform
-
-```bash
-cd terraform-provision
-
-# Initialize Terraform
-terraform init
-
-# Plan changes
-terraform plan -var-file="env/dev/main.tfvars"
-
-# Apply changes
-terraform apply -var-file="env/dev/main.tfvars"
-```
-
-#### Step 6: Configure Cluster with Ansible
-
-```bash
-cd ../ansible
-
-# Run the playbook
-ansible-playbook -i inventory/hosts.ini site.yaml
-```
-
-#### Step 7: Access Your Cluster
-
-Same as [Option A Step 6](#step-6-access-your-cluster)
-
-#### Destroy Infrastructure
-
-```bash
-cd terraform-provision
-terraform destroy -var-file="env/dev/main.tfvars"
-```
-
-</details>
 
 ## Credits
 
