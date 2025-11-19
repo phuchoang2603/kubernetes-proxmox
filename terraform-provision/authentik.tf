@@ -18,6 +18,11 @@ data "authentik_flow" "default_authorization_flow" {
   slug = "default-provider-authorization-implicit-consent"
 }
 
+# Get the default authentication flow for invalidation
+data "authentik_flow" "default_authentication_flow_invalidation" {
+  slug = "default-invalidation-flow"
+}
+
 # Create scope mappings for OIDC using the new resource type
 resource "authentik_property_mapping_provider_scope" "email" {
   name       = "kubernetes-email"
@@ -50,12 +55,19 @@ resource "authentik_property_mapping_provider_scope" "groups" {
 
 # Create OAuth2/OIDC Provider for Kubernetes
 resource "authentik_provider_oauth2" "kubernetes" {
-  name               = var.kubernetes_client_id
-  client_id          = var.kubernetes_client_id
-  client_type        = "public"
-  authorization_flow = data.authentik_flow.default_authorization_flow.id
+  name                = var.kubernetes_client_id
+  client_id           = var.kubernetes_client_id
+  client_type         = "public"
+  authorization_flow  = data.authentik_flow.default_authorization_flow.id
+  authentication_flow = data.authentik_flow.default_authentication_flow_invalidation.id
 
-  redirect_uris = jsonencode(var.kubernetes_redirect_uris)
+  # Convert list of URIs to required object format
+  allowed_redirect_uris = [
+    for uri in var.kubernetes_redirect_uris : {
+      matching_mode = "strict"
+      url           = uri
+    }
+  ]
 
   # OIDC Configuration
   issuer_mode = "per_provider"
