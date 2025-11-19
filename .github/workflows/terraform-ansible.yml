@@ -7,6 +7,7 @@ on:
     paths:
       - "terraform-admin/**"
       - "terraform-provision/**"
+      - "terraform-authentik/**"
       - "ansible/**"
       - ".github/workflows/terraform-ansible.yml"
   pull_request:
@@ -15,6 +16,7 @@ on:
     paths:
       - "terraform-admin/**"
       - "terraform-provision/**"
+      - "terraform-authentik/**"
       - "ansible/**"
       - ".github/workflows/terraform-ansible.yml"
   workflow_dispatch:
@@ -35,7 +37,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./terraform-provision
 
     steps:
       - name: Checkout
@@ -62,7 +63,7 @@ jobs:
             echo "role=${{ vars.ENV_NAME }}-github-actions-pr-role" >> $GITHUB_OUTPUT
           fi
 
-      - name: Import Secrets from Vault
+      - name: Import Terraform Secrets from Vault
         uses: hashicorp/vault-action@v3
         with:
           method: jwt
@@ -71,6 +72,7 @@ jobs:
           secrets: |
             kv/shared/data/minio access_key | AWS_ACCESS_KEY_ID ;
             kv/shared/data/minio secret_key | AWS_SECRET_ACCESS_KEY ;
+            kv/shared/data/oidc bt_token | TF_VAR_authentik_token ;
             kv/${{ vars.ENV_NAME }}/data/ssh_ca_public_key public_key | TF_VAR_proxmox_ssh_public_key
 
       - name: Import Multiple Proxmox Creds from Vault
@@ -82,10 +84,46 @@ jobs:
           secrets: |
             kv/shared/data/proxmox ** | TF_VAR_proxmox_ ;
 
-      - name: Terraform Init
+      # Deploy Authentik OIDC Configuration
+      - name: Terraform Init (Authentik)
+        working-directory: ./terraform-authentik
+        run: terraform init --backend-config="key=${{ vars.ENV_NAME }}-authentik.tfstate"
+
+      - name: Terraform Plan (Authentik)
+        working-directory: ./terraform-authentik
+        env:
+          TF_VAR_env: ${{ vars.ENV_NAME }}
+          TF_VAR_authentik_url: ${{ vars.OIDC_ISSUER_URL }}
+          TF_VAR_kubernetes_client_id: ${{ vars.ENV_NAME }}-kubernetes
+        run: |
+          # Check if Destroy mode is enabled
+          PLAN_ARGS=""
+          if [ "${{ vars.DESTROY }}" == "true" ]; then
+            PLAN_ARGS="-destroy"
+          fi
+
+          terraform plan $PLAN_ARGS -out .planfile
+
+      - name: Post PR comment (Authentik)
+        uses: borchero/terraform-plan-comment@v2
+        if: github.event_name == 'pull_request' # Only comment on PRs
+        with:
+          token: ${{ github.token }}
+          working-directory: "./terraform-authentik"
+          planfile: .planfile
+
+      - name: Terraform Apply (Authentik)
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        working-directory: ./terraform-authentik
+        run: terraform apply -auto-approve .planfile
+
+      # Provision VMs
+      - name: Terraform Init (Provision)
+        working-directory: ./terraform-provision
         run: terraform init --backend-config="key=${{ vars.ENV_NAME }}.tfstate"
 
-      - name: Terraform Plan
+      - name: Terraform Plan (Provision)
+        working-directory: ./terraform-provision
         env:
           TF_VAR_env: ${{ vars.ENV_NAME }}
         run: |
@@ -97,7 +135,7 @@ jobs:
 
           terraform plan $PLAN_ARGS -var-file="env/${{ vars.ENV_NAME }}/main.tfvars" -out .planfile
 
-      - name: Post PR comment
+      - name: Post PR comment (Provision)
         uses: borchero/terraform-plan-comment@v2
         if: github.event_name == 'pull_request' # Only comment on PRs
         with:
@@ -105,8 +143,9 @@ jobs:
           working-directory: "./terraform-provision"
           planfile: .planfile
 
-      - name: Terraform Apply
+      - name: Terraform Apply (Provision)
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        working-directory: ./terraform-provision
         env:
           TF_VAR_env: ${{ vars.ENV_NAME }}
         run: terraform apply -auto-approve .planfile
@@ -156,7 +195,6 @@ jobs:
           outputToken: true
           secrets: |
             kv/shared/data/cloudflare * | SSL_ ;
-            kv/shared/data/oidc * | OIDC_ ;
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
             kv/${{vars.ENV_NAME}}/data/rke2 * | RKE2_ ;
 
@@ -196,4 +234,7 @@ jobs:
         run: ansible-galaxy install -r requirements.yml
 
       - name: Run playbook
+        env:
+          OIDC_ISSUER_URL: ${{ vars.OIDC_ISSUER_URL }}
+          OIDC_CLIENT_ID: ${{ vars.ENV_NAME }}-kubernetes
         run: ansible-playbook -e "env=${{ vars.ENV_NAME }}" --private-key runner_key site.yaml

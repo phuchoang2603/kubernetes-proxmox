@@ -1,3 +1,8 @@
+variable "env" {
+  description = "Environment name (e.g., dev, prod)"
+  type        = string
+}
+
 variable "authentik_url" {
   description = "URL of the Authentik instance (e.g., https://authentik.example.com)"
   type        = string
