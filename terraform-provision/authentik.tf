@@ -55,7 +55,7 @@ resource "authentik_provider_oauth2" "kubernetes" {
   client_type        = "public"
   authorization_flow = data.authentik_flow.default_authorization_flow.id
 
-  redirect_uris = jsonencode(var.kubernetes_redirect_uris)
+  redirect_uris = var.kubernetes_redirect_uris
 
   # OIDC Configuration
   issuer_mode = "per_provider"
