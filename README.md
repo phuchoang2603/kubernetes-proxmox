@@ -18,7 +18,7 @@ After VMs are ready:
 
 1. Generates inventory from JSON files
 2. Authenticates via Vault SSH CA (automated) or standard SSH (manual)
-3. Installs RKE2 on server and agent nodes with OIDC integration for Authentik
+3. Installs RKE2 on server and agent nodes with OIDC integration for Authentik (deployed externally)
 4. Deploys kube-vip for HA virtual IP
 5. **Deploys all essential applications via data-driven approach** (`deploy_helm_apps` role):
    - cert-manager with Cloudflare DNS
@@ -26,8 +26,9 @@ After VMs are ready:
    - Longhorn distributed storage
    - CloudNativePG PostgreSQL operator
    - External Secrets Operator
-   - Authentik SSO/identity provider
    - ArgoCD for GitOps
+
+> **Note:** HashiCorp Vault + Authentik are deployed externally (outside the cluster) to avoid the chicken-and-egg problem where OIDC authentication is required to access the cluster that hosts the OIDC provider.
 
 All Helm applications are configured in a single data-driven file. To add/modify applications, simply edit `helm.yaml`:
 
@@ -66,7 +67,7 @@ Fully automated CI/CD pipeline with centralized secret management.
 
 #### Prerequisites
 
-1. **HashiCorp Vault** instance (accessible via network)
+1. **HashiCorp Vault** + **Authentik** instance (accessible via network)
 2. **Tailscale** account for secure network access
 3. **GitHub repository** with appropriate permissions
 4. **Proxmox** cluster with API access
@@ -104,12 +105,10 @@ vault kv put kv/shared/cloudflare api_token="..." domain="..." email="..."
 # Dev environment secrets
 vault kv put kv/dev/ip vip="10.69.0.10" cidr="24" lb_range="10.69.0.50-10.69.0.100" ingress="10.69.0.50"
 vault kv put kv/dev/rke2 token="your-rke2-token"
-vault kv put kv/dev/authentik secret_key="..." db_password="..."
 
 # Prod environment secrets
 vault kv put kv/prod/ip vip="10.69.1.10" cidr="24" lb_range="10.69.1.50-10.69.1.100" ingress="10.69.1.50"
 vault kv put kv/prod/rke2 token="your-rke2-token"
-vault kv put kv/prod/authentik secret_key="..." db_password="..." bt_password="..." bt_token="..."
 ```
 
 #### Step 2: Configure GitHub Repository
@@ -171,17 +170,15 @@ The deployment happens automatically:
 5. Configures RKE2 cluster with Ansible
 6. Deploys all applications via data-driven `deploy_helm_apps` role
 
-**Manual trigger:**
+#### Step 4: Deploy Authentik (External)
 
-1. Go to Actions tab in GitHub
-2. Select "Provision and Bootstrap" workflow
-3. Click "Run workflow"
+**Important:** Authentik must be deployed externally (outside the cluster) before configuring the Kubernetes cluster with OIDC.
 
-#### Step 4: Access Your Cluster
+Deploy Authentik on a separate server using Docker, Docker Compose, or any method of your choice. Ensure it's accessible at a stable URL (e.g., `https://authentik.<your-domain>`).
 
-##### Configure Authentik via Terraform
+#### Step 5: Configure Authentik via Terraform
 
-After the cluster is deployed and Authentik is running, configure OIDC settings via Terraform:
+After Authentik is deployed and accessible, configure OIDC settings via Terraform:
 
 ```bash
 cd terraform-authentik
@@ -210,19 +207,9 @@ This Terraform module creates:
 
 **Important**: Store the `kubernetes_client_secret` output securely - you'll need it for kubectl OIDC configuration.
 
-##### Install kubelogin
+#### Step 6: Access Your Cluster
 
-```bash
-# macOS
-brew install int128/kubelogin/kubelogin
-
-# Linux
-wget https://github.com/int128/kubelogin/releases/latest/download/kubelogin_linux_amd64.zip
-unzip kubelogin_linux_amd64.zip
-sudo mv kubelogin /usr/local/bin/
-```
-
-##### Configure kubectl with OIDC
+##### Install int128/kubelogin & Configure kubectl with OIDC
 
 Create a kubeconfig file (`~/.kube/rke2-config`) with OIDC authentication:
 
@@ -272,7 +259,7 @@ kubectl get pods -A
 
 - **Traefik Dashboard**: `https://traefik.<your-domain>`
 - **Longhorn UI**: `https://longhorn.<your-domain>`
-- **Authentik**: `https://authentik.<your-domain>`
+- **Authentik**: `https://authentik.<your-domain>` (external deployment)
 - **ArgoCD**: `https://argo.<your-domain>`
   - Get admin password: `kubectl -n argo-cd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
 
@@ -326,17 +313,41 @@ export IP_INGRESS="10.69.0.50"
 export SSL_DOMAIN="example.com"
 export SSL_API_TOKEN="cloudflare-api-token"
 export SSL_EMAIL="admin@example.com"
-
-# Authentik
-export AUTHENTIK_SECRET_KEY="..."
-export AUTHENTIK_DB_PASSWORD="..."
 ```
 
-#### Step 2: Update VM Configurations
+#### Step 2: Deploy Authentik (External)
+
+**Important:** Deploy Authentik externally before provisioning the Kubernetes cluster, as the RKE2 configuration requires the OIDC issuer URL.
+
+Deploy Authentik on a separate server using Docker, Docker Compose, or any method of your choice. Ensure it's accessible at a stable URL (e.g., `https://authentik.<your-domain>`).
+
+#### Step 3: Configure Authentik via Terraform
+
+Configure OIDC settings in Authentik before deploying the cluster:
+
+```bash
+cd terraform-authentik
+
+# Initialize Terraform
+terraform init
+
+export AUTHENTIK_TOKEN="your-bootstrap-token"
+
+# Apply Authentik configuration
+terraform apply \
+  -var="authentik_url=https://authentik.<your-domain>" \
+  -var="authentik_token=$AUTHENTIK_TOKEN" \
+  -var="kubernetes_issuer_url=https://authentik.<your-domain>/application/o/kubernetes/"
+
+# Save the client secret for kubectl configuration
+terraform output -raw kubernetes_client_secret
+```
+
+#### Step 4: Update VM Configurations
 
 Same as [Option A Step 2.3](#23-update-vm-configurations) - edit JSON files for your environment.
 
-#### Step 3: Provision VMs with Terraform
+#### Step 5: Provision VMs with Terraform
 
 ```bash
 cd terraform-provision
@@ -351,7 +362,7 @@ terraform plan -var-file="env/dev/main.tfvars"
 terraform apply -var-file="env/dev/main.tfvars"
 ```
 
-#### Step 4: Configure Cluster with Ansible
+#### Step 6: Configure Cluster with Ansible
 
 ```bash
 cd ../ansible
@@ -360,9 +371,9 @@ cd ../ansible
 ansible-playbook -i inventory/hosts.ini site.yaml
 ```
 
-#### Step 5: Access Your Cluster
+#### Step 7: Access Your Cluster
 
-Same as [Option A Step 4](#step-4-access-your-cluster)
+Same as [Option A Step 6](#step-6-access-your-cluster)
 
 #### Destroy Infrastructure
 
