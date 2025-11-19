@@ -18,14 +18,14 @@ data "authentik_flow" "default_authorization_flow" {
   slug = "default-provider-authorization-implicit-consent"
 }
 
-# Create scope mappings for OIDC
-resource "authentik_scope_mapping" "email" {
+# Create scope mappings for OIDC using the new resource type
+resource "authentik_property_mapping_provider_scope" "email" {
   name       = "kubernetes-email"
   scope_name = "email"
   expression = "return {\"email\": request.user.email}"
 }
 
-resource "authentik_scope_mapping" "profile" {
+resource "authentik_property_mapping_provider_scope" "profile" {
   name       = "kubernetes-profile"
   scope_name = "profile"
   expression = <<-EOT
@@ -38,7 +38,7 @@ resource "authentik_scope_mapping" "profile" {
   EOT
 }
 
-resource "authentik_scope_mapping" "groups" {
+resource "authentik_property_mapping_provider_scope" "groups" {
   name       = "kubernetes-groups"
   scope_name = "groups"
   expression = <<-EOT
@@ -67,9 +67,9 @@ resource "authentik_provider_oauth2" "kubernetes" {
 
   # Scopes
   property_mappings = [
-    authentik_scope_mapping.email.id,
-    authentik_scope_mapping.profile.id,
-    authentik_scope_mapping.groups.id,
+    authentik_property_mapping_provider_scope.email.id,
+    authentik_property_mapping_provider_scope.profile.id,
+    authentik_property_mapping_provider_scope.groups.id,
   ]
 
   # Signing settings
