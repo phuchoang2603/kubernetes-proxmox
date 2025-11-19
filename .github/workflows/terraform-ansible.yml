@@ -156,9 +156,9 @@ jobs:
           outputToken: true
           secrets: |
             kv/shared/data/cloudflare * | SSL_ ;
+            kv/shared/data/oidc * | OIDC_ ;
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
             kv/${{vars.ENV_NAME}}/data/rke2 * | RKE2_ ;
-            kv/${{vars.ENV_NAME}}/data/authentik * | AUTHENTIK_ ;
 
       - uses: eLco/setup-vault@v1
         with:
