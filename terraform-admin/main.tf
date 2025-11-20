@@ -51,14 +51,13 @@ module "vault_admin_prod" {
 module "vault_oidc_dev" {
   source = "./modules/vault-oidc-kubernetes"
 
-  env                     = "dev"
-  vault_addr              = var.vault_addr
-  userpass_auth_accessor  = vault_auth_backend.userpass.accessor
+  env                    = "dev"
+  vault_addr             = var.vault_addr
+  userpass_auth_accessor = vault_auth_backend.userpass.accessor
 
   redirect_uris = [
-    "http://localhost:8000/oidc/callback",  # kubelogin default
-    "http://localhost:18000/oidc/callback", # kubelogin alternative
-    "http://localhost:8080/oidc/callback",  # common alternative
+    "http://localhost:8000",  # kubelogin default
+    "http://localhost:18000", # kubelogin alternative
   ]
 }
 
@@ -66,13 +65,12 @@ module "vault_oidc_dev" {
 module "vault_oidc_prod" {
   source = "./modules/vault-oidc-kubernetes"
 
-  env                     = "prod"
-  vault_addr              = var.vault_addr
-  userpass_auth_accessor  = vault_auth_backend.userpass.accessor
+  env                    = "prod"
+  vault_addr             = var.vault_addr
+  userpass_auth_accessor = vault_auth_backend.userpass.accessor
 
   redirect_uris = [
-    "http://localhost:8000/oidc/callback",  # kubelogin default
-    "http://localhost:18000/oidc/callback", # kubelogin alternative
-    "http://localhost:8080/oidc/callback",  # common alternative
+    "http://localhost:8000",  # kubelogin default
+    "http://localhost:18000", # kubelogin alternative
   ]
 }
