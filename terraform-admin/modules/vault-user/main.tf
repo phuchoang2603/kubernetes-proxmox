@@ -25,11 +25,20 @@ resource "vault_identity_entity_alias" "user" {
   canonical_id   = vault_identity_entity.user.id
 }
 
-# Add user to groups
-resource "vault_identity_group_member_entity_ids" "user_groups" {
-  for_each = toset(var.group_ids)
+# Add user entity to all specified groups using a null_resource workaround
+# This uses the Vault CLI to add the user to groups, avoiding the for_each limitation
+resource "terraform_data" "add_to_groups" {
+  count = length(var.group_ids)
 
-  group_id          = each.value
-  member_entity_ids = [vault_identity_entity.user.id]
-  exclusive         = false
+  triggers_replace = {
+    group_id  = var.group_ids[count.index]
+    entity_id = vault_identity_entity.user.id
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      vault write identity/group/id/${var.group_ids[count.index]} \
+        member_entity_ids+=${vault_identity_entity.user.id}
+    EOT
+  }
 }
