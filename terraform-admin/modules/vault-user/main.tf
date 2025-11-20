@@ -10,23 +10,19 @@ resource "vault_generic_endpoint" "user" {
   })
 }
 
-# Get the entity ID for the user
-data "vault_identity_entity" "user" {
-  entity_name = var.username
-
-  depends_on = [vault_generic_endpoint.user]
-}
-
-# Update entity metadata (for OIDC email claim)
+# Create entity
 resource "vault_identity_entity" "user" {
-  name = var.username
-
+  name     = var.username
   metadata = {
     email = var.email
   }
+}
 
-  # Ensure the user exists first
-  depends_on = [data.vault_identity_entity.user]
+# Create entity alias linking the userpass user to the entity
+resource "vault_identity_entity_alias" "user" {
+  name           = var.username
+  mount_accessor = var.userpass_auth_accessor
+  canonical_id   = vault_identity_entity.user.id
 }
 
 # Add user to groups

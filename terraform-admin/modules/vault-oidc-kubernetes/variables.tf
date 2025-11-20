@@ -8,6 +8,11 @@ variable "vault_addr" {
   type        = string
 }
 
+variable "userpass_auth_accessor" {
+  description = "Accessor ID of the userpass auth backend"
+  type        = string
+}
+
 variable "redirect_uris" {
   description = "List of allowed redirect URIs for OIDC client"
   type        = list(string)

@@ -6,6 +6,12 @@ resource "vault_jwt_auth_backend" "jwt" {
   oidc_discovery_url = "https://token.actions.githubusercontent.com"
 }
 
+# Shared Userpass Auth Backend (used by both dev and prod)
+resource "vault_auth_backend" "userpass" {
+  type = "userpass"
+  path = "userpass"
+}
+
 # Shared Policy (used by both dev and prod)
 resource "vault_policy" "shared_policy" {
   name   = "shared-policy"
@@ -45,8 +51,9 @@ module "vault_admin_prod" {
 module "vault_oidc_dev" {
   source = "./modules/vault-oidc-kubernetes"
 
-  env        = "dev"
-  vault_addr = var.vault_addr
+  env                     = "dev"
+  vault_addr              = var.vault_addr
+  userpass_auth_accessor  = vault_auth_backend.userpass.accessor
 
   redirect_uris = [
     "http://localhost:8000/oidc/callback",  # kubelogin default
@@ -59,8 +66,9 @@ module "vault_oidc_dev" {
 module "vault_oidc_prod" {
   source = "./modules/vault-oidc-kubernetes"
 
-  env        = "prod"
-  vault_addr = var.vault_addr
+  env                     = "prod"
+  vault_addr              = var.vault_addr
+  userpass_auth_accessor  = vault_auth_backend.userpass.accessor
 
   redirect_uris = [
     "http://localhost:8000/oidc/callback",  # kubelogin default

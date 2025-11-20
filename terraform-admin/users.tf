@@ -7,8 +7,8 @@ locals {
   users = {
     # Example: Admin user with access to both dev and prod
     # "admin-user" = {
-    #   email    = "admin@example.com"
-    #   password = "change-me-secure-password"
+    #   email    = ""
+    #   password = ""
     #   group_ids = [
     #     module.vault_oidc_dev.group_ids["admins"],
     #     module.vault_oidc_prod.group_ids["admins"]
@@ -41,11 +41,12 @@ module "vault_users" {
   source   = "./modules/vault-user"
   for_each = local.users
 
-  username            = each.key
-  password            = each.value.password
-  email               = each.value.email
-  group_ids           = each.value.group_ids
-  userpass_mount_path = "userpass"
+  username               = each.key
+  password               = each.value.password
+  email                  = each.value.email
+  group_ids              = each.value.group_ids
+  userpass_mount_path    = "userpass"
+  userpass_auth_accessor = vault_auth_backend.userpass.accessor
 
   depends_on = [
     module.vault_oidc_dev,

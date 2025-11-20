@@ -1,9 +1,3 @@
-# Enable userpass authentication if not already enabled
-resource "vault_auth_backend" "userpass" {
-  type = "userpass"
-  path = var.userpass_mount_path
-}
-
 # Create Vault groups for Kubernetes RBAC
 resource "vault_identity_group" "kubernetes_admins" {
   name     = "${var.env}-kubernetes-admins"
@@ -50,28 +44,34 @@ resource "vault_identity_oidc_key" "kubernetes" {
 resource "vault_identity_oidc_scope" "email" {
   name        = "${var.env}-email"
   description = "Email scope for ${var.env} Kubernetes"
-  template    = jsonencode({
-    email = "{{identity.entity.metadata.email}}"
-  })
+  template    = <<-EOT
+    {
+      "email": {{identity.entity.metadata.email}}
+    }
+  EOT
 }
 
 # Create custom scope for profile
 resource "vault_identity_oidc_scope" "profile" {
   name        = "${var.env}-profile"
   description = "Profile scope for ${var.env} Kubernetes"
-  template    = jsonencode({
-    name               = "{{identity.entity.name}}"
-    preferred_username = "{{identity.entity.aliases.${vault_auth_backend.userpass.accessor}.name}}"
-  })
+  template    = <<-EOT
+    {
+      "name": {{identity.entity.name}},
+      "preferred_username": {{identity.entity.aliases.${var.userpass_auth_accessor}.name}}
+    }
+  EOT
 }
 
 # Create custom scope for groups
 resource "vault_identity_oidc_scope" "groups" {
   name        = "${var.env}-groups"
   description = "Groups scope for ${var.env} Kubernetes"
-  template    = jsonencode({
-    groups = "{{identity.entity.groups.names}}"
-  })
+  template    = <<-EOT
+    {
+      "groups": {{identity.entity.groups.names}}
+    }
+  EOT
 }
 
 # Create OIDC provider

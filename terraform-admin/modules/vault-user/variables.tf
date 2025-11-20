@@ -20,6 +20,11 @@ variable "group_ids" {
   default     = []
 }
 
+variable "userpass_auth_accessor" {
+  description = "Accessor ID of the userpass auth backend"
+  type        = string
+}
+
 variable "userpass_mount_path" {
   description = "Mount path for userpass auth backend"
   type        = string
