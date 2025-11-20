@@ -106,7 +106,7 @@ jobs:
           planfile: .planfile
 
       - name: Terraform Apply (Provision)
-        # if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         working-directory: ./terraform-provision
         env:
           TF_VAR_env: ${{ vars.ENV_NAME }}
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: terraform-plan-apply
     # Only run if on master, is a push, AND destroy mode is NOT enabled
-    # if: github.ref == 'refs/heads/master' && github.event_name == 'push' && vars.DESTROY != 'true'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push' && vars.DESTROY != 'true'
 
     permissions:
       contents: read # Required to checkout code
