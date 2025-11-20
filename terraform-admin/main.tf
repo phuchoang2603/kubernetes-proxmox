@@ -40,3 +40,29 @@ module "vault_admin_prod" {
   github_repository   = "kubernetes-proxmox"
   github_branch       = "master"
 }
+
+# Vault OIDC Provider for Kubernetes (Dev)
+module "vault_oidc_dev" {
+  source = "./modules/vault-oidc-kubernetes"
+
+  env        = "dev"
+  vault_addr = var.vault_addr
+
+  redirect_uris = [
+    "http://localhost:8250/oidc/callback",
+    "http://localhost:8000/oidc/callback",
+  ]
+}
+
+# Vault OIDC Provider for Kubernetes (Prod)
+module "vault_oidc_prod" {
+  source = "./modules/vault-oidc-kubernetes"
+
+  env        = "prod"
+  vault_addr = var.vault_addr
+
+  redirect_uris = [
+    "http://localhost:8250/oidc/callback",
+    "http://localhost:8000/oidc/callback",
+  ]
+}

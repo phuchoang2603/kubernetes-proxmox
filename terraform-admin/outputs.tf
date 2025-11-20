@@ -62,3 +62,45 @@ output "prod_policy_name" {
   description = "Name of the prod-specific policy"
   value       = module.vault_admin_prod.env_policy_name
 }
+
+# Dev OIDC Outputs
+output "dev_oidc_issuer_url" {
+  description = "OIDC issuer URL for dev Kubernetes cluster"
+  value       = module.vault_oidc_dev.oidc_issuer_url
+}
+
+output "dev_oidc_client_id" {
+  description = "OIDC client ID for dev Kubernetes cluster"
+  value       = module.vault_oidc_dev.oidc_client_id
+}
+
+output "dev_oidc_discovery_url" {
+  description = "OIDC discovery URL for dev Kubernetes cluster"
+  value       = module.vault_oidc_dev.oidc_discovery_url
+}
+
+output "dev_kubernetes_groups" {
+  description = "Kubernetes RBAC groups for dev environment"
+  value       = module.vault_oidc_dev.group_names
+}
+
+# Prod OIDC Outputs
+output "prod_oidc_issuer_url" {
+  description = "OIDC issuer URL for prod Kubernetes cluster"
+  value       = module.vault_oidc_prod.oidc_issuer_url
+}
+
+output "prod_oidc_client_id" {
+  description = "OIDC client ID for prod Kubernetes cluster"
+  value       = module.vault_oidc_prod.oidc_client_id
+}
+
+output "prod_oidc_discovery_url" {
+  description = "OIDC discovery URL for prod Kubernetes cluster"
+  value       = module.vault_oidc_prod.oidc_discovery_url
+}
+
+output "prod_kubernetes_groups" {
+  description = "Kubernetes RBAC groups for prod environment"
+  value       = module.vault_oidc_prod.group_names
+}
