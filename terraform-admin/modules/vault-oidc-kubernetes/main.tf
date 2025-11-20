@@ -114,8 +114,17 @@ resource "vault_identity_oidc_client" "kubernetes" {
     vault_identity_oidc_assignment.kubernetes.name
   ]
 
-  id_token_ttl     = 3600  # 1 hour
-  access_token_ttl = 3600  # 1 hour
+  id_token_ttl     = 3600 # 1 hour
+  access_token_ttl = 3600 # 1 hour
 
   client_type = "public"
+}
+
+# Store OIDC client_id in Vault KV for use by Ansible
+resource "vault_generic_secret" "oidc_client_id" {
+  path = "kv/${var.env}/oidc"
+
+  data_json = jsonencode({
+    client_id = vault_identity_oidc_client.kubernetes.client_id
+  })
 }

@@ -159,6 +159,7 @@ jobs:
             kv/shared/data/cloudflare * | SSL_ ;
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
             kv/${{vars.ENV_NAME}}/data/rke2 * | RKE2_ ;
+            kv/${{vars.ENV_NAME}}/data/oidc * | OIDC_ ;
 
       - uses: eLco/setup-vault@v1
         with:
@@ -198,5 +199,4 @@ jobs:
       - name: Run playbook
         env:
           OIDC_ISSUER_URL: ${{ vars.VAULT_ADDR }}/v1/identity/oidc/provider/${{ vars.ENV_NAME }}
-          OIDC_CLIENT_ID: ${{ vars.ENV_NAME }}-kubernetes
         run: ansible-playbook -e "env=${{ vars.ENV_NAME }}" --private-key runner_key site.yaml
