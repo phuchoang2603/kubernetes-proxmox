@@ -1,6 +1,6 @@
 # RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
-This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**.
+This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**. With the helper of GitHub Actions and **HashiCorp Vault** for secrets management and OIDC authentication, you can achieve a fully automated, secure, and production-ready Kubernetes deployment.
 
 ## How It Works
 
@@ -29,12 +29,6 @@ After VMs are ready:
    - ArgoCD for GitOps
 
 > **Note:** HashiCorp Vault is deployed externally (outside the cluster) and serves as both the secrets manager and OIDC identity provider. This avoids the chicken-and-egg problem where OIDC authentication is required to access the cluster that hosts the OIDC provider.
-
-All Helm applications are configured in a single data-driven file. To add/modify applications, simply edit `ansible/inventory/group_vars/all/helm.yaml`. The generic `deploy_helm_apps` role automatically:
-
-- Deploys HelmChart resources
-- Creates IngressRoutes for apps with ingress enabled
-- Applies additional manifests (e.g., ClusterIssuers, DaemonSets)
 
 ## Choose Your Deployment Method
 
