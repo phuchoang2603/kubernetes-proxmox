@@ -17,9 +17,9 @@ resource "vault_policy" "shared_policy" {
   EOT
 }
 
-# Dev Environment
+# JWT backend for Dev Environment
 module "vault_admin_dev" {
-  source = "./modules/vault-admin"
+  source = "./modules/vault-jwt"
 
   env                 = "dev"
   jwt_backend_path    = vault_jwt_auth_backend.jwt.path
@@ -29,9 +29,9 @@ module "vault_admin_dev" {
   github_branch       = "master"
 }
 
-# Prod Environment
+# JWT backend for Prod Environment
 module "vault_admin_prod" {
-  source = "./modules/vault-admin"
+  source = "./modules/vault-jwt"
 
   env                 = "prod"
   jwt_backend_path    = vault_jwt_auth_backend.jwt.path
@@ -49,8 +49,9 @@ module "vault_oidc_dev" {
   vault_addr = var.vault_addr
 
   redirect_uris = [
-    "http://localhost:8250/oidc/callback",
-    "http://localhost:8000/oidc/callback",
+    "http://localhost:8000/oidc/callback",  # kubelogin default
+    "http://localhost:18000/oidc/callback", # kubelogin alternative
+    "http://localhost:8080/oidc/callback",  # common alternative
   ]
 }
 
@@ -62,7 +63,8 @@ module "vault_oidc_prod" {
   vault_addr = var.vault_addr
 
   redirect_uris = [
-    "http://localhost:8250/oidc/callback",
-    "http://localhost:8000/oidc/callback",
+    "http://localhost:8000/oidc/callback",  # kubelogin default
+    "http://localhost:18000/oidc/callback", # kubelogin alternative
+    "http://localhost:8080/oidc/callback",  # common alternative
   ]
 }

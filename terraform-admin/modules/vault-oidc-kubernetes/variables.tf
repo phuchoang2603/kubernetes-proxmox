@@ -11,7 +11,11 @@ variable "vault_addr" {
 variable "redirect_uris" {
   description = "List of allowed redirect URIs for OIDC client"
   type        = list(string)
-  default     = ["http://localhost:8250/oidc/callback"]
+  default = [
+    "http://localhost:8000/oidc/callback",  # kubelogin default
+    "http://localhost:18000/oidc/callback", # kubelogin alternative
+    "http://localhost:8080/oidc/callback",  # common alternative
+  ]
 }
 
 variable "userpass_mount_path" {
