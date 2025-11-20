@@ -2,13 +2,7 @@ name: Lint
 
 on:
   pull_request:
-    paths:
-      - 'terraform-admin/**'
-      - 'terraform-provision/**'
-      - 'ansible/**'
-      - '.github/workflows/lint.yml'
-      - '.github/workflows/terraform-ansible.yml'
-  workflow_call:  # Allow this workflow to be called by other workflows
+  workflow_call:
 
 jobs:
   terraform-lint:

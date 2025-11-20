@@ -4,19 +4,9 @@ on:
   push:
     branches:
       - master
-    paths:
-      - "terraform-admin/**"
-      - "terraform-provision/**"
-      - "ansible/**"
-      - ".github/workflows/terraform-ansible.yml"
   pull_request:
     branches:
       - master
-    paths:
-      - "terraform-admin/**"
-      - "terraform-provision/**"
-      - "ansible/**"
-      - ".github/workflows/terraform-ansible.yml"
   workflow_dispatch:
 
 jobs:
