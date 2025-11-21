@@ -109,7 +109,7 @@ This creates:
 
 ##### 1.3 Create Vault Users (via Terraform)
 
-Edit the `terraform-admin/users.tf` file and uncomment the user examples. Currently, there is a bug where you can't create user before deploying OIDC provider and groups.
+Edit the `terraform-admin/users.tf` file and uncomment the user examples. Currently, there is a bug where you can't create users before deploying OIDC provider and groups.
 
 ```hcl
 locals {
