@@ -198,7 +198,7 @@ Navigate to your GitHub repository → Settings → Secrets and variables → Ac
 
 ##### 2.3 Set GitHub Secrets (Optional)
 
-If you don't want to use self-hosted Github Actions, you can get the runner access to your private network using Tailscale VPN. Navigate to Secrets tab and add:
+If you don't want to use self-hosted GitHub Actions, you can get the runner access to your private network using Tailscale VPN. Navigate to Secrets tab and add:
 
 | Secret Name          | Value                          | Description    |
 | -------------------- | ------------------------------ | -------------- |
