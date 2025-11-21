@@ -264,7 +264,7 @@ users:
 
 - `10.69.1.110`: Your cluster VIP (dev: `10.69.1.110`, prod: `10.69.1.10`)
 - `vault.example.com`: Your Vault instance URL
-- `oidc-client-id`: Fetch from Vault, as it was created dynamically using terraform-admin.
+- `oidc-client-id`: Fetch the OIDC client ID from Vault, as it was created dynamically using terraform-admin.
 - Replace with your environment name (`dev` or `prod`) in OIDC scope names (all scopes are prefixed with environment)
 
 ##### Authenticate and Access
