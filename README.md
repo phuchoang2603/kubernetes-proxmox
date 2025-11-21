@@ -1,8 +1,14 @@
 # RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
-This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on **Proxmox** using **Terraform** and **Ansible**.
+This project automates the provisioning and configuration of a RKE2 Kubernetes cluster on Proxmox using Terraform and Ansible. Using GitHub Actions and HashiCorp Vault, the project achieves a fully automated CI/CD pipeline with centralized secret management.
+
+**Demo Video**:
+
+[![Demo Video](https://img.youtube.com/vi/G83csoZYCWQ/0.jpg)](https://youtu.be/G83csoZYCWQ)
 
 ## How It Works
+
+> **Note:** HashiCorp Vault is deployed externally (outside the cluster) and serves as both the secrets manager and OIDC identity provider. This avoids the chicken-and-egg problem where OIDC authentication is required to access the cluster that hosts the OIDC provider.
 
 ### Terraform Provisioning (`terraform-provision/`)
 
@@ -28,8 +34,6 @@ After VMs are ready:
    - External Secrets Operator
    - ArgoCD for GitOps
 
-> **Note:** HashiCorp Vault is deployed externally (outside the cluster) and serves as both the secrets manager and OIDC identity provider. This avoids the chicken-and-egg problem where OIDC authentication is required to access the cluster that hosts the OIDC provider.
-
 All Helm applications are configured in a single data-driven file. To add/modify applications, simply edit `ansible/inventory/group_vars/all/helm.yaml`. The generic `deploy_helm_apps` role automatically:
 
 - Deploys HelmChart resources
@@ -49,21 +53,38 @@ Fully automated CI/CD pipeline with centralized secret management.
 #### Prerequisites
 
 1. **HashiCorp Vault** instance (accessible via network)
-2. **Tailscale** account for secure network access
+2. **Tailscale** account for secure network access (Optional)
 3. **GitHub repository** with appropriate permissions
 4. **Proxmox** cluster with API access
 5. **S3-compatible storage** (MinIO) for Terraform state
 
 #### Step 1: Configure HashiCorp Vault
 
-##### 1.1 Deploy Vault Admin Resources
+##### 1.1 Store Secrets in Vault (could be done via UI)
+
+```bash
+# Set Vault address and authenticate
+export VAULT_ADDR="https://your-vault-address"
+export VAULT_TOKEN="your-vault-token"
+
+# Shared secrets (used by both dev and prod)
+vault kv put kv/shared/minio access_key="..." secret_key="..."
+vault kv put kv/shared/proxmox endpoint="..." username="..." password="..."
+vault kv put kv/shared/cloudflare api_token="..." domain="..." email="..."
+
+# Dev environment secrets
+vault kv put kv/dev/ip vip="10.69.0.10" cidr="24" lb_range="10.69.0.50-10.69.0.100" ingress="10.69.0.50"
+vault kv put kv/dev/rke2 token="your-rke2-token"
+
+# Prod environment secrets
+vault kv put kv/prod/ip vip="10.69.1.10" cidr="24" lb_range="10.69.1.50-10.69.1.100" ingress="10.69.1.50"
+vault kv put kv/prod/rke2 token="your-rke2-token"
+```
+
+##### 1.2 Deploy Vault Admin Resources
 
 ```bash
 cd terraform-admin
-
-# Set your Vault address for authentication
-export VAULT_ADDR="https://vault.example.com"
-export VAULT_TOKEN="your-vault-token"
 
 # Set the same address as a Terraform variable (used for OIDC issuer URL)
 export TF_VAR_vault_addr="$VAULT_ADDR"
@@ -86,30 +107,9 @@ This creates:
 - Vault groups for Kubernetes RBAC (admins, developers, viewers)
 - OIDC scopes with groups claim support
 
-##### 1.2 Store Secrets in Vault (could be done via UI)
-
-```bash
-# Set Vault address and authenticate
-export VAULT_ADDR="https://your-vault-address"
-export VAULT_TOKEN="your-vault-token"
-
-# Shared secrets (used by both dev and prod)
-vault kv put kv/shared/minio access_key="..." secret_key="..."
-vault kv put kv/shared/proxmox endpoint="..." username="..." password="..."
-vault kv put kv/shared/cloudflare api_token="..." domain="..." email="..."
-
-# Dev environment secrets
-vault kv put kv/dev/ip vip="10.69.0.10" cidr="24" lb_range="10.69.0.50-10.69.0.100" ingress="10.69.0.50"
-vault kv put kv/dev/rke2 token="your-rke2-token"
-
-# Prod environment secrets
-vault kv put kv/prod/ip vip="10.69.1.10" cidr="24" lb_range="10.69.1.50-10.69.1.100" ingress="10.69.1.50"
-vault kv put kv/prod/rke2 token="your-rke2-token"
-```
-
 ##### 1.3 Create Vault Users (via Terraform)
 
-Edit the `terraform-admin/users.tf` file and uncomment the user examples:
+Edit the `terraform-admin/users.tf` file and uncomment the user examples. Currently, there is a bug where you can't create users before deploying OIDC provider and groups.
 
 ```hcl
 locals {
@@ -159,31 +159,7 @@ terraform apply
 
 #### Step 2: Configure GitHub Repository
 
-##### 2.1 Set GitHub Variables
-
-Navigate to your GitHub repository → Settings → Secrets and variables → Actions → Variables:
-
-| Variable Name | Value                       | Description                                              |
-| ------------- | --------------------------- | -------------------------------------------------------- |
-| `ENV_NAME`    | `dev` or `prod`             | Environment to deploy                                    |
-| `VAULT_ADDR`  | `https://vault.example.com` | Vault server address (used to construct OIDC issuer URL) |
-| `DESTROY`     | `false`                     | Set to `true` to destroy infrastructure                  |
-
-**Note:** The OIDC issuer URL and client ID are automatically constructed from these variables:
-
-- OIDC Issuer URL: `${VAULT_ADDR}/v1/identity/oidc/provider/${ENV_NAME}`
-- OIDC Client ID: `${ENV_NAME}-kubernetes`
-
-##### 2.2 Set GitHub Secrets
-
-Navigate to Secrets tab and add:
-
-| Secret Name          | Value                          | Description    |
-| -------------------- | ------------------------------ | -------------- |
-| `TS_OAUTH_CLIENT_ID` | Your Tailscale OAuth client ID | For VPN access |
-| `TS_OAUTH_SECRET`    | Your Tailscale OAuth secret    | For VPN access |
-
-##### 2.3 Update VM Configurations
+##### 2.1 Update VM Configurations
 
 Edit the JSON files for your environment:
 
@@ -205,6 +181,30 @@ Example `k8s_nodes.json`:
 ]
 ```
 
+##### 2.2 Set GitHub Variables
+
+Navigate to your GitHub repository → Settings → Secrets and variables → Actions → Variables:
+
+| Variable Name | Value                       | Description                                              |
+| ------------- | --------------------------- | -------------------------------------------------------- |
+| `ENV_NAME`    | `dev` or `prod`             | Environment to deploy                                    |
+| `VAULT_ADDR`  | `https://vault.example.com` | Vault server address (used to construct OIDC issuer URL) |
+| `DESTROY`     | `false`                     | Set to `true` to destroy infrastructure                  |
+
+**Note:** The OIDC issuer URL and client ID are automatically constructed from these variables:
+
+- OIDC Issuer URL: `${VAULT_ADDR}/v1/identity/oidc/provider/${ENV_NAME}`
+- OIDC Client ID: `${ENV_NAME}-kubernetes`
+
+##### 2.3 Set GitHub Secrets (Optional)
+
+If you don't want to use self-hosted GitHub Actions, you can get the runner access to your private network using Tailscale VPN. Navigate to Secrets tab and add:
+
+| Secret Name          | Value                          | Description    |
+| -------------------- | ------------------------------ | -------------- |
+| `TS_OAUTH_CLIENT_ID` | Your Tailscale OAuth client ID | For VPN access |
+| `TS_OAUTH_SECRET`    | Your Tailscale OAuth secret    | For VPN access |
+
 #### Step 3: Deploy via GitHub Actions
 
 The deployment happens automatically:
@@ -223,6 +223,8 @@ The deployment happens automatically:
 7. Deploys all applications via data-driven `deploy_helm_apps` role
 
 #### Step 4: Access Your Cluster
+
+![](./scripts/img3.png)
 
 ##### Install int128/kubelogin & Configure kubectl with OIDC
 
@@ -252,7 +254,7 @@ users:
           - oidc-login
           - get-token
           - --oidc-issuer-url=https://vault.example.com/v1/identity/oidc/provider/dev
-          - --oidc-client-id=dev-kubernetes
+          - --oidc-client-id=<fetch-from-Vault>
           - --oidc-extra-scope=dev-email
           - --oidc-extra-scope=dev-profile
           - --oidc-extra-scope=dev-groups
@@ -262,10 +264,8 @@ users:
 
 - `10.69.1.110`: Your cluster VIP (dev: `10.69.1.110`, prod: `10.69.1.10`)
 - `vault.example.com`: Your Vault instance URL
-- `dev`: Replace with your environment name (`dev` or `prod`) in:
-  - OIDC issuer URL path
-  - OIDC client ID
-  - OIDC scope names (all scopes are prefixed with environment)
+- `oidc-client-id`: Fetch the OIDC client ID from Vault, as it was created dynamically using terraform-admin.
+- Replace with your environment name (`dev` or `prod`) in OIDC scope names (all scopes are prefixed with environment)
 
 ##### Authenticate and Access
 

@@ -13,7 +13,7 @@ vm_datastore_id = "truenas" # storage for downloading cloud img, storing snippet
 vm_bridge       = "vmbr1"
 vm_timezone     = "America/New_York"
 vm_ip_gateway   = "10.69.0.1"
-dns_server      = "1.1.1.1"
+dns_server      = "10.69.0.1"
 
 # k8s cluster settings
 k8s_cpu_cores    = 2
