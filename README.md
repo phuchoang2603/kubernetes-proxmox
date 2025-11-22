@@ -81,7 +81,63 @@ vault kv put kv/prod/ip vip="10.69.1.10" cidr="24" lb_range="10.69.1.50-10.69.1.
 vault kv put kv/prod/rke2 token="your-rke2-token"
 ```
 
-##### 1.2 Deploy Vault Admin Resources
+##### 1.2 Configure Vault Users
+
+Create a `terraform.tfvars` file in the `terraform-admin/` directory to define your users:
+
+```bash
+cd terraform-admin
+cp terraform.tfvars.example terraform.tfvars
+```
+
+Edit `terraform.tfvars` and customize with your users:
+
+```hcl
+vault_addr = "https://vault.felix.pruemers.de"
+
+users = {
+  # Admin user with full access to both dev and prod
+  "admin-user" = {
+    email    = "admin@example.com"
+    password = "CHANGE-ME-SECURE-PASSWORD"
+    groups = {
+      dev_role  = "admins"
+      prod_role = "admins"
+    }
+  }
+
+  # Developer with dev access only
+  "developer" = {
+    email    = "developer@example.com"
+    password = "CHANGE-ME-SECURE-PASSWORD"
+    groups = {
+      dev_role  = "developers"
+      prod_role = null # No prod access
+    }
+  }
+
+  # Viewer with read-only access to both environments
+  "viewer" = {
+    email    = "viewer@example.com"
+    password = "CHANGE-ME-SECURE-PASSWORD"
+    groups = {
+      dev_role  = "viewers"
+      prod_role = "viewers"
+    }
+  }
+}
+```
+
+**Available roles:**
+
+- `"admins"` - Full cluster admin access (cluster-admin)
+- `"developers"` - Read/write access to application resources
+- `"viewers"` - Read-only access to all namespaces
+- `null` - No access to that environment
+
+**Important:** Users must be defined in `terraform.tfvars` before running `terraform apply`, as they need to be assigned to OIDC groups that will be created in the next step.
+
+##### 1.3 Deploy Vault Admin Resources
 
 ```bash
 cd terraform-admin
@@ -97,7 +153,7 @@ terraform init
 terraform apply
 ```
 
-This creates:
+This creates in a single apply:
 
 - JWT authentication backend for GitHub Actions
 - Environment-specific policies for dev and prod
@@ -106,52 +162,9 @@ This creates:
 - **OIDC provider configuration for Kubernetes authentication**
 - Vault groups for Kubernetes RBAC (admins, developers, viewers)
 - OIDC scopes with groups claim support
+- **Vault users with group memberships** (from terraform.tfvars)
 
-##### 1.3 Create Vault Users (via Terraform)
-
-Edit the `terraform-admin/users.tf` file and uncomment the user examples. Currently, there is a bug where you can't create users before deploying OIDC provider and groups.
-
-```hcl
-locals {
-  users = {
-    "admin-user" = {
-      email    = "admin@example.com"
-      password = "your-secure-password"
-      # Reference groups directly from OIDC modules
-      group_ids = [
-        module.vault_oidc_dev.group_ids["admins"],
-        module.vault_oidc_prod.group_ids["admins"]
-      ]
-    }
-
-    "developer" = {
-      email     = "developer@example.com"
-      password  = "your-secure-password"
-      group_ids = [
-        module.vault_oidc_dev.group_ids["developers"]
-      ]
-    }
-  }
-}
-```
-
-Then apply:
-
-```bash
-cd terraform-admin
-terraform apply
-```
-
-**Available group references:**
-
-- `module.vault_oidc_dev.group_ids["admins"]` - Dev cluster admin
-- `module.vault_oidc_dev.group_ids["developers"]` - Dev cluster developer
-- `module.vault_oidc_dev.group_ids["viewers"]` - Dev cluster viewer
-- `module.vault_oidc_prod.group_ids["admins"]` - Prod cluster admin
-- `module.vault_oidc_prod.group_ids["developers"]` - Prod cluster developer
-- `module.vault_oidc_prod.group_ids["viewers"]` - Prod cluster viewer
-
-**Kubernetes RBAC roles:**
+**Kubernetes RBAC roles created:**
 
 - `{env}-kubernetes-admins`: Full cluster admin
 - `{env}-kubernetes-developers`: Application developer access
@@ -298,7 +311,7 @@ Users are automatically granted permissions based on their Vault group membershi
 - **{env}-kubernetes-developers**: Read/write access to application resources
 - **{env}-kubernetes-viewers**: Read-only access to all namespaces
 
-**To modify user access:** Update the `group_ids` list in your `users.auto.tfvars` file and run `terraform apply` again.
+**To modify user access:** Update the `terraform.tfvars` file in `terraform-admin/` and run `terraform apply` again.
 
 #### Destroy Infrastructure
 

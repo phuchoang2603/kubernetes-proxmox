@@ -8,14 +8,14 @@ vault_addr = "https://vault.home.phuchoang.sbs"
 # Users will automatically be added to the specified groups
 users = {
   # Admin user with full access to both dev and prod
-  "phuchoang2603" = {
-    email    = "xuanphuc.a1gv@gmail.com"
-    password = "phuc26032006"
-    groups = {
-      dev_role  = "admins"
-      prod_role = "admins"
-    }
-  }
+  # "phuchoang2603" = {
+  #   email    = "xuanphuc.a1gv@gmail.com"
+  #   password = ""
+  #   groups = {
+  #     dev_role  = "admins"
+  #     prod_role = "admins"
+  #   }
+  # }
 
   # Developer with dev access only
   "developer" = {
