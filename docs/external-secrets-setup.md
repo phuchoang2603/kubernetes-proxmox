@@ -180,10 +180,8 @@ kubectl logs -n external-secrets -l app.kubernetes.io/name=external-secrets
 ### Test Vault Authentication
 
 ```bash
-# Get the service account token
-SA_TOKEN=$(kubectl get secret -n external-secrets \
-  $(kubectl get sa external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}') \
-  -o jsonpath='{.data.token}' | base64 --decode)
+# Get the service account token (Kubernetes 1.24+)
+SA_TOKEN=$(kubectl create token external-secrets -n external-secrets --duration=87600h)
 
 # Test login
 vault write auth/${ENV_NAME}-kubernetes/login \
