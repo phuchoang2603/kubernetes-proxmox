@@ -74,3 +74,19 @@ module "vault_oidc_prod" {
     "http://localhost:18000", # kubelogin alternative
   ]
 }
+
+# Vault Kubernetes Auth Backend for External Secrets (Dev)
+module "vault_k8s_auth_dev" {
+  source = "./modules/vault-kubernetes-auth"
+
+  env        = "dev"
+  vault_addr = var.vault_addr
+}
+
+# Vault Kubernetes Auth Backend for External Secrets (Prod)
+module "vault_k8s_auth_prod" {
+  source = "./modules/vault-kubernetes-auth"
+
+  env        = "prod"
+  vault_addr = var.vault_addr
+}

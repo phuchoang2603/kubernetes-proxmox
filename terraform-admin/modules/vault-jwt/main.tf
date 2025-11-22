@@ -28,7 +28,7 @@ resource "vault_jwt_auth_backend_role" "github_actions_pr_role" {
 
 # Environment-specific Vault Policy
 resource "vault_policy" "vault_env_policy" {
-  name   = "${var.env}-policy"
+  name   = "${var.env}-github-actions-policy"
   policy = <<-EOT
     path "kv/${var.env}/data/*" {
       capabilities = ["read", "list"]
