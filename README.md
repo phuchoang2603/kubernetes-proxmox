@@ -135,7 +135,7 @@ users = {
 - `"viewers"` - Read-only access to all namespaces
 - `null` - No access to that environment
 
-**Important:** Users must be defined in `terraform.tfvars` before running `terraform apply`, as they need to be assigned to OIDC groups that will be created in the next step.
+**Important:** Users can now be defined in `terraform.tfvars` and created in the same `terraform apply` as the OIDC groups. This improvement allows provisioning users and groups together in a single step, eliminating the previous two-step process.
 
 ##### 1.3 Deploy Vault Admin Resources
 
