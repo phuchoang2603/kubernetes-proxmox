@@ -25,3 +25,39 @@
   roles:
     - role: apply_kube_vip
     - role: deploy_helm_apps
+
+# Configure Vault Kubernetes Auth
+- name: Export Kubernetes credentials for Vault
+  hosts: servers[0]
+  gather_facts: false
+  tasks:
+    - name: Ensure external-secrets namespace exists
+      ansible.builtin.command:
+        cmd: kubectl create namespace external-secrets --dry-run=client -o yaml | kubectl apply -f -
+      changed_when: false
+
+    - name: Create long-lived token for external-secrets service account
+      ansible.builtin.command:
+        cmd: kubectl create token external-secrets -n external-secrets --duration=87600h
+      register: sa_token
+      changed_when: false
+
+    - name: Get Kubernetes CA certificate
+      ansible.builtin.command:
+        cmd: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'
+      register: k8s_ca_cert_b64
+      changed_when: false
+
+    - name: Decode and save Kubernetes CA certificate locally
+      ansible.builtin.copy:
+        content: "{{ k8s_ca_cert_b64.stdout | b64decode }}"
+        dest: "{{ playbook_dir }}/k8s-ca.crt"
+        mode: "0644"
+      delegate_to: localhost
+
+    - name: Save service account token to environment file
+      ansible.builtin.copy:
+        content: "{{ sa_token.stdout }}"
+        dest: "{{ playbook_dir }}/sa-token.txt"
+        mode: "0600"
+      delegate_to: localhost

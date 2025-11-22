@@ -12,6 +12,10 @@ terraform.tfvars
 *.crt
 keys/*
 
+# Kubernetes credentials from Ansible
+ansible/k8s-ca.crt
+ansible/sa-token.txt
+
 # Misc
 *.log
 *.bak
