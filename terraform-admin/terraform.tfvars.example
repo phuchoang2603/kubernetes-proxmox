@@ -1,0 +1,52 @@
+# Example terraform.tfvars file
+# Copy this to terraform.tfvars and customize with your values
+# Note: terraform.tfvars should be in .gitignore (contains passwords)
+
+vault_addr = "https://vault.example.com"
+
+# User definitions
+# Users will automatically be added to the specified groups
+users = {
+  # Admin user with full access to both dev and prod
+  # "admin" = {
+  #   email    = "admin@example.com"
+  #   password = "CHANGE-ME-SECURE-PASSWORD"
+  #   groups = {
+  #     dev_role  = "admins"
+  #     prod_role = "admins"
+  #   }
+  # }
+
+  # Developer with dev access only
+  "developer" = {
+    email    = "developer@example.com"
+    password = "CHANGE-ME-SECURE-PASSWORD"
+    groups = {
+      dev_role  = "developers"
+      prod_role = null # No prod access
+    }
+  }
+
+  # Viewer with read-only access to both environments
+  "viewer" = {
+    email    = "viewer@example.com"
+    password = "CHANGE-ME-SECURE-PASSWORD"
+    groups = {
+      dev_role  = "viewers"
+      prod_role = "viewers"
+    }
+  }
+
+  # Prod-only admin
+  "prod-admin" = {
+    email    = "prod.admin@example.com"
+    password = "CHANGE-ME-SECURE-PASSWORD"
+    groups = {
+      dev_role  = null # No dev access
+      prod_role = "admins"
+    }
+  }
+}
+
+# Available roles: "admins", "developers", "viewers"
+# Set to null for no access to that environment

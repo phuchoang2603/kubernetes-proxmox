@@ -25,11 +25,5 @@ resource "vault_identity_entity_alias" "user" {
   canonical_id   = vault_identity_entity.user.id
 }
 
-# Add user to groups
-resource "vault_identity_group_member_entity_ids" "user_groups" {
-  for_each = toset(var.group_ids)
-
-  group_id          = each.value
-  member_entity_ids = [vault_identity_entity.user.id]
-  exclusive         = false
-}
+# Note: Group membership will be managed from the parent module
+# This avoids Terraform's for_each limitation with unknown values

@@ -11,12 +11,6 @@
     "role": "agents",
     "address": "10.69.1.131/16"
   },
-  "dev-agent2": {
-    "vm_id": 132,
-    "node": "pve",
-    "role": "agents",
-    "address": "10.69.1.132/16"
-  },
   "dev-server2": {
     "vm_id": 112,
     "node": "pve2",
