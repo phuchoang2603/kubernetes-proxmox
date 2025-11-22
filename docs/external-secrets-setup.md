@@ -95,10 +95,13 @@ export ENV_NAME=dev  # or prod
 kubectl cluster-info
 
 # Get the service account JWT token
-SA_JWT_TOKEN=$(kubectl get secret -n external-secrets \
-  $(kubectl get sa external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}') \
-  -o jsonpath='{.data.token}' | base64 --decode)
+# For Kubernetes 1.24+ (recommended):
+SA_JWT_TOKEN=$(kubectl create token external-secrets -n external-secrets --duration=87600h)
 
+# For Kubernetes <1.24 (legacy clusters):
+# SA_JWT_TOKEN=$(kubectl get secret -n external-secrets \
+#   $(kubectl get sa external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}') \
+#   -o jsonpath='{.data.token}' | base64 --decode)
 # Get the Kubernetes CA certificate
 kubectl config view --raw --minify --flatten \
   -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode > k8s-ca.crt
