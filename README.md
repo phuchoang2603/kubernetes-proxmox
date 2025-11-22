@@ -93,7 +93,7 @@ cp terraform.tfvars.example terraform.tfvars
 Edit `terraform.tfvars` and customize with your users:
 
 ```hcl
-vault_addr = "https://vault.felix.pruemers.de"
+vault_addr = "https://vault.example.com"
 
 users = {
   # Admin user with full access to both dev and prod
