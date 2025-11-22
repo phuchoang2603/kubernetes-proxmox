@@ -18,4 +18,13 @@ variable "users" {
     })
   }))
   default = {}
+  validation {
+    condition = alltrue([
+      for user in var.users : alltrue([
+        for role in [user.groups.dev_role, user.groups.prod_role] :
+        role == null || contains(["admins", "developers", "viewers"], role)
+      ])
+    ])
+    error_message = "Role must be one of: 'admins', 'developers', 'viewers', or null."
+  }
 }
