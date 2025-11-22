@@ -6,3 +6,16 @@ variable "vault_addr" {
   EOT
   type        = string
 }
+
+variable "users" {
+  description = "Map of users to create with their group memberships"
+  type = map(object({
+    email    = string
+    password = string
+    groups = object({
+      dev_role  = optional(string) # "admins", "developers", "viewers", or null
+      prod_role = optional(string) # "admins", "developers", "viewers", or null
+    })
+  }))
+  default = {}
+}
