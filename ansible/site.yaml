@@ -43,12 +43,16 @@
     - name: Create long-lived token for external-secrets service account
       ansible.builtin.command:
         cmd: kubectl create token external-secrets -n external-secrets --duration=87600h
+      environment:
+        KUBECONFIG: /etc/rancher/rke2/rke2.yaml
       register: sa_token
       changed_when: false
 
     - name: Get Kubernetes CA certificate
       ansible.builtin.command:
         cmd: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'
+      environment:
+        KUBECONFIG: /etc/rancher/rke2/rke2.yaml
       register: k8s_ca_cert_b64
       changed_when: false
 
