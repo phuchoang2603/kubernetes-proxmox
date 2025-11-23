@@ -11,3 +11,4 @@ ssl_cloudflare_api_token: "{{ lookup('env', 'SSL_API_TOKEN') }}"
 ssl_email: "{{ lookup('env', 'SSL_EMAIL') }}"
 oidc_issuer_url: "{{ lookup('env', 'OIDC_ISSUER_URL') }}"
 oidc_client_id: "{{ lookup('env', 'OIDC_CLIENT_ID') }}"
+vault_addr: "{{ lookup('env', 'VAULT_ADDR') }}" # Vault server address for External Secrets
