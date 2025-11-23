@@ -191,3 +191,16 @@ jobs:
           OIDC_ISSUER_URL: ${{ vars.VAULT_ADDR }}/v1/identity/oidc/provider/${{ vars.ENV_NAME }}
           VAULT_ADDR: ${{ vars.VAULT_ADDR }}
         run: ansible-playbook -e "env=${{ vars.ENV_NAME }}" --private-key runner_key site.yaml
+
+      - name: Configure Vault Kubernetes Auth
+        env:
+          VAULT_ADDR: ${{ vars.VAULT_ADDR }}
+          VAULT_TOKEN: ${{ steps.vault_auth.outputs.vault_token }}
+          ENV_NAME: ${{ vars.ENV_NAME }}
+        run: |
+          # Configure Vault Kubernetes auth backend with client token mode
+          # ESO will use its own ServiceAccount token for both auth and TokenReview
+          vault write auth/${ENV_NAME}-kubernetes/config \
+            kubernetes_host="https://${{ env.IP_VIP }}:6443" \
+            kubernetes_ca_cert=@k8s-ca.crt \
+            disable_local_ca_jwt=true
