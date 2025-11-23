@@ -32,8 +32,12 @@
   gather_facts: false
   tasks:
     - name: Ensure external-secrets namespace exists
-      ansible.builtin.command:
-        cmd: kubectl create namespace external-secrets --dry-run=client -o yaml | kubectl apply -f -
+      ansible.builtin.shell:
+        cmd: set -o pipefail && kubectl create namespace external-secrets --dry-run=client -o yaml | kubectl apply -f -
+      args:
+        executable: /bin/bash
+      environment:
+        KUBECONFIG: /etc/rancher/rke2/rke2.yaml
       changed_when: false
 
     - name: Create long-lived token for external-secrets service account
