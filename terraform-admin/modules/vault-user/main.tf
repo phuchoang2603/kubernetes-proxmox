@@ -12,7 +12,7 @@ resource "vault_generic_endpoint" "user" {
 
 # Create entity
 resource "vault_identity_entity" "user" {
-  name     = var.username
+  name = var.username
   metadata = {
     email = var.email
   }
@@ -27,3 +27,4 @@ resource "vault_identity_entity_alias" "user" {
 
 # Note: Group membership will be managed from the parent module
 # This avoids Terraform's for_each limitation with unknown values
+# Policies are inherited from group membership
