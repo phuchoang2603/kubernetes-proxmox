@@ -4,17 +4,15 @@ resource "vault_generic_endpoint" "user" {
   ignore_absent_fields = true
 
   data_json = jsonencode({
-    password       = var.password
-    token_ttl      = var.token_ttl
-    token_max_ttl  = var.token_max_ttl
-    token_policies = var.vault_policies
+    password      = var.password
+    token_ttl     = var.token_ttl
+    token_max_ttl = var.token_max_ttl
   })
 }
 
 # Create entity
 resource "vault_identity_entity" "user" {
-  name     = var.username
-  policies = var.vault_policies
+  name = var.username
   metadata = {
     email = var.email
   }
@@ -29,3 +27,4 @@ resource "vault_identity_entity_alias" "user" {
 
 # Note: Group membership will be managed from the parent module
 # This avoids Terraform's for_each limitation with unknown values
+# Policies are inherited from group membership

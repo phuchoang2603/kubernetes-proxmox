@@ -5,59 +5,56 @@
 vault_addr = "https://vault.example.com"
 
 # User definitions
-# Users will automatically be added to the specified Kubernetes RBAC groups
-# and optionally assigned Vault policies for secret access
+# Users are automatically assigned Vault policies based on their group membership:
+# - admins: Full CRUD access to {env} and shared secrets
+# - developers: Read access to {env} and shared secrets  
+# - viewers: No Vault secret access (Kubernetes RBAC only)
 users = {
-  # Admin user with full access to both dev and prod Kubernetes clusters
-  # AND full access to all Vault secrets
+  # Admin user with full access to both dev and prod
   "admin" = {
     email    = "admin@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
     groups = {
-      dev_role  = "admins"
-      prod_role = "admins"
+      dev_role  = "admins"   # Gets dev-admin-policy
+      prod_role = "admins"   # Gets prod-admin-policy
     }
-    vault_policies = ["admin-policy"] # Full access to all KV secrets
   }
 
-  # Developer with dev Kubernetes access and read access to dev/shared secrets
+  # Developer with dev access only
   "developer" = {
     email    = "developer@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
     groups = {
-      dev_role  = "developers"
-      prod_role = null # No prod Kubernetes access
+      dev_role  = "developers"  # Gets dev-developer-policy
+      prod_role = null          # No prod access
     }
-    vault_policies = ["developer-policy"] # Read access to dev and shared secrets
   }
 
-  # Viewer with read-only Kubernetes access but NO Vault secret access
+  # Viewer with read-only Kubernetes access, no Vault secrets
   "viewer" = {
     email    = "viewer@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
     groups = {
-      dev_role  = "viewers"
-      prod_role = "viewers"
+      dev_role  = "viewers"  # No Vault policies
+      prod_role = "viewers"  # No Vault policies
     }
-    vault_policies = [] # No Vault secret access
   }
 
-  # Prod-only admin with Kubernetes admin and full Vault access
+  # Prod-only admin
   "prod-admin" = {
     email    = "prod.admin@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
     groups = {
-      dev_role  = null # No dev Kubernetes access
-      prod_role = "admins"
+      dev_role  = null      # No dev access
+      prod_role = "admins"  # Gets prod-admin-policy
     }
-    vault_policies = ["admin-policy"] # Full access to all KV secrets
   }
 }
 
-# Available Kubernetes RBAC roles: "admins", "developers", "viewers"
+# Available roles: "admins", "developers", "viewers"
 # Set to null for no access to that environment
 
-# Available Vault Policies:
-# - "admin-policy": Full CRUD access to all KV secrets (kv/*)
-# - "developer-policy": Read access to dev and shared secrets
-# - []: No Vault secret access (only Kubernetes OIDC authentication)
+# Policies are automatically assigned by group:
+# - {env}-kubernetes-admins → {env}-admin-policy (full CRUD on kv/{env}/*, kv/shared/*)
+# - {env}-kubernetes-developers → {env}-developer-policy (read on kv/{env}/data/*, kv/shared/data/*)
+# - {env}-kubernetes-viewers → no Vault policies
