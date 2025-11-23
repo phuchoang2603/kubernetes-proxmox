@@ -124,37 +124,7 @@ spec:
             namespace: "external-secrets"
 ```
 
-### 3. GitHub Actions Post-Configuration
-
-After Ansible completes, the workflow extracts the Kubernetes CA certificate and configures Vault:
-
-```yaml
-# Extract Kubernetes CA certificate
-- name: Export Kubernetes credentials for Vault
-  hosts: servers[0]
-  tasks:
-    - name: Get Kubernetes CA certificate
-      command: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'
-      environment:
-        KUBECONFIG: /etc/rancher/rke2/rke2.yaml
-      register: k8s_ca_cert_b64
-
-    - name: Decode and save CA certificate locally
-      copy:
-        content: "{{ k8s_ca_cert_b64.stdout | b64decode }}"
-        dest: "{{ playbook_dir }}/k8s-ca.crt"
-      delegate_to: localhost
-```
-
-```bash
-# Configure Vault Kubernetes auth backend with CA cert
-vault write auth/${ENV_NAME}-kubernetes/config \
-  kubernetes_host="https://${VIP}:6443" \
-  kubernetes_ca_cert=@k8s-ca.crt \
-  disable_local_ca_jwt=true
-```
-
-### 4. Runtime Authentication
+### 3. Runtime Authentication
 
 When ESO needs to fetch secrets:
 

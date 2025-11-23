@@ -74,7 +74,7 @@ resource "vault_identity_group_member_entity_ids" "user_group_assignments" {
     for username in each.value.usernames : module.vault_users[username].entity_id
   ]
 
-  exclusive = true
+  exclusive = false
 
   depends_on = [
     module.vault_users,
