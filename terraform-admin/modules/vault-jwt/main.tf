@@ -39,14 +39,9 @@ resource "vault_policy" "vault_env_policy" {
       capabilities = ["update"]
     }
 
-    # Grant permission to configure Kubernetes auth backend
+    # Grant permission to configure and read Kubernetes auth backend
     path "auth/${var.env}-kubernetes/config" {
-      capabilities = ["create", "update"]
-    }
-
-    # Grant permission to read Kubernetes auth config (for verification)
-    path "auth/${var.env}-kubernetes/config" {
-      capabilities = ["read"]
+      capabilities = ["create", "update", "read"]
     }
   EOT
 }
