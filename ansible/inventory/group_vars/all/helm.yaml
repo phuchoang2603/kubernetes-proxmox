@@ -92,6 +92,7 @@ helm_applications:
         serviceMonitor:
           enabled: true
     additional_manifests:
+      - external-secrets-rbac
       - external-secrets-cluster-store
 
   # argo-cd: GitOps continuous delivery tool
