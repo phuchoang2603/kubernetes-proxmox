@@ -2,6 +2,8 @@
 
 This guide covers setting up fully automated CI/CD pipeline with GitHub Actions and HashiCorp Vault.
 
+**Blog post:** <https://phuchoang.sbs/posts/gitops-github-actions-terraform-ansible/>
+
 ![GitHub Actions Workflow](./img/img2.png)
 
 ## Prerequisites

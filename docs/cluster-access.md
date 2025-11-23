@@ -2,6 +2,8 @@
 
 This guide covers accessing your RKE2 cluster using OIDC authentication via HashiCorp Vault.
 
+**Blog post:** <https://phuchoang.sbs/posts/gitops-kubernetes-oidc-vault>
+
 ![Cluster Access](./img/img3.png)
 
 ## Prerequisites

@@ -4,7 +4,7 @@ This guide covers running Terraform and Ansible locally from your machine.
 
 **Blog post:** <https://phuchoang.sbs/posts/on-premise-provison-ansible/>
 
-![Manual Deployment](../scripts/img.png)
+![Manual Deployment](./img/img.png)
 
 ## Prerequisites
 

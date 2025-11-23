@@ -2,8 +2,6 @@
 
 This guide covers the complete setup of HashiCorp Vault for managing secrets and OIDC authentication.
 
-**Blog post:** <https://phuchoang.sbs/posts/gitops-kubernetes-oidc-vault>
-
 ![](./img/img4.png)
 
 ## Prerequisites
