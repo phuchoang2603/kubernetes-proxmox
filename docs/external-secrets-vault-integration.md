@@ -145,7 +145,7 @@ When ESO needs to fetch secrets:
 After setup, create ExternalSecret resources to sync Vault secrets to Kubernetes:
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: my-app-secrets
