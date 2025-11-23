@@ -8,7 +8,7 @@ variable "vault_addr" {
 }
 
 variable "users" {
-  description = "Map of users to create with their group memberships"
+  description = "Map of users to create with their group memberships and Vault policies"
   type = map(object({
     email    = string
     password = string
@@ -16,6 +16,7 @@ variable "users" {
       dev_role  = optional(string) # "admins", "developers", "viewers", or null
       prod_role = optional(string) # "admins", "developers", "viewers", or null
     })
+    vault_policies = optional(list(string), []) # List of Vault policy names to assign
   }))
   default = {}
   validation {

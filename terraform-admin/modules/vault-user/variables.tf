@@ -20,6 +20,12 @@ variable "group_ids" {
   default     = []
 }
 
+variable "vault_policies" {
+  description = "List of Vault policy names to assign to the user"
+  type        = list(string)
+  default     = []
+}
+
 variable "userpass_auth_accessor" {
   description = "Accessor ID of the userpass auth backend"
   type        = string

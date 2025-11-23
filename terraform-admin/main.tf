@@ -23,6 +23,48 @@ resource "vault_policy" "shared_policy" {
   EOT
 }
 
+# Admin Policy - Full access to all KV secrets
+resource "vault_policy" "admin_policy" {
+  name   = "admin-policy"
+  policy = <<-EOT
+    # Full access to all KV secrets
+    path "kv/*" {
+      capabilities = ["create", "read", "update", "delete", "list"]
+    }
+
+    # List all secret engines
+    path "sys/mounts" {
+      capabilities = ["read", "list"]
+    }
+
+    # Read identity information
+    path "identity/*" {
+      capabilities = ["read", "list"]
+    }
+
+    # SSH CA access for all environments
+    path "*-ssh-client-signer/*" {
+      capabilities = ["read", "list"]
+    }
+  EOT
+}
+
+# Developer Policy - Read access to dev and shared secrets
+resource "vault_policy" "developer_policy" {
+  name   = "developer-policy"
+  policy = <<-EOT
+    # Read access to shared secrets
+    path "kv/shared/data/*" {
+      capabilities = ["read", "list"]
+    }
+
+    # Read access to dev secrets
+    path "kv/dev/data/*" {
+      capabilities = ["read", "list"]
+    }
+  EOT
+}
+
 # JWT backend for Dev Environment
 module "vault_admin_dev" {
   source = "./modules/vault-jwt"

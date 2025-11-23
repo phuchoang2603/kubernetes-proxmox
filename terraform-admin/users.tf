@@ -35,13 +35,16 @@ module "vault_users" {
   username               = each.key
   password               = each.value.password
   email                  = each.value.email
+  vault_policies         = each.value.vault_policies
   group_ids              = [] # Groups will be managed separately
   userpass_mount_path    = "userpass"
   userpass_auth_accessor = vault_auth_backend.userpass.accessor
 
   depends_on = [
     module.vault_oidc_dev,
-    module.vault_oidc_prod
+    module.vault_oidc_prod,
+    vault_policy.admin_policy,
+    vault_policy.developer_policy
   ]
 }
 

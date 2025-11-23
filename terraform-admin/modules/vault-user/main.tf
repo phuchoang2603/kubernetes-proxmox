@@ -4,15 +4,17 @@ resource "vault_generic_endpoint" "user" {
   ignore_absent_fields = true
 
   data_json = jsonencode({
-    password      = var.password
-    token_ttl     = var.token_ttl
-    token_max_ttl = var.token_max_ttl
+    password       = var.password
+    token_ttl      = var.token_ttl
+    token_max_ttl  = var.token_max_ttl
+    token_policies = var.vault_policies
   })
 }
 
 # Create entity
 resource "vault_identity_entity" "user" {
   name     = var.username
+  policies = var.vault_policies
   metadata = {
     email = var.email
   }
