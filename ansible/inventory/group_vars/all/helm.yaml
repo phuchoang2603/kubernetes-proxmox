@@ -64,17 +64,6 @@ helm_applications:
       - longhorn-iscsi
       - longhorn-nfs
 
-  # cloudnative-pg: PostgreSQL operator for Kubernetes
-  - name: cloudnative-pg
-    chart: cloudnative-pg
-    version: v0.26.0
-    repo: https://cloudnative-pg.github.io/charts
-    namespace: cloudnative-pg
-    create_namespace: true
-    values_content: |
-      config:
-        clusterWide: true
-
   # external-secrets: Integrate external secret management systems
   - name: external-secrets
     chart: external-secrets
