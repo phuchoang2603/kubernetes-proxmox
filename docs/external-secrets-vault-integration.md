@@ -2,6 +2,10 @@
 
 This guide explains how External Secrets Operator (ESO) authenticates with HashiCorp Vault using Kubernetes authentication to synchronize secrets into the cluster.
 
+**Blog post:** <https://phuchoang.sbs/posts/gitops-external-secrets-vault/>
+
+![](./img/img5.png)
+
 ## Client JWT Mode
 
 This implementation uses **Client JWT mode** as described in the [HashiCorp Vault documentation](https://developer.hashicorp.com/vault/docs/auth/kubernetes#use-the-vault-client-s-jwt-as-the-reviewer-jwt).
