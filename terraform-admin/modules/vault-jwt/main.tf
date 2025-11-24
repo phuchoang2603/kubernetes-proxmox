@@ -38,6 +38,11 @@ resource "vault_policy" "vault_env_policy" {
     path "${vault_mount.ssh_client_signer.path}/sign/github-runner" {
       capabilities = ["update"]
     }
+
+    # Grant permission to configure and read Kubernetes auth backend
+    path "auth/${var.env}-kubernetes/config" {
+      capabilities = ["create", "update", "read"]
+    }
   EOT
 }
 
