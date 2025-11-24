@@ -30,15 +30,10 @@ After VMs are ready:
    - cert-manager with Cloudflare DNS
    - Traefik ingress controller with auto HTTPS
    - Longhorn distributed storage
-   - CloudNativePG PostgreSQL operator
-   - External Secrets Operator
+   - External Secrets Operator, already integrated with HashiCorp Vault
    - ArgoCD for GitOps
 
-All Helm applications are configured in a single data-driven file. To add/modify applications, simply edit `ansible/inventory/group_vars/all/helm.yaml`. The generic `deploy_helm_apps` role automatically:
-
-- Deploys HelmChart resources
-- Creates IngressRoutes for apps with ingress enabled
-- Applies additional manifests (e.g., ClusterIssuers, DaemonSets)
+All Helm applications are configured in a single data-driven file. To add/modify applications, simply edit `ansible/inventory/group_vars/all/helm.yaml`.
 
 ## Deployment Options
 
@@ -51,6 +46,7 @@ Fully automated CI/CD pipeline with centralized secret management.
 1. [Configure HashiCorp Vault](docs/vault-setup.md) - Set up secrets and OIDC authentication
 2. [Set up GitHub Actions](docs/github-actions-setup.md) - Configure automated deployment
 3. [Access your cluster](docs/cluster-access.md) - Configure kubectl with OIDC
+4. [External Secrets Operator - Vault Integration](/docs/external-secrets-vault-integration.md) - Configure secrets for your pods inside the Cluster
 
 **Blog post:** <https://phuchoang.sbs/posts/gitops-github-actions-hashicorp-vault/>
 
@@ -60,17 +56,8 @@ Fully automated CI/CD pipeline with centralized secret management.
 
 Run Terraform and Ansible locally from your machine.
 
-**Quick Start:**
-
-1. [Configure HashiCorp Vault](docs/vault-setup.md) - Set up secrets (optional for manual deployment)
-2. [Manual Deployment Guide](docs/manual-deployment.md) - Step-by-step local deployment
-3. [Access your cluster](docs/cluster-access.md) - Configure kubectl
+[Manual Deployment Guide](docs/manual-deployment.md) - Step-by-step local deployment
 
 **Blog post:** <https://phuchoang.sbs/posts/on-premise-provison-ansible/>
 
 ![Manual Deployment](./docs/img/img.png)
-
-## Credits
-
-- Inspired by [JimsGarage RKE2 Ansible Playbooks](https://github.com/JamesTurland/JimsGarage)
-- Built with the [bpg Proxmox Terraform Provider](https://registry.terraform.io/providers/bpg/proxmox/latest)
