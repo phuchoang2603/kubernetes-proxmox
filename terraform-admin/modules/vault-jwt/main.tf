@@ -48,6 +48,9 @@ resource "vault_policy" "vault_env_policy" {
     path "kv/shared/data/*" {
       capabilities = ["read", "list"]
     }
+    path "kv/shared/metadata/*" {
+      capabilities = ["list"]
+    }
   EOT
 }
 
