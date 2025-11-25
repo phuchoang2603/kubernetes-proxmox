@@ -1,23 +1,23 @@
 {
-  "dev-server1": {
+  "managed-server1": {
     "vm_id": 111,
     "node": "pve",
     "role": "servers",
     "address": "10.69.1.111/16"
   },
-  "dev-agent1": {
+  "managed-agent1": {
     "vm_id": 131,
     "node": "pve",
     "role": "agents",
     "address": "10.69.1.131/16"
   },
-  "dev-server2": {
+  "managed-server2": {
     "vm_id": 112,
     "node": "pve2",
     "role": "servers",
     "address": "10.69.1.112/16"
   },
-  "dev-server3": {
+  "managed-server3": {
     "vm_id": 113,
     "node": "pve3",
     "role": "servers",
