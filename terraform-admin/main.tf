@@ -12,24 +12,12 @@ resource "vault_auth_backend" "userpass" {
   path = "userpass"
 }
 
-# Shared Policy (used by both dev and prod)
-resource "vault_policy" "shared_policy" {
-  name   = "shared-policy"
-  policy = <<-EOT
-    # Shared policy
-    path "kv/shared/data/*" {
-      capabilities = ["read", "list"]
-    }
-  EOT
-}
-
 # JWT backend for Dev Environment
 module "vault_admin_dev" {
   source = "./modules/vault-jwt"
 
   env                 = "dev"
   jwt_backend_path    = vault_jwt_auth_backend.jwt.path
-  shared_policy_name  = vault_policy.shared_policy.name
   github_organization = "phuchoang2603"
   github_repository   = "kubernetes-proxmox"
   github_branch       = "master"
@@ -41,7 +29,6 @@ module "vault_admin_prod" {
 
   env                 = "prod"
   jwt_backend_path    = vault_jwt_auth_backend.jwt.path
-  shared_policy_name  = vault_policy.shared_policy.name
   github_organization = "phuchoang2603"
   github_repository   = "kubernetes-proxmox"
   github_branch       = "master"
