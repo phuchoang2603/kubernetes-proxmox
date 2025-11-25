@@ -38,6 +38,15 @@ resource "vault_policy" "external_secrets" {
     path "kv/${var.env}/metadata/*" {
       capabilities = ["list"]
     }
+
+    # Allow reading all secrets in the shared KV path
+    path "kv/shared/data/*" {
+      capabilities = ["read", "list"]
+    }
+
+    path "kv/shared/metadata/*" {
+      capabilities = ["list"]
+    }
   EOT
 }
 

@@ -8,11 +8,6 @@ variable "jwt_backend_path" {
   type        = string
 }
 
-variable "shared_policy_name" {
-  description = "Name of the shared Vault policy"
-  type        = string
-}
-
 variable "github_organization" {
   type        = string
   description = "The GitHub organization name."
