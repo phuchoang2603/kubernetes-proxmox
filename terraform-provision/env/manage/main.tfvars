@@ -18,7 +18,7 @@ dns_server      = "10.69.0.1"
 # k8s cluster settings
 k8s_cpu_cores    = 4
 k8s_cpu_type     = "x86-64-v2-AES"
-k8s_memory_mb    = 4096
+k8s_memory_mb    = 6144
 k8s_disk_size_gb = 64
 k8s_datastore_id = "local-lvm"
 
