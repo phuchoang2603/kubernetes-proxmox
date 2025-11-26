@@ -9,20 +9,13 @@ locals {
   # This avoids Terraform's "for_each with unknown values" limitation
   user_group_memberships = merge(flatten([
     for username, user in var.users : [
-      user.groups.dev_role != null ? {
-        "${username}-dev-${user.groups.dev_role}" = {
+      for env, role in user.roles : {
+        "${username}-${env}-${role}" = {
           username = username
-          env      = "dev"
-          role     = user.groups.dev_role
+          env      = env
+          role     = role
         }
-      } : {},
-      user.groups.prod_role != null ? {
-        "${username}-prod-${user.groups.prod_role}" = {
-          username = username
-          env      = "prod"
-          role     = user.groups.prod_role
-        }
-      } : {}
+      }
     ]
   ])...)
 }
@@ -40,8 +33,7 @@ module "vault_users" {
   userpass_auth_accessor = vault_auth_backend.userpass.accessor
 
   depends_on = [
-    module.vault_oidc_dev,
-    module.vault_oidc_prod
+    module.vault_oidc
   ]
 }
 
@@ -50,19 +42,14 @@ module "vault_users" {
 resource "vault_identity_group_member_entity_ids" "user_group_assignments" {
   for_each = local.user_group_memberships
 
-  group_id = each.value.env == "dev" ? (
-    module.vault_oidc_dev.group_ids[each.value.role]
-    ) : (
-    module.vault_oidc_prod.group_ids[each.value.role]
-  )
+  group_id = module.vault_oidc[each.value.env].group_ids[each.value.role]
 
   member_entity_ids = [module.vault_users[each.value.username].entity_id]
   exclusive         = false
 
   depends_on = [
     module.vault_users,
-    module.vault_oidc_dev,
-    module.vault_oidc_prod
+    module.vault_oidc
   ]
 }
 
