@@ -4,13 +4,7 @@ set -e
 
 # Check if the environment argument is provided
 if [ -z "$1" ]; then
-  echo "Error: Environment argument is not provided. Please provide 'dev' or 'prod'."
-  exit 1
-fi
-
-# Check if the environment is valid
-if [ "$1" != "dev" ] && [ "$1" != "prod" ]; then
-  echo "Error: Invalid environment. Please use 'dev' or 'prod'."
+  echo "Error: Environment argument is not provided."
   exit 1
 fi
 
