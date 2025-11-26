@@ -1,0 +1,20 @@
+{
+  "manage-longhorn1": {
+    "vm_id": 134,
+    "node": "pve",
+    "role": "longhorn",
+    "address": "10.69.1.134/16"
+  },
+  "manage-longhorn2": {
+    "vm_id": 135,
+    "node": "pve2",
+    "role": "longhorn",
+    "address": "10.69.1.135/16"
+  },
+  "manage-longhorn3": {
+    "vm_id": 136,
+    "node": "pve3",
+    "role": "longhorn",
+    "address": "10.69.1.136/16"
+  }
+}

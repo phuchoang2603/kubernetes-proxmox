@@ -1,4 +1,4 @@
-# Shared JWT Auth Backend (used by both dev and prod)
+# Shared JWT Auth Backend (used by all environments)
 resource "vault_jwt_auth_backend" "jwt" {
   path = "jwt"
 
@@ -6,39 +6,30 @@ resource "vault_jwt_auth_backend" "jwt" {
   oidc_discovery_url = "https://token.actions.githubusercontent.com"
 }
 
-# Shared Userpass Auth Backend (used by both dev and prod)
+# Shared Userpass Auth Backend (used by all environments)
 resource "vault_auth_backend" "userpass" {
   type = "userpass"
   path = "userpass"
 }
 
-# JWT backend for Dev Environment
-module "vault_admin_dev" {
-  source = "./modules/vault-jwt"
+# JWT backend for each environment
+module "vault_admin" {
+  source   = "./modules/vault-jwt"
+  for_each = toset(var.environments)
 
-  env                 = "dev"
+  env                 = each.key
   jwt_backend_path    = vault_jwt_auth_backend.jwt.path
   github_organization = "phuchoang2603"
   github_repository   = "kubernetes-proxmox"
   github_branch       = "master"
 }
 
-# JWT backend for Prod Environment
-module "vault_admin_prod" {
-  source = "./modules/vault-jwt"
+# Vault OIDC Provider for Kubernetes (per environment)
+module "vault_oidc" {
+  source   = "./modules/vault-oidc-kubernetes"
+  for_each = toset(var.environments)
 
-  env                 = "prod"
-  jwt_backend_path    = vault_jwt_auth_backend.jwt.path
-  github_organization = "phuchoang2603"
-  github_repository   = "kubernetes-proxmox"
-  github_branch       = "master"
-}
-
-# Vault OIDC Provider for Kubernetes (Dev)
-module "vault_oidc_dev" {
-  source = "./modules/vault-oidc-kubernetes"
-
-  env                    = "dev"
+  env                    = each.key
   vault_addr             = var.vault_addr
   userpass_auth_accessor = vault_auth_backend.userpass.accessor
 
@@ -48,32 +39,12 @@ module "vault_oidc_dev" {
   ]
 }
 
-# Vault OIDC Provider for Kubernetes (Prod)
-module "vault_oidc_prod" {
-  source = "./modules/vault-oidc-kubernetes"
+# Vault Kubernetes Auth Backend for External Secrets (per environment)
+module "vault_k8s_auth" {
+  source   = "./modules/vault-kubernetes-auth"
+  for_each = toset(var.environments)
 
-  env                    = "prod"
-  vault_addr             = var.vault_addr
-  userpass_auth_accessor = vault_auth_backend.userpass.accessor
-
-  redirect_uris = [
-    "http://localhost:8000",  # kubelogin default
-    "http://localhost:18000", # kubelogin alternative
-  ]
-}
-
-# Vault Kubernetes Auth Backend for External Secrets (Dev)
-module "vault_k8s_auth_dev" {
-  source = "./modules/vault-kubernetes-auth"
-
-  env        = "dev"
+  env        = each.key
   vault_addr = var.vault_addr
 }
 
-# Vault Kubernetes Auth Backend for External Secrets (Prod)
-module "vault_k8s_auth_prod" {
-  source = "./modules/vault-kubernetes-auth"
-
-  env        = "prod"
-  vault_addr = var.vault_addr
-}

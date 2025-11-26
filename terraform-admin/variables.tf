@@ -7,24 +7,27 @@ variable "vault_addr" {
   type        = string
 }
 
+variable "environments" {
+  description = "List of environments to create (e.g., ['dev', 'manage', 'prod'])"
+  type        = list(string)
+  default     = ["dev", "manage", "prod"]
+}
+
 variable "users" {
-  description = "Map of users to create with their group memberships"
+  description = "Map of users to create with their environment role assignments"
   type = map(object({
     email    = string
     password = string
-    groups = object({
-      dev_role  = optional(string) # "admins", "developers", "viewers", or null
-      prod_role = optional(string) # "admins", "developers", "viewers", or null
-    })
+    roles    = map(string) # Environment name -> role mapping (e.g., {dev = "admins", prod = "developers"})
   }))
   default = {}
   validation {
     condition = alltrue([
       for user in var.users : alltrue([
-        for role in [user.groups.dev_role, user.groups.prod_role] :
-        role == null || contains(["admins", "developers", "viewers"], role)
+        for role in values(user.roles) :
+        contains(["admins", "developers", "viewers"], role)
       ])
     ])
-    error_message = "Role must be one of: 'admins', 'developers', 'viewers', or null."
+    error_message = "Role must be one of: 'admins', 'developers', 'viewers'."
   }
 }

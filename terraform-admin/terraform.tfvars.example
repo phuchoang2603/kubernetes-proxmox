@@ -4,39 +4,46 @@
 
 vault_addr = "https://vault.example.com"
 
+# Define your environments (default: ["dev", "manage", "prod"])
+# You can add/remove environments as needed
+environments = ["dev", "manage", "prod"]
+
 # User definitions
-# Users are automatically assigned Vault policies based on their group membership:
-# - admins: Full CRUD access to {env} and shared secrets
-# - developers: Read access to {env} and shared secrets  
+# Users are automatically assigned Vault policies based on their role in each environment:
+# - admins: Full CRUD access to kv/{env}/* and kv/shared/*
+# - developers: Read access to kv/{env}/data/* and kv/shared/data/*
 # - viewers: No Vault secret access (Kubernetes RBAC only)
 users = {
-  # Admin user with full access to both dev and prod
+  # Admin user with full access to all environments
   "admin" = {
     email    = "admin@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
-    groups = {
-      dev_role  = "admins"   # Gets dev-admin-policy
-      prod_role = "admins"   # Gets prod-admin-policy
+    roles = {
+      dev    = "admins"   # Gets dev-admin-policy
+      manage = "admins"   # Gets manage-admin-policy
+      prod   = "admins"   # Gets prod-admin-policy
     }
   }
 
-  # Developer with dev access only
+  # Developer with dev and manage access only
   "developer" = {
     email    = "developer@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
-    groups = {
-      dev_role  = "developers"  # Gets dev-developer-policy
-      prod_role = null          # No prod access
+    roles = {
+      dev    = "developers"  # Gets dev-developer-policy
+      manage = "developers"  # Gets manage-developer-policy
+      # No prod access
     }
   }
 
-  # Viewer with read-only Kubernetes access, no Vault secrets
+  # Viewer with read-only Kubernetes access across all environments
   "viewer" = {
     email    = "viewer@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
-    groups = {
-      dev_role  = "viewers"  # No Vault policies
-      prod_role = "viewers"  # No Vault policies
+    roles = {
+      dev    = "viewers"  # No Vault policies, Kubernetes RBAC only
+      manage = "viewers"  # No Vault policies, Kubernetes RBAC only
+      prod   = "viewers"  # No Vault policies, Kubernetes RBAC only
     }
   }
 
@@ -44,17 +51,27 @@ users = {
   "prod-admin" = {
     email    = "prod.admin@example.com"
     password = "CHANGE-ME-SECURE-PASSWORD"
-    groups = {
-      dev_role  = null      # No dev access
-      prod_role = "admins"  # Gets prod-admin-policy
+    roles = {
+      prod = "admins"  # Gets prod-admin-policy
+      # No dev or manage access
+    }
+  }
+
+  # Manage environment admin only
+  "manage-admin" = {
+    email    = "manage.admin@example.com"
+    password = "CHANGE-ME-SECURE-PASSWORD"
+    roles = {
+      manage = "admins"  # Gets manage-admin-policy
     }
   }
 }
 
 # Available roles: "admins", "developers", "viewers"
-# Set to null for no access to that environment
+# Only include environments in the roles map where the user should have access
 
 # Policies are automatically assigned by group:
 # - {env}-kubernetes-admins → {env}-admin-policy (full CRUD on kv/{env}/*, kv/shared/*)
 # - {env}-kubernetes-developers → {env}-developer-policy (read on kv/{env}/data/*, kv/shared/data/*)
 # - {env}-kubernetes-viewers → no Vault policies
+
