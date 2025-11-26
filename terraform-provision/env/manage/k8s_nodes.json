@@ -1,0 +1,20 @@
+{
+  "manage-server1": {
+    "vm_id": 131,
+    "node": "pve",
+    "role": "servers",
+    "address": "10.69.1.131/16"
+  },
+  "manage-server2": {
+    "vm_id": 132,
+    "node": "pve2",
+    "role": "servers",
+    "address": "10.69.1.132/16"
+  },
+  "manage-server3": {
+    "vm_id": 133,
+    "node": "pve3",
+    "role": "servers",
+    "address": "10.69.1.133/16"
+  }
+}

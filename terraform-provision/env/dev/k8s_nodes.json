@@ -5,12 +5,6 @@
     "role": "servers",
     "address": "10.69.1.111/16"
   },
-  "dev-agent1": {
-    "vm_id": 131,
-    "node": "pve",
-    "role": "agents",
-    "address": "10.69.1.131/16"
-  },
   "dev-server2": {
     "vm_id": 112,
     "node": "pve2",
