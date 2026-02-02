@@ -32,15 +32,23 @@
               terraform
               ansible
               ansible-lint
+
               kubectl
               kubernetes-helm
-              vault
               kubectx
+              vault
+
+              # This creates a custom command called 'load-secrets'
+              (writeShellScriptBin "load-secrets" ''
+                read -sp "Enter Vault Token: " input_token
+                export VAULT_ADDR="https://vault.home.phuchoang.sbs"
+                export VAULT_TOKEN=$input_token
+                export AWS_ACCESS_KEY_ID=$(vault kv get -field=access_key kv/shared/minio)
+                export AWS_SECRET_ACCESS_KEY=$(vault kv get -field=secret_key kv/shared/minio)
+                echo -e "\n✅ Minio credentials loaded into environment."
+                exec "$SHELL"
+              '')
             ];
-            shellHook = ''
-              echo "Terraform version: $(terraform --version | head -n 1)"
-              echo "Ansible version: $(ansible --version | head -n 1)"
-            '';
           };
         }
       );
