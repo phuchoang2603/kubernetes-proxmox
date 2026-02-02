@@ -28,6 +28,8 @@ Thumbs.db
 
 # mise / direnv / tools
 .mise.toml
-.envrc
 .venv
 debug.yaml
+.direnv/
+result
+result-*
