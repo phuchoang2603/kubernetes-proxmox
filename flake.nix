@@ -29,11 +29,18 @@
         {
           default = pkgs.mkShell {
             packages = with pkgs; [
+              terraform
+              ansible
+              ansible-lint
               kubectl
               kubernetes-helm
               vault
               kubectx
             ];
+            shellHook = ''
+              echo "Terraform version: $(terraform --version | head -n 1)"
+              echo "Ansible version: $(ansible --version | head -n 1)"
+            '';
           };
         }
       );
