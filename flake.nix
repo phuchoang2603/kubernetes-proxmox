@@ -15,31 +15,38 @@
         "aarch64-darwin"
       ];
 
-      forAllSystems = nixpkgs.lib.genAttrs systems;
+      forAllSystems =
+        f:
+        nixpkgs.lib.genAttrs systems (
+          system:
+          f (
+            import nixpkgs {
+              inherit system;
+              config.allowUnfree = true;
+            }
+          )
+        );
     in
     {
-      devShells = forAllSystems (
-        system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        in
-        {
-          default = pkgs.mkShell {
-            packages = with pkgs; [
-              terraform
-              ansible
-              ansible-lint
+      devShells = forAllSystems (pkgs: {
+        default = pkgs.mkShell {
+          packages = with pkgs; [
+            terraform
+            terraform-ls
 
-              kubectl
-              kubernetes-helm
-              kubectx
-              vault
-            ];
-          };
-        }
-      );
+            ansible
+            ansible-lint
+
+            kubectl
+            kubectx
+            krew
+
+            kubernetes-helm
+            helm-ls
+
+            vault
+          ];
+        };
+      });
     };
 }
