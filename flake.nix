@@ -20,7 +20,12 @@
         nixpkgs.lib.genAttrs systems (
           system:
           f {
-            pkgs = import nixpkgs { inherit system; };
+            pkgs = import nixpkgs {
+              inherit system;
+              config = {
+                allowUnfree = true;
+              };
+            };
           }
         );
     in
@@ -34,23 +39,6 @@
               helm
               vault
               kubectx
-              kubectlPlugins.krew
-            ];
-          };
-        }
-      );
-
-      packages = forEachSystem (
-        { pkgs }:
-        {
-          default = pkgs.symlinkJoin {
-            name = "kubernetes-proxmox-tools";
-            paths = with pkgs; [
-              kubectl
-              helm
-              vault
-              kubectx
-              kubectlPlugins.krew
             ];
           };
         }
