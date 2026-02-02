@@ -6,7 +6,7 @@
   };
 
   outputs =
-    { self, nixpkgs }:
+    { nixpkgs, ... }:
     let
       systems = [
         "x86_64-linux"
@@ -15,28 +15,22 @@
         "aarch64-darwin"
       ];
 
-      forEachSystem =
-        f:
-        nixpkgs.lib.genAttrs systems (
-          system:
-          f {
-            pkgs = import nixpkgs {
-              inherit system;
-              config = {
-                allowUnfree = true;
-              };
-            };
-          }
-        );
+      forAllSystems = nixpkgs.lib.genAttrs systems;
     in
     {
-      devShells = forEachSystem (
-        { pkgs }:
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        in
         {
           default = pkgs.mkShell {
             packages = with pkgs; [
               kubectl
-              helm
+              kubernetes-helm
               vault
               kubectx
             ];
