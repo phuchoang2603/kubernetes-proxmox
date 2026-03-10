@@ -6,58 +6,46 @@ This project automates the provisioning and configuration of a RKE2 Kubernetes c
 
 [![Demo Video](https://img.youtube.com/vi/G83csoZYCWQ/0.jpg)](https://youtu.be/G83csoZYCWQ)
 
-## How It Works
+## Motivation
 
-> **Note:** HashiCorp Vault is deployed externally (outside the cluster) and serves as both the secrets manager and OIDC identity provider. This avoids the chicken-and-egg problem where OIDC authentication is required to access the cluster that hosts the OIDC provider.
+This project began with a simple goal: create automatable scripts to spin up a Kubernetes cluster on Proxmox to learn more about its internals. Initially, I achieved this by running Terraform and Ansible from my laptop as a client. 
+
+However, one day, my laptop died. I lost all my local `.env` files, configurations, and `tfstate` files, forcing me to re-bootstrap everything from scratch. 
+
+That experience shifted the focus of this project. I realized that true infrastructure-as-code should not depend on a single machine. I decided to utilize **HashiCorp Vault** for centralized secret management, **GitHub Actions** for a portable CI/CD pipeline, and **MinIO** for remote Terraform state storage. This ensures the cluster can be managed, recovered, and scaled from anywhere, regardless of the local client's state.
+
+## Quick Start
+
+1. **Configure HashiCorp Vault**: Follow the [Vault Setup Guide](docs/vault-setup.md) to set up secrets and OIDC authentication.
+2. **Set up GitHub Actions**: Configure the [Automated Deployment](docs/github-actions-setup.md) to enable CI/CD pipelines.
+3. **Access your cluster**: Follow the [Cluster Access Guide](docs/cluster-access.md) to configure kubectl with OIDC.
+4. **Integrate Secrets**: Use the [External Secrets Operator - Vault Integration](/docs/external-secrets-vault-integration.md) to sync secrets into your cluster.
+
+## Usage
 
 ### Terraform Provisioning (`terraform-provision/`)
-
-1. Initializes Terraform with S3 backend (environment-specific state file)
-2. Retrieves Proxmox credentials (from Vault or env vars)
-3. Downloads Ubuntu cloud image
-4. Creates cloud-init configuration snippets
-5. Provisions VMs for Kubernetes and Longhorn nodes
+Terraform handles the infrastructure layer:
+1. Initializes with S3 backend for state management.
+2. Retrieves Proxmox credentials from Vault.
+3. Provisions Ubuntu-based VMs for Kubernetes and Longhorn nodes.
 
 ### Ansible Configuration (`ansible/`)
+Ansible handles the software and cluster layer:
+1. Generates inventory and authenticates via Vault SSH CA.
+2. Installs RKE2 with OIDC integration.
+3. Deploys `kube-vip` for High Availability.
+4. Deploys essential apps (cert-manager, Traefik, Longhorn, ArgoCD) via the `deploy_helm_apps` role.
 
-After VMs are ready:
+For local execution, see the [Manual Deployment Guide](docs/manual-deployment.md).
 
-1. Generates inventory from JSON files
-2. Authenticates via Vault SSH CA (automated) or standard SSH (manual)
-3. Installs RKE2 on server and agent nodes with OIDC integration using Vault as the identity provider
-4. Deploys kube-vip for HA virtual IP
-5. **Deploys all essential applications via data-driven approach** (`deploy_helm_apps` role):
-   - cert-manager with Cloudflare DNS
-   - Traefik ingress controller with auto HTTPS
-   - Longhorn distributed storage
-   - External Secrets Operator, already integrated with HashiCorp Vault
-   - ArgoCD for GitOps
+## Contributing
 
-All Helm applications are configured in a single data-driven file. To add/modify applications, simply edit `ansible/inventory/group_vars/all/helm.yaml`.
+This project uses **Nix flakes** and **direnv** to manage a reproducible development environment including all necessary tools (Terraform, Ansible, etc.). To get started:
 
-## Deployment Options
+1. Install [Nix](https://nixos.org/download.html).
+2. Install [direnv](https://direnv.net/docs/installation.html).
+3. Run `direnv allow` in the project root to load the environment automatically.
 
-### Option A: Automated Deployment (GitHub Actions + Vault)
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change. 
 
-Fully automated CI/CD pipeline with centralized secret management.
-
-**Quick Start:**
-
-1. [Configure HashiCorp Vault](docs/vault-setup.md) - Set up secrets and OIDC authentication
-2. [Set up GitHub Actions](docs/github-actions-setup.md) - Configure automated deployment
-3. [Access your cluster](docs/cluster-access.md) - Configure kubectl with OIDC
-4. [External Secrets Operator - Vault Integration](/docs/external-secrets-vault-integration.md) - Configure secrets for your pods inside the Cluster
-
-**Blog post:** <https://phuchoang.sbs/posts/gitops-github-actions-hashicorp-vault/>
-
-![Automated Deployment](./docs/img/img2.png)
-
-### Option B: Manual Deployment (Local Execution)
-
-Run Terraform and Ansible locally from your machine.
-
-[Manual Deployment Guide](docs/manual-deployment.md) - Step-by-step local deployment
-
-**Blog post:** <https://phuchoang.sbs/posts/on-premise-provison-ansible/>
-
-![Manual Deployment](./docs/img/img.png)
+Ensure that you update tests as appropriate and follow the project's coding standards.
