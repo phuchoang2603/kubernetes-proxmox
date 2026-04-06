@@ -28,3 +28,9 @@ variable "userpass_mount_path" {
   type        = string
   default     = "userpass"
 }
+
+variable "oidc_token_ttl" {
+  description = "TTL in seconds for OIDC tokens and key rotation"
+  type        = number
+  default     = 3600
+}

@@ -7,6 +7,12 @@ variable "vault_addr" {
   type        = string
 }
 
+variable "oidc_token_ttl" {
+  description = "TTL in seconds for OIDC access tokens, ID tokens, and key rotation"
+  type        = number
+  default     = 3600
+}
+
 variable "environments" {
   description = "List of environments to create (e.g., ['dev', 'manage', 'prod'])"
   type        = list(string)

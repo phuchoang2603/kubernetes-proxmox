@@ -83,8 +83,8 @@ resource "vault_identity_group" "kubernetes_viewers" {
 resource "vault_identity_oidc_key" "kubernetes" {
   name               = "${var.env}-kubernetes"
   allowed_client_ids = ["*"]
-  rotation_period    = 3600
-  verification_ttl   = 3600
+  rotation_period    = var.oidc_token_ttl
+  verification_ttl   = var.oidc_token_ttl
 }
 
 # Create custom scope for email
@@ -161,8 +161,8 @@ resource "vault_identity_oidc_client" "kubernetes" {
     vault_identity_oidc_assignment.kubernetes.name
   ]
 
-  id_token_ttl     = 3600 # 1 hour
-  access_token_ttl = 3600 # 1 hour
+  id_token_ttl     = var.oidc_token_ttl # 1 hour
+  access_token_ttl = var.oidc_token_ttl # 1 hour
 
   client_type = "public"
 }

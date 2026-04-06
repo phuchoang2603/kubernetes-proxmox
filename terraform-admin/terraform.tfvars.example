@@ -4,6 +4,9 @@
 
 vault_addr = "https://vault.example.com"
 
+# OIDC token TTL in seconds for access tokens, ID tokens, and key rotation
+oidc_token_ttl = 3600
+
 # Define your environments (default: ["dev", "manage", "prod"])
 # You can add/remove environments as needed
 environments = ["dev", "manage", "prod"]
@@ -74,4 +77,3 @@ users = {
 # - {env}-kubernetes-admins → {env}-admin-policy (full CRUD on kv/{env}/*, kv/shared/*)
 # - {env}-kubernetes-developers → {env}-developer-policy (read on kv/{env}/data/*, kv/shared/data/*)
 # - {env}-kubernetes-viewers → no Vault policies
-

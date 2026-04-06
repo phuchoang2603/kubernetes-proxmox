@@ -32,6 +32,7 @@ module "vault_oidc" {
   env                    = each.key
   vault_addr             = var.vault_addr
   userpass_auth_accessor = vault_auth_backend.userpass.accessor
+  oidc_token_ttl         = 3600
 
   redirect_uris = [
     "http://localhost:8000",  # kubelogin default
@@ -47,4 +48,3 @@ module "vault_k8s_auth" {
   env        = each.key
   vault_addr = var.vault_addr
 }
-
