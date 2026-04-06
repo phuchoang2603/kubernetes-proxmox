@@ -35,13 +35,6 @@ helm_applications:
           enabled: true
           matchRule: Host(`traefik.{{ ssl_local_domain }}`)
           entryPoints: ["websecure"]
-      ports:
-        web:
-          redirections:
-            entryPoint:
-              to: websecure
-              scheme: https
-              permanent: true
     additional_manifests:
       - traefik-wildcard-cert
 
