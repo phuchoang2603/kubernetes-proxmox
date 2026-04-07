@@ -1,0 +1,26 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: longhorn-minio-credentials
+  namespace: longhorn-system
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: vault-shared-backend
+  target:
+    name: longhorn-minio-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: AWS_ENDPOINTS
+      remoteRef:
+        key: minio
+        property: endpoint
+    - secretKey: AWS_ACCESS_KEY_ID
+      remoteRef:
+        key: minio
+        property: longhorn_a_key
+    - secretKey: AWS_SECRET_ACCESS_KEY
+      remoteRef:
+        key: minio
+        property: longhorn_s_key

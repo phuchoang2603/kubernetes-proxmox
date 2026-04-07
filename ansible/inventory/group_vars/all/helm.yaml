@@ -138,7 +138,7 @@ helm_applications:
           retentionPeriod: "1" # 1 month
           replicaCount: 1
           storage:
-            storageClassName: "longhorn" 
+            storageClassName: "longhorn"
             resources:
               requests:
                 storage: 40Gi
