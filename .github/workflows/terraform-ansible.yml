@@ -147,6 +147,7 @@ jobs:
           outputToken: true
           secrets: |
             kv/shared/data/cloudflare * | SSL_ ;
+            kv/shared/data/minio * | MINIO_ ;
             kv/${{vars.ENV_NAME}}/data/ip * | IP_ ;
             kv/${{vars.ENV_NAME}}/data/rke2 * | RKE2_ ;
             kv/${{vars.ENV_NAME}}/data/oidc * | OIDC_ ;

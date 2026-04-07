@@ -12,3 +12,7 @@ ssl_email: "{{ lookup('env', 'SSL_EMAIL') }}"
 oidc_issuer_url: "{{ lookup('env', 'OIDC_ISSUER_URL') }}"
 oidc_client_id: "{{ lookup('env', 'OIDC_CLIENT_ID') }}"
 vault_addr: "{{ lookup('env', 'VAULT_ADDR') }}" # Vault server address for External Secrets
+
+loki_token: "{{ lookup('env', 'MINIO_LOKI_TOKEN') }}" # for loki s3 access_token (optional)
+mimir_token: "{{ lookup('env', 'MINIO_MIMIR_TOKEN') }}" # for mimir s3 access_token (optional)
+s3_endpoint: "{{ lookup('env', 'MINIO_S3_ENDPOINT') }}" # for s3 compatible storage (optional)
