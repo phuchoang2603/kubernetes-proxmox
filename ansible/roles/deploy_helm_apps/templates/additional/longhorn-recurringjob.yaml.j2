@@ -1,0 +1,30 @@
+# infrastructure/storage/longhorn/recurring-jobs.yaml
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: daily-backup
+  namespace: longhorn-system
+spec:
+  cron: "0 2 * * *"       # daily at 2 AM
+  task: backup
+  groups:
+    - default              # apply to all volumes with "default" group label
+  retain: 7                # keep 7 daily backups
+  concurrency: 2           # backup 2 volumes simultaneously
+  labels:
+    schedule: daily
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: hourly-snapshot
+  namespace: longhorn-system
+spec:
+  cron: "0 * * * *"       # every hour
+  task: snapshot
+  groups:
+    - default
+  retain: 24               # keep 24 hourly snapshots
+  concurrency: 5
+  labels:
+    schedule: hourly

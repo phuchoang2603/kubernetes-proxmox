@@ -46,9 +46,25 @@ helm_applications:
     repo: https://charts.longhorn.io
     namespace: longhorn-system
     create_namespace: true
-    set_values:
-      defaultSettings.createDefaultDiskLabeledNodes: "true"
-      persistence.reclaimPolicy: "Retain"
+    values_content: |
+      defaultSettings:
+        createDefaultDiskLabeledNodes: "true"
+        autoCleanupSystemGeneratedSnapshot: true
+        replicaAutoBalance: best-effort
+        snapshotDataIntegrity: fast-check
+        storageOverProvisioningPercentage: 200
+        storageMinimalAvailablePercentage: 25
+      defaultBackupStore:
+        backupTarget: "s3://longhorn@us-east-1/"
+        backupTargetCredentialSecret: "longhorn-minio-credentials"
+      persistence:
+        defaultClass: true
+        defaultClassReplicaCount: 3
+        defaultDataLocality: best-effort
+        reclaimPolicy: Delete
+        migratable: false
+        recurringJobSelector:
+          enable: false
     ingress:
       enabled: true
       host: "longhorn.{{ ssl_local_domain }}"
@@ -57,6 +73,9 @@ helm_applications:
     additional_manifests:
       - longhorn-iscsi
       - longhorn-nfs
+      - longhorn-minio-cred
+      - longhorn-storage-class
+      - longhorn-recurringjob
 
   # external-secrets: Integrate external secret management systems
   - name: external-secrets
@@ -116,6 +135,40 @@ helm_applications:
         persistentVolumeClaim:
           registry:
             size: 100Gi
+            storageClass: "longhorn-default"
+          jobservice:
+            size: 1Gi
+            storageClass: "longhorn-fast"
+          database:
+            size: 1Gi
+            storageClass: "longhorn-default"
+          redis:
+            size: 1Gi
+            storageClass: "longhorn-fast"
+          trivy:
+            size: 5Gi
+            storageClass: "longhorn-fast"
+
+  # victoria-metrics-operator: Operator for managing VictoriaMetrics components
+  - name: victoria-metrics-operator
+    chart: victoria-metrics-operator
+    version: v0.59.3
+    repo: https://victoriametrics.github.io/helm-charts
+    namespace: operator-system
+    create_namespace: true
+    values_content: |
+      crds:
+        plain: true
+      operator:
+        disable_prometheus_converter: false
+
+  # prometheus-operator: Operator for managing Prometheus monitoring components
+  - name: prometheus-operator-crds
+    chart: prometheus-operator-crds
+    version: v28.0.1
+    repo: https://prometheus-community.github.io/helm-charts
+    namespace: operator-system
+    create_namespace: true
 
   # victoria-metrics-k8s-stack: Metrics monitoring stack (VictoriaMetrics, Grafana, etc.)
   - name: victoria-metrics-k8s-stack
@@ -125,24 +178,20 @@ helm_applications:
     namespace: monitoring
     create_namespace: true
     values_content: |
-      global:
-        clusterLabel: management-cluster
-
       victoria-metrics-operator:
-        operator:
-          disable_prometheus_converter: false
-
+        enabled: false
       vmsingle:
         enabled: true
         spec:
           retentionPeriod: "1" # 1 month
           replicaCount: 1
           storage:
-            storageClassName: "longhorn"
+            storageClassName: "longhorn-default"
             resources:
               requests:
                 storage: 40Gi
-
+        ingress:
+          enabled: false
       vmagent:
         enabled: true
         spec:
@@ -152,7 +201,6 @@ helm_applications:
           extraArgs:
             promscrape.streamParse: "true"
             promscrape.dropOriginalLabels: "true"
-
       grafana:
         enabled: true
         grafana.ini:
@@ -169,26 +217,9 @@ helm_applications:
             kubernetes.io/ingress.class: traefik
             traefik.ingress.kubernetes.io/router.entrypoints: websecure
             traefik.ingress.kubernetes.io/router.tls: "true"
-        sidecar:
-          dashboards:
-            enabled: true
-            label: grafana_dashboard
-          datasources:
-            enabled: true
-            label: grafana_datasource
-
+        vmServiceScrape:
+          enabled: true
       alertmanager:
-        enabled: false # Use Grafana alerting to save a pod
+        enabled: false
       vmalert:
         enabled: false
-
-      kubelet:
-        enabled: true
-      kubeApiServer:
-        enabled: true
-      kubeStateMetrics:
-        enabled: true
-      prometheus-node-exporter:
-        enabled: true
-      kubeDns: { enabled: false }
-      coreDns: { enabled: true }
