@@ -117,301 +117,78 @@ helm_applications:
           registry:
             size: 100Gi
 
-  # loki: Log aggregation system for Kubernetes
-  - name: loki
-    chart: loki
-    version: v10.2.0
-    repo: https://grafana-community.github.io/helm-charts/
-    namespace: loki
-    create_namespace: true
-    values_content: |
-      global:
-        dnsService: "rke2-coredns-rke2-coredns"
-      loki:
-        commonConfig:
-          replication_factor: 1
-        schemaConfig:
-          configs:
-            - from: "2024-04-01"
-              store: tsdb
-              object_store: s3
-              schema: v13
-              index:
-                prefix: loki_index_
-                period: 24h
-        storage_config:
-          aws:
-            region: us-east-1
-            bucketnames: loki-chunk
-            s3forcepathstyle: true
-        pattern_ingester:
-            enabled: true
-        limits_config:
-          allow_structured_metadata: true
-          volume_enabled: true
-          retention_period: 672h # 28 days retention
-        storage:
-          type: s3
-          bucketNames:
-              chunks: loki-chunk
-              ruler: loki-ruler
-              admin: loki-admin
-          s3:
-            endpoint: {{ s3_endpoint }}
-            region: us-east-1
-            secretAccessKey: {{ loki_token }}
-            accessKeyId: loki
-            signatureVersion: v4
-            s3ForcePathStyle: true
-            insecure: true
-      minio:
-        enabled: false
-      deploymentMode: SingleBinary
-      singleBinary:
-        replicas: 1
-        persistence:
-          storageClass: longhorn
-          accessModes:
-            - ReadWriteOnce
-          size: 30Gi
-      # Zero out replica counts of other deployment modes
-      backend:
-        replicas: 0
-      read:
-        replicas: 0
-      write:
-        replicas: 0
-      ingester:
-        replicas: 0
-      querier:
-        replicas: 0
-      queryFrontend:
-        replicas: 0
-      queryScheduler:
-        replicas: 0
-      distributor:
-        replicas: 0
-      compactor:
-        replicas: 0
-      indexGateway:
-        replicas: 0
-      bloomPlanner:
-        replicas: 0
-      bloomBuilder:
-        replicas: 0
-      bloomGateway:
-        replicas: 0
-
-  # mimir: Metrics aggregation system for Kubernetes
-  - name: mimir-distributed
-    chart: mimir-distributed
-    version: v6.0.6
-    repo: https://grafana.github.io/helm-charts
-    namespace: mimir
-    create_namespace: true
-    values_content: |
-      # Disable the many external cache deployments to save massive RAM
-      chunks-cache: { enabled: false }
-      index-cache: { enabled: false }
-      metadata-cache: { enabled: false }
-      results-cache: { enabled: false }
-
-      # Scale everything down to 1 replica
-      alertmanager:
-        replicas: 1
-        resources:
-          limits: { memory: 512Mi }
-          requests: { cpu: 100m, memory: 256Mi }
-      compactor:
-        replicas: 1
-        resources:
-          limits: { memory: 1Gi }
-          requests: { cpu: 200m, memory: 512Mi }
-      distributor:
-        replicas: 1
-        resources:
-          limits: { memory: 1Gi }
-          requests: { cpu: 200m, memory: 512Mi }
-      ingester:
-        replicas: 1
-        zoneAwareReplication: { enabled: false }
-        resources:
-          limits: { memory: 3Gi }
-          requests: { cpu: 500m, memory: 2Gi }
-      querier:
-        replicas: 1
-        resources:
-          limits: { memory: 1Gi }
-          requests: { cpu: 200m, memory: 512Mi }
-      query_frontend:
-        replicas: 1
-        resources:
-          limits: { memory: 512Mi }
-          requests: { cpu: 100m, memory: 256Mi }
-      ruler:
-        replicas: 1
-        resources:
-          limits: { memory: 512Mi }
-          requests: { cpu: 100m, memory: 256Mi }
-      store_gateway:
-        replicas: 1
-        resources:
-          limits: { memory: 1Gi }
-          requests: { cpu: 200m, memory: 512Mi }
-      gateway:
-        replicas: 1
-        resources:
-          limits: { memory: 256Mi }
-          requests: { cpu: 50m, memory: 128Mi }
-
-      minio:
-        enabled: false
-      mimir:
-        structuredConfig:
-          common:
-            storage:
-              backend: s3
-              s3:
-                endpoint: {{ s3_endpoint }}
-                region: us-east-1
-                access_key_id: "mimir"
-                secret_access_key: {{ mimir_token }}
-                http:
-                  insecure_skip_verify: true
-          blocks_storage:
-            s3:
-              bucket_name: mimir-blocks
-          alertmanager_storage:
-            s3:
-              bucket_name: mimir-alertmanager
-          ruler_storage:
-            s3:
-              bucket_name: mimir-ruler
-
-  # k8s-monitoring: Kubernetes monitoring stack with Alloy Operator
-  - name: k8s-monitoring
-    chart: k8s-monitoring
-    version: v4.0.0
-    repo: https://grafana.github.io/helm-charts
+  # victoria-metrics-k8s-stack: Metrics monitoring stack (VictoriaMetrics, Grafana, etc.)
+  - name: victoria-metrics-k8s-stack
+    chart: victoria-metrics-k8s-stack
+    version: v0.72.6
+    repo: https://victoriametrics.github.io/helm-charts
     namespace: monitoring
     create_namespace: true
     values_content: |
-      cluster:
-        name: management-cluster
-      destinations:
-        localPrometheus:
-          type: prometheus
-          url: http://mimir-distributor.mimir.svc:8080/api/v1/push
-          tenantId: "anonymous"
-        localLoki:
-          type: loki
-          url: http://loki.loki.svc:3100/loki/api/v1/push
-          tenantId: "1"
+      global:
+        clusterLabel: management-cluster
 
-      clusterMetrics:
-        enabled: true
-        collector: alloy-metrics
-      hostMetrics:
-        enabled: true
-        collector: alloy-metrics
-      clusterEvents:
-        enabled: true
-        collector: alloy-singleton
-      podLogsViaLoki:
-        enabled: true
-        collector: alloy-logs
-        structuredMetadata:
-          pod: ""
-      collectors:
-        alloy-metrics:
-          presets: [clustered, statefulset]
-        alloy-logs:
-          presets: [filesystem-log-reader, daemonset]
-        alloy-singleton:
-          presets: [singleton]
-      telemetryServices:
-        kube-state-metrics:
-          deploy: true
-        node-exporter:
-          deploy: true
+      victoria-metrics-operator:
+        operator:
+          disable_prometheus_converter: false
 
-  # grafana: Visualization and dashboarding for metrics and logs
-  - name: grafana
-    chart: grafana
-    version: v11.3.7
-    repo: https://grafana-community.github.io/helm-charts/
-    namespace: grafana
-    create_namespace: true
-    values_content: |
-      grafana.ini:
-        server:
-          domain: grafana.{{ ssl_local_domain }}
-          root_url: https://grafana.{{ ssl_local_domain }}
-          serve_from_sub_path: false
-      ingress:
+      vmsingle:
         enabled: true
-        hosts:
-          - "grafana.{{ ssl_local_domain }}"
-        path: /
-        annotations:
-          kubernetes.io/ingress.class: traefik
-          traefik.ingress.kubernetes.io/router.entrypoints: websecure
-          traefik.ingress.kubernetes.io/router.tls: "true"
+        spec:
+          retentionPeriod: "1" # 1 month
+          replicaCount: 1
+          storage:
+            storageClassName: "longhorn" 
+            resources:
+              requests:
+                storage: 40Gi
 
-      sidecar:
-        dashboards:
+      vmagent:
+        enabled: true
+        spec:
+          replicaCount: 1
+          scrapeInterval: 20s
+          # Drop original labels to save RAM as seen in your default
+          extraArgs:
+            promscrape.streamParse: "true"
+            promscrape.dropOriginalLabels: "true"
+
+      grafana:
+        enabled: true
+        grafana.ini:
+          server:
+            domain: grafana.{{ ssl_local_domain }}
+            root_url: https://grafana.{{ ssl_local_domain }}
+            serve_from_sub_path: false
+        ingress:
           enabled: true
-          label: grafana_dashboard
-        datasources:
-          enabled: true
-          label: grafana_datasource
-
-      datasources:
-        datasources.yaml:
-          apiVersion: 1
+          hosts:
+            - grafana.{{ ssl_local_domain }}
+          path: /
+          annotations:
+            kubernetes.io/ingress.class: traefik
+            traefik.ingress.kubernetes.io/router.entrypoints: websecure
+            traefik.ingress.kubernetes.io/router.tls: "true"
+        sidecar:
+          dashboards:
+            enabled: true
+            label: grafana_dashboard
           datasources:
-            - name: Prometheus
-              type: prometheus
-              uid: prometheus
-              url: http://mimir-query-frontend.mimir.svc:8080/prometheus
-              isDefault: true
-            - name: Loki
-              type: loki
-              uid: loki
-              url: http://loki.loki.svc:3100
+            enabled: true
+            label: grafana_datasource
 
-      dashboardProviders:
-        dashboardproviders.yaml:
-          apiVersion: 1
-          providers:
-            - name: 'default'
-              orgId: 1
-              folder: ''
-              type: file
-              disableDeletion: false
-              editable: true
-              options:
-                path: /var/lib/grafana/dashboards/default
+      alertmanager:
+        enabled: false # Use Grafana alerting to save a pod
+      vmalert:
+        enabled: false
 
-      dashboards:
-        default:
-          node-exporter:
-            gnetId: 1860
-            revision: 37
-            datasource: Prometheus
-          k8s-cluster:
-            gnetId: 17624
-            revision: 1
-            datasource: Prometheus
-          loki-logs:
-            gnetId: 12019
-            revision: 2
-            datasource:
-              - name: DS_PROMETHEUS
-                value: Prometheus
-              - name: DS_LOKI
-                value: Loki
-          mimir-health:
-            gnetId: 15414
-            revision: 3
-            datasource: Prometheus
+      kubelet:
+        enabled: true
+      kubeApiServer:
+        enabled: true
+      kubeStateMetrics:
+        enabled: true
+      prometheus-node-exporter:
+        enabled: true
+      kubeDns: { enabled: false }
+      coreDns: { enabled: true }
