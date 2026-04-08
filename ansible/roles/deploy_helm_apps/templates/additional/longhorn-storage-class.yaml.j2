@@ -13,7 +13,6 @@ parameters:
   numberOfReplicas: "3"
   staleReplicaTimeout: "2880"  # 2 days
   fromBackup: ""
-  dataLocality: best-effort
 ---
 # Fast storage class (1 replica, for ephemeral or cache volumes)
 apiVersion: storage.k8s.io/v1
@@ -25,6 +24,4 @@ allowVolumeExpansion: true
 reclaimPolicy: Delete
 parameters:
   numberOfReplicas: "1"
-  dataLocality: strict-local   # keep replica local to pod for lowest latency
-  replicaAutoBalance: "ignored"
   staleReplicaTimeout: "30"

@@ -59,7 +59,7 @@ helm_applications:
         backupTargetCredentialSecret: "longhorn-minio-credentials"
       persistence:
         defaultClass: true
-        defaultClassReplicaCount: 3
+        defaultClassReplicaCount: 1
         defaultDataLocality: best-effort
         reclaimPolicy: Delete
         migratable: false
@@ -134,7 +134,7 @@ helm_applications:
       persistence:
         persistentVolumeClaim:
           registry:
-            size: 100Gi
+            size: 60Gi
             storageClass: "longhorn-default"
           jobservice:
             size: 1Gi
@@ -149,6 +149,52 @@ helm_applications:
             size: 5Gi
             storageClass: "longhorn-fast"
 
+  # victoria-logs-single: Log aggregation and analysis (VictoriaLogs)
+  - name: victoria-logs-single
+    chart: victoria-logs-single
+    version: v0.11.31
+    repo: https://victoriametrics.github.io/helm-charts
+    namespace: monitoring
+    create_namespace: true
+    values_content: |
+      server:
+        service:
+          ClusterIP: ""
+        retentionPeriod: "1" # 1 month
+        persistentVolume:
+          storageClassName: "longhorn-default"
+          size: 40Gi
+        vmServiceScrape:
+          enabled: true
+          targetPort: http
+        ingress:
+          enabled: true
+          hosts:
+            - name: "logs.{{ ssl_local_domain }}"
+              path: /
+              port: http
+          annotations:
+            kubernetes.io/ingress.class: traefik
+            traefik.ingress.kubernetes.io/router.entrypoints: websecure
+            traefik.ingress.kubernetes.io/router.tls: "true"
+      dashboards:
+        enabled: true
+        labels:
+          grafana_dashboard: "1"
+    additional_manifests:
+      - victoria-logs-datasource
+
+  # victoria-logs-collector: Log collection agent (VictoriaLogs Agent)
+  - name: victoria-logs-collector
+    chart: victoria-logs-collector
+    version: v0.2.15
+    repo: https://victoriametrics.github.io/helm-charts
+    namespace: monitoring
+    create_namespace: true
+    values_content: |
+      remoteWrite:
+        - url: http://victoria-logs-single-server.monitoring.svc.cluster.local:9428
+
   # victoria-metrics-operator: Operator for managing VictoriaMetrics components
   - name: victoria-metrics-operator
     chart: victoria-metrics-operator
@@ -162,14 +208,6 @@ helm_applications:
       operator:
         disable_prometheus_converter: false
 
-  # prometheus-operator: Operator for managing Prometheus monitoring components
-  - name: prometheus-operator-crds
-    chart: prometheus-operator-crds
-    version: v28.0.1
-    repo: https://prometheus-community.github.io/helm-charts
-    namespace: operator-system
-    create_namespace: true
-
   # victoria-metrics-k8s-stack: Metrics monitoring stack (VictoriaMetrics, Grafana, etc.)
   - name: victoria-metrics-k8s-stack
     chart: victoria-metrics-k8s-stack
@@ -180,6 +218,8 @@ helm_applications:
     values_content: |
       victoria-metrics-operator:
         enabled: false
+      prometheus-operator-crds:
+        enabled: true
       vmsingle:
         enabled: true
         spec:
@@ -204,6 +244,8 @@ helm_applications:
       grafana:
         enabled: true
         grafana.ini:
+          plugins:
+            allow_loading_unsigned_plugins: victoriametrics-metrics-datasource,victoriametrics-logs-datasource
           server:
             domain: grafana.{{ ssl_local_domain }}
             root_url: https://grafana.{{ ssl_local_domain }}
@@ -219,6 +261,18 @@ helm_applications:
             traefik.ingress.kubernetes.io/router.tls: "true"
         vmServiceScrape:
           enabled: true
+        plugins:
+          - victoriametrics-metrics-datasource
+          - victoriametrics-logs-datasource
+        sidecar:
+          datasources:
+            enabled: true
+            label: grafana_datasource
+            labelValue: "1"
+            searchNamespace: ALL
+          dashboards:
+            enabled: true
+            searchNamespace: ALL
       alertmanager:
         enabled: false
       vmalert:
