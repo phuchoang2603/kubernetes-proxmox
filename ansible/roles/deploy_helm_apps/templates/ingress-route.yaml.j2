@@ -7,6 +7,7 @@ metadata:
 spec:
   entryPoints:
     - websecure
+    - web
   routes:
     - match: Host(`{{ item.ingress.host }}`) && PathPrefix(`/`)
       kind: Rule
