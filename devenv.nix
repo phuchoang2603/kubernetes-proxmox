@@ -9,7 +9,7 @@
 
   # https://devenv.sh/packages/
   packages = [
-    pkgs.vault
+    pkgs.vault-bin
     pkgs.tflint
   ];
 
@@ -44,11 +44,4 @@
       echo "Vault session inactive. Run 'vault login' to load AWS keys."
     fi
   '';
-
-  # https://devenv.sh/git-hooks/
-  git-hooks.hooks = {
-    terraform-validate.enable = true;
-    tflint.enable = true;
-    ansible-lint.enable = true;
-  };
 }

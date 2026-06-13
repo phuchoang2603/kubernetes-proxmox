@@ -114,41 +114,6 @@ helm_applications:
       service_name: argo-cd-argocd-server
       service_port: 80
 
-  # harbor: Container registry for storing and managing Docker images
-  - name: harbor
-    chart: harbor
-    version: v1.18.3
-    repo: https://helm.goharbor.io
-    namespace: harbor
-    create_namespace: true
-    values_content: |
-      expose:
-        type: ingress
-        ingress:
-          hosts:
-            core: "harbor.{{ ssl_local_domain }}"
-          annotations:
-            kubernetes.io/ingress.class: traefik
-            traefik.ingress.kubernetes.io/router.entrypoints: websecure
-            traefik.ingress.kubernetes.io/router.tls: "true"
-      persistence:
-        persistentVolumeClaim:
-          registry:
-            size: 60Gi
-            storageClass: "longhorn-default"
-          jobservice:
-            size: 1Gi
-            storageClass: "longhorn-fast"
-          database:
-            size: 1Gi
-            storageClass: "longhorn-default"
-          redis:
-            size: 1Gi
-            storageClass: "longhorn-fast"
-          trivy:
-            size: 5Gi
-            storageClass: "longhorn-fast"
-
   # victoria-logs-single: Log aggregation and analysis (VictoriaLogs)
   - name: victoria-logs-single
     chart: victoria-logs-single
@@ -195,19 +160,6 @@ helm_applications:
       remoteWrite:
         - url: http://victoria-logs-single-server.monitoring.svc.cluster.local:9428
 
-  # victoria-metrics-operator: Operator for managing VictoriaMetrics components
-  - name: victoria-metrics-operator
-    chart: victoria-metrics-operator
-    version: v0.59.3
-    repo: https://victoriametrics.github.io/helm-charts
-    namespace: operator-system
-    create_namespace: true
-    values_content: |
-      crds:
-        plain: true
-      operator:
-        disable_prometheus_converter: false
-
   # victoria-metrics-k8s-stack: Metrics monitoring stack (VictoriaMetrics, Grafana, etc.)
   - name: victoria-metrics-k8s-stack
     chart: victoria-metrics-k8s-stack
@@ -217,7 +169,7 @@ helm_applications:
     create_namespace: true
     values_content: |
       victoria-metrics-operator:
-        enabled: false
+        enabled: true
       prometheus-operator-crds:
         enabled: true
       vmsingle:
