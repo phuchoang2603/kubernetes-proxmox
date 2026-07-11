@@ -61,7 +61,7 @@ helm_applications:
         backupTargetCredentialSecret: "longhorn-minio-credentials"
       persistence:
         defaultClass: true
-        defaultClassReplicaCount: 1
+        defaultClassReplicaCount: 2
         defaultDataLocality: best-effort
         reclaimPolicy: Delete
         migratable: false
