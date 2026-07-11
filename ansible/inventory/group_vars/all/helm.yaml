@@ -80,22 +80,22 @@ helm_applications:
       - longhorn-recurringjob
 
   # external-secrets: Integrate external secret management systems
-  - name: external-secrets
-    chart: external-secrets
-    version: v2.2.0
-    repo: https://charts.external-secrets.io
-    namespace: external-secrets
-    create_namespace: true
-    values_content: |
-      installCRDs: true
-      metrics:
-        service:
-          enabled: true
-        serviceMonitor:
-          enabled: true
-    additional_manifests:
-      - external-secrets-rbac
-      - external-secrets-cluster-store
+  # - name: external-secrets
+  #   chart: external-secrets
+  #   version: v2.2.0
+  #   repo: https://charts.external-secrets.io
+  #   namespace: external-secrets
+  #   create_namespace: true
+  #   values_content: |
+  #     installCRDs: true
+  #     metrics:
+  #       service:
+  #         enabled: true
+  #       serviceMonitor:
+  #         enabled: true
+  #   additional_manifests:
+  #     - external-secrets-rbac
+  #     - external-secrets-cluster-store
 
   # argo-cd: GitOps continuous delivery tool
   - name: argo-cd
