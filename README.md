@@ -1,6 +1,6 @@
 # RKE2 Kubernetes on Proxmox with Terraform + Ansible
 
-This project automates the provisioning and configuration of an RKE2 Kubernetes cluster on Proxmox using Terraform and Ansible running on GitHub Actions ephemeral runners. Together with HashiCorp Vault, the project achieves a fully automated CI/CD pipeline with centralized secret management.
+This project automates the provisioning and configuration of an RKE2 Kubernetes cluster on Proxmox using Terraform and Ansible running on GitHub Actions ephemeral runners. Together with HashiCorp Vault, the project achieves a fully automated CI/CD pipeline with centralized secret and identity management.
 
 **Demo Video**:
 
